@@ -111,7 +111,9 @@ export default function Navbar() {
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-4">
             <a
-              href="#for-chefs"
+              href="https://local-cooks-community.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-mono text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300"
             >
               For Chefs
@@ -195,7 +197,9 @@ export default function Navbar() {
                 ))}
                 <hr className="border-[var(--color-cream-dark)] my-4" />
                 <a
-                  href="#for-chefs"
+                  href="https://local-cooks-community.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-mono text-[var(--color-charcoal-light)]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

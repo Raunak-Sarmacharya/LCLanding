@@ -6,7 +6,7 @@ const footerLinks = {
   company: [
     { name: 'About Us', href: '#about' },
     { name: 'How It Works', href: '#how-it-works' },
-    { name: 'For Chefs', href: '#for-chefs' },
+    { name: 'For Chefs', href: 'https://local-cooks-community.vercel.app/' },
     { name: 'Careers', href: '#careers' },
   ],
   support: [
@@ -182,6 +182,8 @@ export default function Footer() {
                 <li key={link.name}>
                   <a
                     href={link.href}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     className="font-body text-white/60 hover:text-[var(--color-primary)] transition-colors duration-300"
                   >
                     {link.name}

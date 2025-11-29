@@ -52,15 +52,15 @@ import './Testimonials.css'
  */
 const testimonials = [
   {
-    quote: "I love Emily's Waffles! I make it a Saturday ritual. The quality is unmatched — it's like having a personal chef next door.",
+    quote: "I love Emily's Waffles! I make it a Saturday ritual. The quality is unmatched — it's like having a culinary wizard next door.",
     colorClass: 'is-terracotta'
   },
   {
-    quote: "Best Shawarmas in town! Ordering from Safaa aunty feels like having a Lebanese grandmother cooking just for me.",
+    quote: "Best Shawarmas in town! Ordering from Safaa aunty feels like having a my own mother cooking just for me.",
     colorClass: 'is-deep-teal'
   },
   {
-    quote: "Local Cooks made it easy to start selling from home. I've reached new customers and felt supported every step of the way.",
+    quote: "This waffle was seriously good - perfect crispy yet fluffy, with the strawberry sauce being a perfect complement.",
     colorClass: 'is-wine'
   },
   {
