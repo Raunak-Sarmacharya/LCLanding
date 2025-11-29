@@ -333,7 +333,7 @@ export default function Hero() {
               <div 
                 ref={noodlesRef}
                 className="hero-food-parallax absolute top-1/4 -right-10 z-20 pointer-events-none select-none hidden lg:block"
-                style={{ width: '110px', height: '110px' }}
+                style={{ width: '122px', height: '122px' }}
               >
                 <img 
                   src="/food-noodles.png" 
@@ -346,8 +346,8 @@ export default function Hero() {
               {/* Wrap (bigger) - bottom left - moves DOWN */}
               <div 
                 ref={wrapRef}
-                className="hero-food-parallax absolute bottom-1/4 -left-14 z-20 pointer-events-none select-none hidden lg:block"
-                style={{ width: '105px', height: '105px' }}
+                className="hero-food-parallax absolute bottom-4 -left-16 z-20 pointer-events-none select-none hidden lg:block"
+                style={{ width: '115px', height: '115px' }}
               >
                 <img 
                   src="/food-wrap.png" 

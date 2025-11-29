@@ -120,9 +120,9 @@ export default function CanadaMap() {
           anticipatePin: 1,
           snap: {
             snapTo: 'labels', // Snap to timeline labels for distinct phases
-            duration: { min: 0.5, max: 1.2 }, // Longer snap duration = stronger pull
-            delay: 0.05, // Quick snap engagement
-            ease: 'power3.inOut', // Strong easing for decisive snap
+            duration: { min: 0.3, max: 1.0 }, // Faster, more responsive snap
+            delay: 0.02, // Faster snap engagement to reduce dead zone
+            ease: 'power2.inOut', // Stronger easing for more decisive snap
             inertia: false, // DISABLE inertia = much harder to "ram through"
             directional: false, // Snap regardless of scroll direction
           },
@@ -241,60 +241,80 @@ export default function CanadaMap() {
       // ========================================
       // TRANSITION TO PHASE 3: Live in St. John's
       // ========================================
+      // Matching the same smooth transition pattern as Phase 1→2:
+      // - Phase 2 fade out: 0.05 before label (ends 0.03 before Phase 3 fade in)
+      // - Phase 3 fade in: 0.05 before label (same pattern as Phase 2 fade in)
+      // - Both use duration 0.1 for consistency
 
-      // Phase 2 text fades out
+      // Phase 2 text fades out - starting earlier for quicker transition
+      // To match Phase 1→2 scroll distance (0.33), Phase 3 label should be at 0.66
+      // Phase 3 fade in starts at 0.61 (0.05 before label), so Phase 2 fade out should end at 0.58
+      // Phase 2 fade out: starts at 0.45, duration 0.1, ends at 0.55 (0.06 gap before Phase 3 at 0.61)
       tl.to(text2Ref.current, {
         autoAlpha: 0,
         y: -30,
-        duration: 0.08,
+        duration: 0.1, // Same duration as Phase 1 fade out
         ease: 'power2.in'
-      }, 0.55)
+      }, 0.38) // Starts at 0.45 (earlier), ends at 0.55, creating gap before Phase 3 starts at 0.61
 
-      // Add label for Phase 3 snap point - ALL elements appear here together
+      // Add label for Phase 3 snap point - positioned to match Phase 1→2 scroll distance
+      // Phase 1→2: 0.33 scroll distance, so Phase 2→3 should also be 0.33
+      // Phase 2 label at 0.33, so Phase 3 label at 0.66 (0.33 + 0.33 = 0.66)
       tl.addLabel('stjohns', 0.66)
 
-      // Phase 3 text fades in - AT the stjohns label
+      // Phase 3 text fades in - matching Phase 2 fade in pattern
+      // Positioned 0.05 before label (same as Phase 2 was before 'serving' label)
       tl.to(text3Ref.current, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.08,
+        duration: 0.1, // Same duration as Phase 2 fade in
         ease: 'power2.out'
-      }, 'stjohns')
+      }, 0.61) // 0.05 before label at 0.66, matching Phase 2 pattern
 
-      // Show marker with pop effect - AT the stjohns label (simultaneous)
+      // Show marker with pop effect - starts with Phase 3 text for smooth transition
       tl.to(markerRef.current, {
         autoAlpha: 1,
         scale: 1,
-        duration: 0.1,
+        duration: 0.12,
         ease: 'back.out(2)'
-      }, 'stjohns')
+      }, 0.61) // Same start time as text for coordinated appearance
 
-      // Show location label - AT the stjohns label (simultaneous)
+      // Show location label - simultaneous with Phase 3 text
       tl.to(labelRef.current, {
         autoAlpha: 1,
         y: 0,
         duration: 0.1,
         ease: 'power2.out'
-      }, 'stjohns')
+      }, 0.61) // Same start time as text
 
-      // Show stats bar - AT the stjohns label (simultaneous)
+      // Show stats bar - simultaneous with Phase 3 text
+      // Stats take 0.1s to appear, finishing at 0.71
       tl.to(statsRef.current, {
         autoAlpha: 1,
         y: 0,
         duration: 0.1,
         ease: 'power2.out'
-      }, 'stjohns')
+      }, 0.61) // Same start time as text, finishes at 0.71
 
-      // Add final label for end state (just past stjohns for natural exit)
-      tl.addLabel('end', 0.95)
+      // Add final label for end state - positioned right after stats are fully visible
+      // Stats finish at 0.71, so end label at 0.72 allows immediate transition to next section
+      tl.addLabel('end', 0.72)
 
-      // Hold at the end briefly
-      tl.to({}, { duration: 0.05 }, 0.95)
+      // Minimal hold at the end - just enough to register, then next section
+      tl.to({}, { duration: 0.03 }, 0.72)
 
     }, sectionRef)
 
+    // Handle window resize to refresh ScrollTrigger for responsive behavior
+    const handleResize = () => {
+      ScrollTrigger.refresh()
+    }
+
+    window.addEventListener('resize', handleResize)
+
     return () => {
       ctx.revert()
+      window.removeEventListener('resize', handleResize)
     }
   }, [isReady])
 
@@ -328,7 +348,7 @@ export default function CanadaMap() {
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
               Live in <span className="font-display text-[#f51042]">Canada</span>
             </h2>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 whitespace-nowrap">
+            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-2 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
               One community at a time
             </p>
           </div>
@@ -341,7 +361,7 @@ export default function CanadaMap() {
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
               Currently Serving
             </h2>
-            <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#f51042] mt-2 whitespace-nowrap">
+            <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#f51042] mt-2 pb-2 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
               St. John's, Newfoundland
             </p>
           </div>
@@ -354,14 +374,14 @@ export default function CanadaMap() {
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
               Live in <span className="font-display text-[#f51042]">St. John's</span>
             </h2>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 whitespace-nowrap">
+            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-2 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
               Growing what's next for local food
             </p>
           </div>
         </div>
 
-        {/* Map container - adjusted margin to account for header padding */}
-        <div className="relative w-full max-w-5xl h-[40vh] sm:h-[50vh] md:h-[60vh] mx-auto px-4 mt-16 sm:mt-20 md:mt-24">
+        {/* Map container - adjusted margin to account for header padding and subheading spacing */}
+        <div className="relative w-full max-w-5xl h-[40vh] sm:h-[50vh] md:h-[60vh] mx-auto px-4 mt-16 sm:mt-20 md:mt-24 lg:mt-28">
           {/* SVG container */}
           <div 
             ref={svgContainerRef}
@@ -396,41 +416,46 @@ export default function CanadaMap() {
           </div>
         </div>
 
-        {/* Location label card */}
+        {/* Location label card - visible on all screens with responsive positioning */}
         <div 
           ref={labelRef}
-          className="absolute z-30 hidden sm:block"
-          style={{ right: '5%', top: '30%' }}
+          className="absolute z-30"
+          style={{ 
+            right: 'clamp(2%, 5%, 5%)', 
+            top: 'clamp(25%, 30%, 30%)',
+            maxWidth: 'calc(100% - 1rem)'
+          }}
         >
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl px-4 sm:px-6 py-4 sm:py-5 border border-gray-100/50">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-2.5 h-2.5 bg-[#f51042] rounded-full animate-pulse" />
-              <span className="font-mono text-[11px] text-[#f51042] uppercase tracking-wider font-medium">Live Now</span>
+          <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 border border-gray-100/50 max-w-[140px] sm:max-w-none">
+            <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#f51042] rounded-full animate-pulse" />
+              <span className="font-mono text-[9px] sm:text-[10px] md:text-[11px] text-[#f51042] uppercase tracking-wider font-medium">Live Now</span>
             </div>
-            <div className="font-display text-2xl sm:text-3xl text-[#f51042] mb-0.5">St. John's</div>
-            <div className="text-xs sm:text-sm text-gray-500 font-medium">Newfoundland & Labrador</div>
+            <div className="font-display text-lg sm:text-2xl md:text-3xl text-[#f51042] mb-0.5">St. John's</div>
+            <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">Newfoundland & Labrador</div>
           </div>
         </div>
 
-        {/* Stats bar */}
+        {/* Stats bar - positioned to touch map on mobile, properly centered */}
         <div 
           ref={statsRef}
-          className="absolute bottom-12 sm:bottom-20 left-1/2 -translate-x-1/2 z-20"
+          className="absolute bottom-0 sm:bottom-2 md:bottom-8 lg:bottom-20 left-1/2 -translate-x-1/2 z-20"
+          style={{ width: 'max-content', maxWidth: 'calc(100% - 2rem)' }}
         >
-          <div className="flex gap-4 sm:gap-6 md:gap-10 bg-white/95 backdrop-blur-md rounded-full px-4 sm:px-6 md:px-10 py-3 sm:py-4 md:py-5 shadow-2xl border border-gray-100/50">
+          <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-10 bg-white/95 backdrop-blur-md rounded-full px-3 sm:px-4 md:px-6 lg:px-10 py-2 sm:py-3 md:py-4 lg:py-5 shadow-2xl border border-gray-100/50">
             <div className="text-center">
-              <div className="font-display text-2xl sm:text-3xl text-[#f51042]">1</div>
-              <div className="font-mono text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wider mt-1">City</div>
+              <div className="font-display text-xl sm:text-2xl md:text-3xl text-[#f51042]">1</div>
+              <div className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1">City</div>
             </div>
             <div className="w-px bg-gray-200/80" />
             <div className="text-center">
-              <div className="font-display text-2xl sm:text-3xl text-[#f51042]">15+</div>
-              <div className="font-mono text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wider mt-1">Local Chefs</div>
+              <div className="font-display text-xl sm:text-2xl md:text-3xl text-[#f51042]">15+</div>
+              <div className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1">Local Chefs</div>
             </div>
             <div className="w-px bg-gray-200/80" />
             <div className="text-center">
-              <div className="font-display text-2xl sm:text-3xl text-[#f51042]">150+</div>
-              <div className="font-mono text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wider mt-1">Happy Orders</div>
+              <div className="font-display text-xl sm:text-2xl md:text-3xl text-[#f51042]">150+</div>
+              <div className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1">Happy Orders</div>
             </div>
           </div>
         </div>
