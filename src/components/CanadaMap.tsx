@@ -339,7 +339,8 @@ export default function CanadaMap() {
         />
 
         {/* Dynamic Section Headers - Three phases with proper padding from nav */}
-        <div className="absolute top-16 sm:top-20 md:top-24 left-0 right-0 text-center z-10 px-4">
+        {/* Increased top spacing on mobile to create more gap between title and nav bar */}
+        <div className="absolute top-20 sm:top-20 md:top-24 left-0 right-0 text-center z-10 px-4">
           {/* Phase 1: Full Canada view */}
           <div ref={text1Ref} className="absolute inset-x-0 top-0">
             <p className="font-mono text-xs text-[#f51042] uppercase tracking-[0.3em] mb-3">
@@ -348,7 +349,7 @@ export default function CanadaMap() {
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
               Live in <span className="font-display text-[#f51042]">Canada</span>
             </h2>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-2 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
+            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-0 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
               One community at a time
             </p>
           </div>
@@ -361,7 +362,7 @@ export default function CanadaMap() {
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
               Currently Serving
             </h2>
-            <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#f51042] mt-2 pb-2 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
+            <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#f51042] mt-2 pb-0 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
               St. John's, Newfoundland
             </p>
           </div>
@@ -374,14 +375,15 @@ export default function CanadaMap() {
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
               Live in <span className="font-display text-[#f51042]">St. John's</span>
             </h2>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-2 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
+            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-0 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
               Growing what's next for local food
             </p>
           </div>
         </div>
 
         {/* Map container - adjusted margin to account for header padding and subheading spacing */}
-        <div className="relative w-full max-w-5xl h-[40vh] sm:h-[50vh] md:h-[60vh] mx-auto px-4 mt-16 sm:mt-20 md:mt-24 lg:mt-28">
+        {/* Further reduced margin-top on mobile to minimize gap between subheading and map */}
+        <div className="relative w-full max-w-5xl h-[40vh] sm:h-[50vh] md:h-[60vh] mx-auto px-4 mt-6 sm:mt-20 md:mt-24 lg:mt-28">
           {/* SVG container */}
           <div 
             ref={svgContainerRef}
@@ -436,11 +438,15 @@ export default function CanadaMap() {
           </div>
         </div>
 
-        {/* Stats bar - positioned to touch map on mobile, properly centered */}
+        {/* Stats bar - positioned significantly closer to map on mobile, properly centered */}
+        {/* Moved up from bottom on mobile to bring stats much closer to map */}
         <div 
           ref={statsRef}
-          className="absolute bottom-0 sm:bottom-2 md:bottom-8 lg:bottom-20 left-1/2 -translate-x-1/2 z-20"
-          style={{ width: 'max-content', maxWidth: 'calc(100% - 2rem)' }}
+          className="absolute bottom-20 sm:bottom-2 md:bottom-8 lg:bottom-20 left-1/2 -translate-x-1/2 z-20"
+          style={{ 
+            width: 'max-content', 
+            maxWidth: 'calc(100% - 2rem)'
+          }}
         >
           <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-10 bg-white/95 backdrop-blur-md rounded-full px-3 sm:px-4 md:px-6 lg:px-10 py-2 sm:py-3 md:py-4 lg:py-5 shadow-2xl border border-gray-100/50">
             <div className="text-center">
