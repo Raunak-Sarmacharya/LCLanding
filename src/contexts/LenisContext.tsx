@@ -2,7 +2,7 @@ import { createContext, useContext, ReactNode, RefObject } from 'react'
 import type { LenisRef } from 'lenis/react'
 
 interface LenisContextType {
-  lenisRef: RefObject<LenisRef> | null
+  lenisRef: RefObject<LenisRef | null> | null
 }
 
 export const LenisContext = createContext<LenisContextType>({ lenisRef: null })
@@ -14,7 +14,7 @@ export const useLenis = () => {
 }
 
 interface LenisProviderProps {
-  lenisRef: RefObject<LenisRef>
+  lenisRef: RefObject<LenisRef | null>
   children: ReactNode
 }
 

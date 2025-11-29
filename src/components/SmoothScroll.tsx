@@ -15,7 +15,7 @@ interface SmoothScrollProps {
 const SNAP_TO_TOP_THRESHOLD = 100
 
 export default function SmoothScroll({ children }: SmoothScrollProps) {
-  const lenisRef = useRef<LenisRef>(null)
+  const lenisRef = useRef<LenisRef | null>(null)
   const isSnappingRef = useRef(false)
   const scrollTimeoutRef = useRef<number | null>(null)
 

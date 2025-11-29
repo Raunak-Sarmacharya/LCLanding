@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import gsap from 'gsap'
 
 interface PreloaderProps {
@@ -227,7 +227,7 @@ export default function Preloader({ onComplete, minimumDuration = 3200 }: Preloa
                 height: '340px',
               }}
             >
-              {foodItems.map((food, index) => {
+              {foodItems.map((food) => {
                 const angleRad = (food.angle * Math.PI) / 180
                 const x = Math.cos(angleRad) * orbitRadius
                 const y = Math.sin(angleRad) * orbitRadius
