@@ -442,7 +442,7 @@ export default function CanadaMap() {
         {/* Moved up from bottom on mobile to bring stats much closer to map */}
         <div 
           ref={statsRef}
-          className="absolute bottom-20 sm:bottom-2 md:bottom-8 lg:bottom-20 left-1/2 -translate-x-1/2 z-20"
+          className="absolute bottom-30 sm:bottom-2 md:bottom-8 lg:bottom-20 left-1/2 -translate-x-1/2 z-20"
           style={{ 
             width: 'max-content', 
             maxWidth: 'calc(100% - 2rem)'
