@@ -37,6 +37,7 @@ export default function WaveDivider({
     <div 
       className={`wave-divider ${className}`}
       style={{ backgroundColor: bgColor }}
+      data-cursor-zone={direction === 'down' ? 'transition-to-dark' : 'transition-to-light'}
     >
       <div 
         className="wave-marquee-container"

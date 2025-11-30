@@ -213,22 +213,23 @@ export default function HowItWorks() {
   return (
     <section id="how-it-works" className="py-24 md:py-32 relative overflow-hidden">
       {/* Floating Food Decoration - Shrimp with 3D Parallax (like Done Drinks) */}
-      {/* Bigger size (260px) and z-50 to stay on top - Hidden on mobile/tablet */}
+      {/* HIDDEN on laptop and below (< 1536px) to prevent overlap with content */}
+      {/* Only visible on 2xl+ screens (1536px+) where there's enough space */}
       <div 
         ref={shrimpRef}
-        className="parallax-food absolute bottom-[10%] left-[2%] pointer-events-none select-none z-50 hidden xl:block"
+        className="parallax-food absolute bottom-[15%] left-[3%] pointer-events-none select-none z-10 hidden 2xl:block"
         style={{ 
-          width: '260px',
-          height: '260px',
+          width: 'clamp(160px, 14vw, 260px)',
+          height: 'clamp(160px, 14vw, 260px)',
           transformStyle: 'preserve-3d',
-          willChange: 'transform'
+          willChange: 'transform',
         }}
       >
         <img 
           src="/food-shrimp.png" 
           alt="" 
           className="w-full h-full object-contain"
-          style={{ filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.25))' }}
+          style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.2))' }}
           draggable={false}
         />
       </div>
@@ -237,7 +238,7 @@ export default function HowItWorks() {
       <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-cream)] via-[var(--color-butter)]/30 to-[var(--color-cream)]" />
       <div className="parallax-bg absolute top-1/4 right-0 w-80 h-80 bg-[var(--color-primary)]/5 rounded-full blur-3xl" />
 
-      <div ref={ref} className="max-w-7xl mx-auto px-4 sm:px-6 relative">
+      <div ref={ref} className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative w-full box-border">
         {/* Header */}
         <div className="text-center mb-12 sm:mb-16 md:mb-20">
           <motion.span
@@ -272,12 +273,15 @@ export default function HowItWorks() {
           </motion.p>
         </div>
 
-        {/* Steps */}
-        <div ref={stepsRef} className="relative">
-          {/* Connection line */}
-          <div className="connecting-line hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-primary)]/20 via-[var(--color-primary)]/40 to-[var(--color-primary)]/20 origin-left" />
+        {/* Steps - PRESERVE 4-column layout on all screens */}
+        {/* User requirement: Keep layout even on mobile - content scales down */}
+        {/* overflow-visible to allow step number badges to extend beyond cards without being clipped */}
+        <div ref={stepsRef} className="relative w-full max-w-full overflow-visible pr-2 sm:pr-3 md:pr-4 lg:pr-6">
+          {/* Connection line - show on larger screens */}
+          <div className="connecting-line hidden md:block absolute top-1/2 left-0 right-0 h-0.5 md:h-1 bg-gradient-to-r from-[var(--color-primary)]/20 via-[var(--color-primary)]/40 to-[var(--color-primary)]/20 origin-left" />
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {/* Grid maintains 4 columns on ALL screens - scales proportionally */}
+          <div className="grid grid-cols-4 gap-1 xs:gap-1.5 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
@@ -328,14 +332,14 @@ export default function HowItWorks() {
                 }}
               >
                 <motion.div 
-                  className="card-inner bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg shadow-black/5 border border-[var(--color-cream-dark)]/50 relative z-10 h-full"
+                  className="card-inner bg-white rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl p-2 sm:p-3 md:p-5 lg:p-8 shadow-md sm:shadow-lg shadow-black/5 border border-[var(--color-cream-dark)]/50 relative z-10 h-full min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[280px]"
                   style={{ 
                     transformStyle: 'preserve-3d',
                     willChange: 'transform',
                   }}
                   whileHover={{
-                    y: -8,
-                    scale: 1.02,
+                    y: -4,
+                    scale: 1.01,
                     transition: { 
                       duration: 0.4,
                       ease: [0.4, 0, 0.2, 1]
@@ -343,47 +347,48 @@ export default function HowItWorks() {
                   }}
                 >
                   {/* Subtle gradient overlay on hover */}
-                  <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[var(--color-primary)]/0 to-[var(--color-primary)]/0 group-hover:from-[var(--color-primary)]/3 group-hover:to-transparent transition-all duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl bg-gradient-to-br from-[var(--color-primary)]/0 to-[var(--color-primary)]/0 group-hover:from-[var(--color-primary)]/3 group-hover:to-transparent transition-all duration-500 pointer-events-none" />
                   
-                  {/* Elegant border glow on hover */}
-                  <div className="absolute inset-0 rounded-2xl sm:rounded-3xl border-2 border-transparent group-hover:border-[var(--color-primary)]/20 transition-all duration-500 pointer-events-none" />
+                  {/* Elegant border glow on hover - hidden on small screens */}
+                  <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl border border-transparent group-hover:border-[var(--color-primary)]/20 transition-all duration-500 pointer-events-none hidden sm:block" />
                   
-                  {/* Step number */}
-                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-[var(--color-primary)] rounded-full flex items-center justify-center font-mono text-sm text-white font-bold shadow-lg shadow-[var(--color-primary)]/30 z-20 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[var(--color-primary)]/40 transition-all duration-300">
+                  {/* Step number - responsive sizing */}
+                  <div className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 md:-top-3 md:-right-3 lg:-top-4 lg:-right-4 w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-[var(--color-primary)] rounded-full flex items-center justify-center font-mono text-[8px] sm:text-[10px] md:text-xs lg:text-sm text-white font-bold shadow-md sm:shadow-lg shadow-[var(--color-primary)]/30 z-20 group-hover:scale-105 transition-all duration-300">
                     {step.number}
                   </div>
 
-                  {/* Icon */}
-                  <div className="w-20 h-20 bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-coral)]/10 rounded-2xl flex items-center justify-center text-[var(--color-primary)] mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative z-10">
+                  {/* Icon - responsive sizing */}
+                  <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-coral)]/10 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center text-[var(--color-primary)] mb-1 sm:mb-2 md:mb-4 lg:mb-6 group-hover:scale-105 transition-all duration-500 relative z-10 [&_svg]:w-4 [&_svg]:h-4 sm:[&_svg]:w-6 sm:[&_svg]:h-6 md:[&_svg]:w-8 md:[&_svg]:h-8 lg:[&_svg]:w-10 lg:[&_svg]:h-10">
                     {step.icon}
                     {/* Subtle glow on icon hover */}
-                    <div className="absolute inset-0 rounded-2xl bg-[var(--color-primary)]/0 group-hover:bg-[var(--color-primary)]/10 transition-all duration-500 blur-xl" />
+                    <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl bg-[var(--color-primary)]/0 group-hover:bg-[var(--color-primary)]/10 transition-all duration-500 blur-xl hidden sm:block" />
                   </div>
 
                   {/* Content */}
                   <div className="relative z-10">
-                    <h3 className="font-heading text-xl text-[var(--color-charcoal)] mb-3 group-hover:text-[var(--color-primary)] transition-colors duration-300">
+                    <h3 className="font-heading text-[9px] sm:text-xs md:text-base lg:text-xl text-[var(--color-charcoal)] mb-0.5 sm:mb-1 md:mb-2 lg:mb-3 group-hover:text-[var(--color-primary)] transition-colors duration-300 leading-tight">
                       {step.title}
                     </h3>
-                    <p className="font-body text-[var(--color-charcoal-light)] leading-relaxed">
-                      {step.description}
+                    <p className="font-body text-[7px] sm:text-[9px] md:text-xs lg:text-base text-[var(--color-charcoal-light)] leading-snug sm:leading-relaxed hidden sm:block">
+                      <span className="hidden lg:inline">{step.description}</span>
+                      <span className="lg:hidden">{step.description.split('.')[0]}.</span>
                     </p>
                   </div>
                   
-                  {/* Subtle shadow enhancement on hover */}
+                  {/* Subtle shadow enhancement on hover - hidden on small screens */}
                   <div 
-                    className="absolute inset-0 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none hidden sm:block"
                     style={{
                       boxShadow: '0 20px 60px -15px rgba(245, 16, 66, 0.15)',
                     }}
                   />
                 </motion.div>
 
-                {/* Arrow connector for desktop */}
+                {/* Arrow connector - show on larger screens only */}
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:flex absolute top-1/2 -right-4 transform -translate-y-1/2 z-20">
-                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="hidden xl:flex absolute top-1/2 -right-2 md:-right-3 lg:-right-4 transform -translate-y-1/2 z-20">
+                    <div className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 bg-white rounded-full flex items-center justify-center shadow-md md:shadow-lg">
+                      <svg className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
@@ -394,14 +399,14 @@ export default function HowItWorks() {
           </div>
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA - properly contained */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center mt-16"
+          className="text-center mt-8 sm:mt-12 md:mt-16 w-full max-w-full px-4 sm:px-2"
         >
-          <div className="inline-block w-full max-w-2xl bg-[var(--color-primary)] rounded-3xl p-5 sm:p-6 md:p-7 shadow-xl shadow-[var(--color-primary)]/20 relative overflow-hidden">
+          <div className="inline-block w-[calc(100%-2rem)] sm:w-full max-w-2xl bg-[var(--color-primary)] rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-7 shadow-xl shadow-[var(--color-primary)]/20 relative overflow-hidden box-border mx-auto">
             {/* Emoji background decorations - similar to "Your Space" card */}
             <motion.div
               className="absolute -top-8 -right-8 text-7xl sm:text-8xl md:text-9xl opacity-20 select-none pointer-events-none"

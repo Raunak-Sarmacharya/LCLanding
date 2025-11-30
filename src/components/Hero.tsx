@@ -242,29 +242,30 @@ export default function Hero() {
       <div className="hero-orb parallax-slow absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-[var(--color-butter)] to-[var(--color-gold)]/30 rounded-full blur-3xl" />
       <div className="hero-orb parallax-fast absolute top-1/3 right-0 w-[500px] h-[500px] bg-[var(--color-primary)]/8 rounded-full blur-3xl animate-[pulse-soft_8s_ease-in-out_infinite]" />
 
-      {/* Main Content - Split Layout */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+      {/* Main Content - Split Layout - properly contained */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-x-clip">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-4 md:gap-6 lg:gap-10 items-center w-full max-w-full">
           {/* Left Side - Text Content */}
-          <div className="text-left lg:pr-8" style={{ transform: 'skewY(-1deg)' }}>
-            {/* Badge */}
-            <div className="hero-badge mb-6" style={{ transform: 'skewY(1deg)' }}>
-              <span className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full font-mono text-sm text-[var(--color-charcoal)] shadow-lg border border-[var(--color-primary)]/10">
-                <span className="relative flex h-2.5 w-2.5">
+          <div className="text-left sm:text-left lg:pr-8 col-span-1 order-2 sm:order-1" style={{ transform: 'skewY(-1deg)' }}>
+            {/* Badge - responsive sizing */}
+            <div className="hero-badge mb-3 sm:mb-4 md:mb-6" style={{ transform: 'skewY(1deg)' }}>
+              <span className="inline-flex items-center gap-2 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-3 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[10px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
+                <span className="relative flex h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[var(--color-primary)]"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 bg-[var(--color-primary)]"></span>
                 </span>
-                Now serving in St. John's, Newfoundland
+                <span className="hidden sm:inline">Now serving in St. John's, Newfoundland</span>
+                <span className="sm:hidden">Now in St. John's</span>
               </span>
             </div>
 
-            {/* Main Title with Typewriter */}
+            {/* Main Title with Typewriter - responsive sizing */}
             <h1
               ref={titleRef}
-              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-4 sm:mb-6"
+              className="font-heading text-2xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-3 sm:mb-3 md:mb-6"
               style={{ perspective: '1000px', transform: 'skewY(1deg)' }}
             >
-              <span className="block mb-2">{splitText('Your World of')}</span>
+              <span className="block mb-1 sm:mb-2">{splitText('Your World of')}</span>
               <TypewriterText
                 staticText="Local"
                 words={['Cooks', 'Company', 'Community']}
@@ -277,48 +278,57 @@ export default function Hero() {
               />
             </h1>
 
-            {/* Description */}
+            {/* Description - responsive sizing */}
             <p 
-              className="hero-description font-body text-sm sm:text-base md:text-lg lg:text-xl text-[var(--color-charcoal)]/80 max-w-xl mb-6 sm:mb-8 md:mb-10 leading-relaxed"
+              className="hero-description font-body text-sm sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-xl mb-4 sm:mb-5 md:mb-8 lg:mb-10 leading-relaxed sm:leading-relaxed"
               style={{ transform: 'skewY(1deg)' }}
             >
-              Discover authentic homemade meals from passionate local chefs.
-              <span className="text-[var(--color-primary)] font-medium"> Fresh ingredients,</span> cultural diversity, and
-              <span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
+              <span className="hidden sm:inline">
+                Discover authentic homemade meals from passionate local chefs.
+                <span className="text-[var(--color-primary)] font-medium"> Fresh ingredients,</span> cultural diversity, and
+                <span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
+              </span>
+              <span className="sm:hidden">
+                Authentic homemade meals from passionate local chefs.
+                <span className="text-[var(--color-primary)] font-medium"> Fresh,</span> diverse, and
+                <span className="text-[var(--color-gold)] font-medium"> delivered to you.</span>
+              </span>
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-4" style={{ transform: 'skewY(1deg)' }}>
+            {/* CTA Buttons - responsive sizing */}
+            <div className="flex flex-row items-center gap-3 sm:gap-2 md:gap-4" style={{ transform: 'skewY(1deg)' }}>
               <a
                 href="https://localcook.shop/app/index.php"
-                className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-8 py-4 rounded-full font-body font-semibold text-base transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 flex items-center justify-center gap-2.5 shadow-lg shadow-[var(--color-primary)]/25 hover:shadow-xl hover:shadow-[var(--color-primary)]/35"
+                className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-4 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-semibold text-xs sm:text-[10px] md:text-sm lg:text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 sm:gap-1.5 md:gap-2.5 shadow-lg sm:shadow-lg shadow-[var(--color-primary)]/25"
               >
-                Start Ordering
-                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden sm:inline">Start Ordering</span>
+                <span className="sm:hidden">Order Now</span>
+                <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
               <a
                 href="#how-it-works"
-                className="hero-cta group flex items-center justify-center gap-2.5 px-8 py-4 rounded-full font-body font-medium text-[var(--color-charcoal)] border border-[var(--color-charcoal)]/15 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90"
+                className="hero-cta group flex items-center justify-center gap-2 sm:gap-1.5 md:gap-2.5 px-4 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-medium text-xs sm:text-[10px] md:text-sm lg:text-base text-[var(--color-charcoal)] border border-[var(--color-charcoal)]/15 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90"
               >
-                <svg className="w-4 h-4 text-[var(--color-charcoal-light)] group-hover:text-[var(--color-primary)] transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-[var(--color-charcoal-light)] group-hover:text-[var(--color-primary)] transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                See How It Works
+                <span className="hidden sm:inline">See How It Works</span>
+                <span className="sm:hidden">Learn More</span>
               </a>
             </div>
 
           </div>
 
           {/* Right Side - Chef Image */}
-          <div ref={imageRef} className="relative flex justify-center lg:justify-end">
+          <div ref={imageRef} className="relative flex justify-center sm:justify-center lg:justify-end col-span-1 order-1 sm:order-2">
             <div className="hero-image-container hero-image-parallax relative">
               {/* Decorative food images with minimal parallax - Hidden on mobile/tablet to prevent overlap */}
               {/* Cake (bigger) - top left - moves UP */}
               <div 
                 ref={cakeRef}
-                className="hero-food-parallax absolute -top-6 -left-12 z-20 pointer-events-none select-none hidden lg:block"
+                className="hero-food-parallax absolute -top-6 left-0 lg:-left-8 xl:-left-12 z-20 pointer-events-none select-none hidden lg:block"
                 style={{ width: '100px', height: '100px' }}
               >
                 <img 
@@ -332,7 +342,7 @@ export default function Hero() {
               {/* Noodles (bigger) - top right - moves UP */}
               <div 
                 ref={noodlesRef}
-                className="hero-food-parallax absolute top-1/4 -right-10 z-20 pointer-events-none select-none hidden lg:block"
+                className="hero-food-parallax absolute top-1/4 right-0 lg:-right-6 xl:-right-10 z-20 pointer-events-none select-none hidden lg:block"
                 style={{ width: '122px', height: '122px' }}
               >
                 <img 
@@ -346,7 +356,7 @@ export default function Hero() {
               {/* Wrap (bigger) - bottom left - moves DOWN */}
               <div 
                 ref={wrapRef}
-                className="hero-food-parallax absolute bottom-4 -left-16 z-20 pointer-events-none select-none hidden lg:block"
+                className="hero-food-parallax absolute bottom-4 left-0 lg:-left-10 xl:-left-16 z-20 pointer-events-none select-none hidden lg:block"
                 style={{ width: '115px', height: '115px' }}
               >
                 <img 
@@ -358,8 +368,8 @@ export default function Hero() {
                 />
               </div>
 
-              {/* Main Image Container */}
-              <div className="relative w-[250px] h-[330px] sm:w-[300px] sm:h-[400px] md:w-[380px] md:h-[500px] lg:w-[420px] lg:h-[540px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/15">
+              {/* Main Image Container - responsive sizing to preserve layout */}
+              <div className="relative w-[200px] h-[260px] sm:w-[180px] sm:h-[240px] md:w-[280px] md:h-[380px] lg:w-[360px] lg:h-[480px] xl:w-[420px] xl:h-[540px] rounded-2xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-xl sm:shadow-xl md:shadow-2xl shadow-black/15">
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/20 via-transparent to-transparent z-[1]" />
                 
@@ -371,26 +381,26 @@ export default function Hero() {
                 />
                 
                 {/* Decorative border glow */}
-                <div className="absolute inset-0 rounded-[2.5rem] border-4 border-white/20 pointer-events-none" />
+                <div className="absolute inset-0 rounded-xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] border-2 sm:border-3 md:border-4 border-white/20 pointer-events-none" />
               </div>
 
               {/* Background decorative shape */}
-              <div className="absolute -z-10 top-8 -right-8 w-full h-full bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-coral)]/10 rounded-[2.5rem] transform rotate-3" />
+              <div className="absolute -z-10 top-3 sm:top-4 md:top-8 right-0 sm:-right-2 md:-right-4 w-[95%] sm:w-full h-full bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-coral)]/10 rounded-2xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] transform rotate-3" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator - Hidden on mobile */}
-      <div className="scroll-indicator absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 hidden sm:flex">
-        <span className="font-mono text-xs text-[var(--color-charcoal-light)] uppercase tracking-widest">
+      {/* Scroll Indicator - Hidden on small screens */}
+      <div className="scroll-indicator absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1 sm:gap-2 hidden md:flex">
+        <span className="font-mono text-[8px] sm:text-[10px] md:text-xs text-[var(--color-charcoal-light)] uppercase tracking-widest">
           Scroll to explore
         </span>
-        <div className="w-6 h-10 border-2 border-[var(--color-charcoal-light)] rounded-full flex items-start justify-center p-1">
+        <div className="w-4 h-7 sm:w-5 sm:h-8 md:w-6 md:h-10 border-2 border-[var(--color-charcoal-light)] rounded-full flex items-start justify-center p-0.5 sm:p-1">
           <motion.div
-            animate={{ y: [0, 12, 0] }}
+            animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-1.5 h-1.5 bg-[var(--color-primary)] rounded-full"
+            className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[var(--color-primary)] rounded-full"
           />
         </div>
       </div>

@@ -12,8 +12,59 @@ const FULL_CANADA_VIEW = { x: 40, y: 260, w: 750, h: 750 }
 // The island is roughly at x: 730-790, y: 870-950
 const NEWFOUNDLAND_VIEW = { x: 740, y: 900, w: 60, h: 80 }
 
-// St. John's approximate coordinates in SVG space (eastern tip of Newfoundland island)
-const ST_JOHNS_COORDS = { x: 778.5, y: 957 }
+// ============================================================================
+// ST. JOHN'S MARKER POSITION - EDIT HERE TO ADJUST ON ALL SCREEN SIZES
+// ============================================================================
+// These are SVG coordinates for St. John's location on the Newfoundland map.
+// Increase x to move RIGHT, decrease x to move LEFT
+// Increase y to move DOWN, decrease y to move UP
+// The marker should be at the eastern tip of the Avalon Peninsula (rightmost point)
+const ST_JOHNS_COORDS = { x: 790, y: 958 }
+
+// Helper function to calculate marker position accounting for SVG preserveAspectRatio
+function calculateMarkerPosition(
+  _svgElement: SVGSVGElement,
+  containerElement: HTMLDivElement,
+  viewBox: { x: number; y: number; w: number; h: number },
+  targetCoords: { x: number; y: number }
+): { x: number; y: number } {
+  // Get the actual rendered dimensions of the container
+  const containerRect = containerElement.getBoundingClientRect()
+  
+  // Calculate the aspect ratios
+  const viewBoxAspect = viewBox.w / viewBox.h
+  const containerAspect = containerRect.width / containerRect.height
+  
+  // Determine the actual rendered size and offset due to preserveAspectRatio="xMidYMid meet"
+  let renderedWidth: number, renderedHeight: number
+  let offsetX = 0, offsetY = 0
+  
+  if (containerAspect > viewBoxAspect) {
+    // Container is wider than viewBox - SVG is height-constrained
+    renderedHeight = containerRect.height
+    renderedWidth = renderedHeight * viewBoxAspect
+    offsetX = (containerRect.width - renderedWidth) / 2
+  } else {
+    // Container is taller than viewBox - SVG is width-constrained
+    renderedWidth = containerRect.width
+    renderedHeight = renderedWidth / viewBoxAspect
+    offsetY = (containerRect.height - renderedHeight) / 2
+  }
+  
+  // Calculate the position of the target within the viewBox (0-1 range)
+  const normalizedX = (targetCoords.x - viewBox.x) / viewBox.w
+  const normalizedY = (targetCoords.y - viewBox.y) / viewBox.h
+  
+  // Calculate the actual pixel position within the container
+  const pixelX = offsetX + (normalizedX * renderedWidth)
+  const pixelY = offsetY + (normalizedY * renderedHeight)
+  
+  // Convert to percentage of container
+  const percentX = (pixelX / containerRect.width) * 100
+  const percentY = (pixelY / containerRect.height) * 100
+  
+  return { x: percentX, y: percentY }
+}
 
 export default function CanadaMap() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -109,41 +160,48 @@ export default function CanadaMap() {
       gsap.set(text2Ref.current, { autoAlpha: 0, y: 20 })
       gsap.set(text3Ref.current, { autoAlpha: 0, y: 20 })
 
-      // Create main timeline with ScrollTrigger and STRONG SNAP to phases
+      // Define EVENLY DISTRIBUTED snap points for balanced phase transitions
+      // Phase 1: 0 (Canada overview)
+      // Phase 2: 0.5 (Currently Serving - mid zoom) - CENTERED for equal scroll distance both ways
+      // Phase 3: 1.0 (St. John's fully zoomed)
+      // This ensures: 0→0.5 = 50% scroll, 0.5→1 = 50% scroll (SYMMETRIC!)
+      const snapPoints = [0, 0.5, 1]
+
+      // Create main timeline with ScrollTrigger and balanced snap behavior
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: '+=350%', // Even longer scroll distance for stronger snap zones
-          scrub: 0.5, // Lower scrub = more responsive to snap
+          end: '+=300%', // Optimized scroll distance for 3 phases
+          scrub: 0.8, // Slightly higher scrub for smoother animation
           pin: containerRef.current,
           anticipatePin: 1,
+          invalidateOnRefresh: true, // Recalculate on resize for responsive behavior
           snap: {
-            snapTo: 'labels', // Snap to timeline labels for distinct phases
-            duration: { min: 0.3, max: 1.0 }, // Faster, more responsive snap
-            delay: 0.02, // Faster snap engagement to reduce dead zone
-            ease: 'power2.inOut', // Stronger easing for more decisive snap
-            inertia: false, // DISABLE inertia = much harder to "ram through"
-            directional: false, // Snap regardless of scroll direction
+            snapTo: snapPoints, // Evenly distributed for balanced transitions
+            duration: { min: 0.3, max: 0.8 }, // Smooth snap animation
+            delay: 0.15, // Increased delay to prevent jitter during direction changes
+            ease: 'power3.out', // Smoother easing for premium feel
+            directional: true, // Snap in scroll direction
           },
         }
       })
 
       // ========================================
-      // PHASE 1: Canada Overview
+      // PHASE 1: Canada Overview (progress 0)
       // ========================================
-      tl.addLabel('canada')
+      tl.addLabel('canada', 0)
 
-      // Phase 1: Animate the viewBox zoom (0 to 0.6 of timeline)
+      // Zoom animation spans from 0 to 0.85 (completing just before phase 3 UI fully appears)
       tl.to(viewBoxRef.current, {
         x: NEWFOUNDLAND_VIEW.x,
         y: NEWFOUNDLAND_VIEW.y,
         w: NEWFOUNDLAND_VIEW.w,
         h: NEWFOUNDLAND_VIEW.h,
-        duration: 0.6,
+        duration: 0.85,
         ease: 'power2.inOut',
         onUpdate: () => {
-          if (!svg) return
+          if (!svg || !svgContainerRef.current) return
           
           const vb = viewBoxRef.current
           svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`)
@@ -151,21 +209,24 @@ export default function CanadaMap() {
           // Calculate zoom progress (0 to 1)
           const zoomProgress = (FULL_CANADA_VIEW.w - vb.w) / (FULL_CANADA_VIEW.w - NEWFOUNDLAND_VIEW.w)
 
-          // Update marker position based on current viewBox
-          if (markerRef.current) {
-            const markerX = ((ST_JOHNS_COORDS.x - vb.x) / vb.w) * 100
-            const markerY = ((ST_JOHNS_COORDS.y - vb.y) / vb.h) * 100
-            markerRef.current.style.left = `${markerX}%`
-            markerRef.current.style.top = `${markerY}%`
+          // Update marker position using accurate calculation that accounts for aspect ratio
+          if (markerRef.current && svgContainerRef.current) {
+            const position = calculateMarkerPosition(
+              svg,
+              svgContainerRef.current,
+              vb,
+              ST_JOHNS_COORDS
+            )
+            markerRef.current.style.left = `${position.x}%`
+            markerRef.current.style.top = `${position.y}%`
           }
 
           // ========================================
-          // STROKE & OPACITY LOGIC - Keep vivid through Phase 1
+          // STROKE & OPACITY LOGIC - Progressive reveal
           // ========================================
           
           // PHASE 1 (0-40% zoom): Keep map fully vivid - no changes
           if (zoomProgress <= 0.4) {
-            // Keep everything at initial vivid state
             allPaths.forEach(path => {
               path.setAttribute('opacity', '1')
               path.setAttribute('stroke-width', '1.5')
@@ -173,148 +234,152 @@ export default function CanadaMap() {
           }
           // PHASE 2 (40-70% zoom): Start fading other provinces slightly
           else if (zoomProgress <= 0.7) {
-            const fadeProgress = (zoomProgress - 0.4) / 0.3 // 0 to 1 from 40% to 70%
+            const fadeProgress = (zoomProgress - 0.4) / 0.3
             allPaths.forEach(path => {
               if (path.id !== 'CA-NL') {
-                // Gradually reduce opacity and stroke for other provinces
-                const opacity = 1 - (fadeProgress * 0.3) // Goes from 1 to 0.7
-                const stroke = 1.5 - (fadeProgress * 0.5) // Goes from 1.5 to 1.0
+                const opacity = 1 - (fadeProgress * 0.3)
+                const stroke = 1.5 - (fadeProgress * 0.5)
                 path.setAttribute('opacity', `${opacity}`)
                 path.setAttribute('stroke-width', `${stroke}`)
               } else {
-                // Keep Newfoundland vivid
                 path.setAttribute('opacity', '1')
                 path.setAttribute('stroke-width', '1.5')
               }
             })
           }
-          // PHASE 3 (70-100% zoom): Fully mute other provinces, Newfoundland stays vivid
+          // PHASE 3 (70-100% zoom): Mute other provinces, Newfoundland stays vivid
           else {
-            const muteProgress = (zoomProgress - 0.7) / 0.3 // 0 to 1 from 70% to 100%
+            const muteProgress = (zoomProgress - 0.7) / 0.3
             allPaths.forEach(path => {
               if (path.id !== 'CA-NL') {
-                // Fade out other provinces more aggressively
-                const opacity = 0.7 - (muteProgress * 0.4) // Goes from 0.7 to 0.3
-                const stroke = 1.0 - (muteProgress * 0.6) // Goes from 1.0 to 0.4
+                const opacity = 0.7 - (muteProgress * 0.4)
+                const stroke = 1.0 - (muteProgress * 0.6)
                 path.setAttribute('opacity', `${Math.max(0.3, opacity)}`)
                 path.setAttribute('stroke-width', `${Math.max(0.3, stroke)}`)
               }
             })
-            // Keep Newfoundland prominent and even slightly bolder
             if (nfPath) {
               nfPath.setAttribute('opacity', '1')
-              nfPath.setAttribute('stroke-width', `${0.5 + muteProgress * 0.3}`) // Gets bolder: 1.5 to 1.8
+              nfPath.setAttribute('stroke-width', `${0.5 + muteProgress * 0.3}`)
             }
           }
         }
       }, 0)
 
       // ========================================
-      // TRANSITION TO PHASE 2: Currently Serving
+      // TRANSITION TO PHASE 2: Currently Serving (snap point at 0.5)
       // ========================================
       
-      // Phase 1 text fades out
+      // Phase 1 text fades out before phase 2 snap point
       tl.to(text1Ref.current, {
         autoAlpha: 0,
         y: -30,
         duration: 0.1,
         ease: 'power2.in'
-      }, 0.15)
+      }, 0.30)
 
-      // Hide scroll hint
+      // Hide scroll hint early
       tl.to(scrollHintRef.current, {
         autoAlpha: 0,
         duration: 0.1,
-      }, 0.15)
+      }, 0.30)
 
-      // Add label for Phase 2 snap point
-      tl.addLabel('serving', 0.33)
+      // Add label for Phase 2 snap point (CENTERED at 0.5 for symmetry)
+      tl.addLabel('serving', 0.5)
 
-      // Phase 2 text fades in
+      // Phase 2 text fades in just before snap point for seamless transition
       tl.to(text2Ref.current, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.1,
+        duration: 0.12,
         ease: 'power2.out'
-      }, 0.28)
+      }, 0.42)
 
       // ========================================
-      // TRANSITION TO PHASE 3: Live in St. John's
+      // TRANSITION TO PHASE 3: Live in St. John's (snap point at 1.0)
       // ========================================
-      // Matching the same smooth transition pattern as Phase 1→2:
-      // - Phase 2 fade out: 0.05 before label (ends 0.03 before Phase 3 fade in)
-      // - Phase 3 fade in: 0.05 before label (same pattern as Phase 2 fade in)
-      // - Both use duration 0.1 for consistency
+      // IMPORTANT: Timing mirrors Phase 1→2 transition for consistent feel
+      // Phase 1→2: fade out at 0.30 (ends ~0.40), fade in at 0.42 (gap: 0.02)
+      // Phase 2→3: fade out at 0.64 (ends ~0.74), fade in at 0.76 (gap: 0.02)
 
-      // Phase 2 text fades out - starting earlier for quicker transition
-      // To match Phase 1→2 scroll distance (0.33), Phase 3 label should be at 0.66
-      // Phase 3 fade in starts at 0.61 (0.05 before label), so Phase 2 fade out should end at 0.58
-      // Phase 2 fade out: starts at 0.45, duration 0.1, ends at 0.55 (0.06 gap before Phase 3 at 0.61)
+      // Phase 2 text fades out - earlier for breathing room
       tl.to(text2Ref.current, {
         autoAlpha: 0,
         y: -30,
-        duration: 0.1, // Same duration as Phase 1 fade out
+        duration: 0.1,
         ease: 'power2.in'
-      }, 0.38) // Starts at 0.45 (earlier), ends at 0.55, creating gap before Phase 3 starts at 0.61
+      }, 0.64)
 
-      // Add label for Phase 3 snap point - positioned to match Phase 1→2 scroll distance
-      // Phase 1→2: 0.33 scroll distance, so Phase 2→3 should also be 0.33
-      // Phase 2 label at 0.33, so Phase 3 label at 0.66 (0.33 + 0.33 = 0.66)
-      tl.addLabel('stjohns', 0.66)
-
-      // Phase 3 text fades in - matching Phase 2 fade in pattern
-      // Positioned 0.05 before label (same as Phase 2 was before 'serving' label)
+      // Phase 3 text fades in - after breathing room gap
       tl.to(text3Ref.current, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.1, // Same duration as Phase 2 fade in
+        duration: 0.12,
         ease: 'power2.out'
-      }, 0.61) // 0.05 before label at 0.66, matching Phase 2 pattern
+      }, 0.76)
 
-      // Show marker with pop effect - starts with Phase 3 text for smooth transition
+      // Show marker with pop effect - staggered after text
       tl.to(markerRef.current, {
         autoAlpha: 1,
         scale: 1,
         duration: 0.12,
         ease: 'back.out(2)'
-      }, 0.61) // Same start time as text for coordinated appearance
+      }, 0.80)
 
-      // Show location label - simultaneous with Phase 3 text
+      // Show location label - staggered
       tl.to(labelRef.current, {
         autoAlpha: 1,
         y: 0,
         duration: 0.1,
         ease: 'power2.out'
-      }, 0.61) // Same start time as text
+      }, 0.84)
 
-      // Show stats bar - simultaneous with Phase 3 text
-      // Stats take 0.1s to appear, finishing at 0.71
+      // Show stats bar - finishes by 0.96 so it's fully visible at snap to 1.0
       tl.to(statsRef.current, {
         autoAlpha: 1,
         y: 0,
         duration: 0.1,
         ease: 'power2.out'
-      }, 0.61) // Same start time as text, finishes at 0.71
+      }, 0.88)
 
-      // Add final label for end state - positioned right after stats are fully visible
-      // Stats finish at 0.71, so end label at 0.72 allows immediate transition to next section
-      tl.addLabel('end', 0.72)
+      // Add final label at exactly 1.0 for the snap point
+      tl.addLabel('end', 1.0)
 
-      // Minimal hold at the end - just enough to register, then next section
-      tl.to({}, { duration: 0.03 }, 0.72)
+      // Ensure timeline reaches exactly 1.0 with a brief hold
+      tl.to({}, { duration: 0.02 }, 0.98)
 
     }, sectionRef)
 
-    // Handle window resize to refresh ScrollTrigger for responsive behavior
+    // Handle window resize to refresh ScrollTrigger and recalculate marker position
     const handleResize = () => {
       ScrollTrigger.refresh()
+      
+      // Recalculate marker position on resize for responsive accuracy
+      if (svg && svgContainerRef.current && markerRef.current) {
+        const position = calculateMarkerPosition(
+          svg,
+          svgContainerRef.current,
+          viewBoxRef.current,
+          ST_JOHNS_COORDS
+        )
+        markerRef.current.style.left = `${position.x}%`
+        markerRef.current.style.top = `${position.y}%`
+      }
     }
 
-    window.addEventListener('resize', handleResize)
+    // Debounced resize for performance
+    let resizeTimeout: ReturnType<typeof setTimeout>
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(handleResize, 100)
+    }
+
+    window.addEventListener('resize', debouncedResize)
 
     return () => {
       ctx.revert()
-      window.removeEventListener('resize', handleResize)
+      clearTimeout(resizeTimeout)
+      window.removeEventListener('resize', debouncedResize)
     }
   }, [isReady])
 
@@ -323,7 +388,7 @@ export default function CanadaMap() {
       ref={sectionRef}
       id="location"
       className="relative bg-[var(--color-cream)]"
-      style={{ minHeight: '350vh' }}
+      style={{ minHeight: '300vh' }}
     >
       <div 
         ref={containerRef}
@@ -339,56 +404,56 @@ export default function CanadaMap() {
         />
 
         {/* Dynamic Section Headers - Three phases with proper padding from nav */}
-        {/* Increased top spacing on mobile to create more gap between title and nav bar */}
-        <div className="absolute top-20 sm:top-20 md:top-24 left-0 right-0 text-center z-10 px-4">
+        {/* Mobile: clearance from navbar (top-20), closer to map */}
+        <div className="absolute top-20 sm:top-20 md:top-20 lg:top-20 xl:top-24 left-0 right-0 text-center z-10 px-2 sm:px-4 max-w-full overflow-x-clip box-border">
           {/* Phase 1: Full Canada view */}
           <div ref={text1Ref} className="absolute inset-x-0 top-0">
-            <p className="font-mono text-xs text-[#f51042] uppercase tracking-[0.3em] mb-3">
+            <p className="font-mono text-xs sm:text-[10px] md:text-xs text-[#f51042] uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2 md:mb-3">
               Where We Are
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
+            <h2 className="font-heading text-4xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl text-[var(--color-charcoal)]">
               Live in <span className="font-display text-[#f51042]">Canada</span>
             </h2>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-0 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
+            <p className="font-heading text-base sm:text-sm md:text-lg lg:text-xl xl:text-2xl text-[var(--color-charcoal)]/60 mt-1 sm:mt-2 md:mt-3">
               One community at a time
             </p>
           </div>
 
           {/* Phase 2: Transitioning zoom */}
           <div ref={text2Ref} className="absolute inset-x-0 top-0">
-            <p className="font-mono text-xs text-[#f51042] uppercase tracking-[0.3em] mb-3">
+            <p className="font-mono text-xs sm:text-[10px] md:text-xs text-[#f51042] uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2 md:mb-3">
               Right Now
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
+            <h2 className="font-heading text-4xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl text-[var(--color-charcoal)]">
               Currently Serving
             </h2>
-            <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#f51042] mt-2 pb-0 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
+            <p className="font-display text-xl sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl text-[#f51042] mt-1 sm:mt-2">
               St. John's, Newfoundland
             </p>
           </div>
 
           {/* Phase 3: Final zoomed state */}
           <div ref={text3Ref} className="absolute inset-x-0 top-0">
-            <p className="font-mono text-xs text-[#f51042] uppercase tracking-[0.3em] mb-3">
+            <p className="font-mono text-xs sm:text-[10px] md:text-xs text-[#f51042] uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2 md:mb-3">
               Live Today
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)]">
+            <h2 className="font-heading text-4xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl text-[var(--color-charcoal)]">
               Live in <span className="font-display text-[#f51042]">St. John's</span>
             </h2>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-[var(--color-charcoal)]/60 mt-2 sm:mt-3 pb-0 sm:pb-3 md:pb-4 lg:pb-0 whitespace-nowrap">
+            <p className="font-heading text-base sm:text-sm md:text-lg lg:text-xl xl:text-2xl text-[var(--color-charcoal)]/60 mt-1 sm:mt-2 md:mt-3">
               Growing what's next for local food
             </p>
           </div>
         </div>
 
-        {/* Map container - adjusted margin to account for header padding and subheading spacing */}
-        {/* Further reduced margin-top on mobile to minimize gap between subheading and map */}
-        <div className="relative w-full max-w-5xl h-[40vh] sm:h-[50vh] md:h-[60vh] mx-auto px-4 mt-6 sm:mt-20 md:mt-24 lg:mt-28">
+        {/* Map container - balanced spacing: tight on mobile, proper clearance on larger screens */}
+        {/* Mobile: minimal margin for compact layout (map closer to title), Laptop/Desktop: more clearance for header */}
+        <div className="relative w-full max-w-5xl h-[38vh] sm:h-[42vh] md:h-[45vh] lg:h-[48vh] xl:h-[50vh] mx-auto px-4 mt-6 sm:mt-20 md:mt-28 lg:mt-36 xl:mt-40">
           {/* SVG container */}
           <div 
             ref={svgContainerRef}
             className="w-full h-full flex items-center justify-center"
-            style={{ minHeight: '350px' }}
+            style={{ minHeight: '280px' }}
           />
           
           {/* Location marker - positioned dynamically via JS */}
@@ -418,58 +483,51 @@ export default function CanadaMap() {
           </div>
         </div>
 
-        {/* Location label card - visible on all screens with responsive positioning */}
+        {/* Location label card - visible on all screens including mobile */}
         <div 
           ref={labelRef}
-          className="absolute z-30"
+          className="absolute z-30 right-2 sm:right-2 md:right-4 lg:right-[5%] top-[32%] sm:top-[28%] md:top-[30%] lg:top-[32%]"
+        >
+          <div className="bg-white rounded-xl sm:rounded-xl md:rounded-2xl shadow-lg sm:shadow-xl md:shadow-2xl px-3 sm:px-3 md:px-4 lg:px-6 py-2.5 sm:py-3 md:py-4 lg:py-5 border border-gray-100/50">
+            <div className="flex items-center gap-1.5 sm:gap-1.5 md:gap-2 mb-1 sm:mb-1.5 md:mb-2">
+              <span className="w-2 h-2 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-[#f51042] rounded-full animate-pulse" />
+              <span className="font-mono text-[8px] sm:text-[8px] md:text-[10px] lg:text-[11px] text-[#f51042] uppercase tracking-wider font-medium">Live Now</span>
+            </div>
+            <div className="font-display text-base sm:text-lg md:text-2xl lg:text-3xl text-[#f51042] mb-0.5">St. John's</div>
+            <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm text-gray-500 font-medium leading-tight">Newfoundland & Labrador</div>
+          </div>
+        </div>
+
+        {/* Stats bar - positioned closer to map on mobile, proper spacing on larger screens */}
+        <div 
+          ref={statsRef}
+          className="absolute bottom-16 sm:bottom-4 md:bottom-10 lg:bottom-16 xl:bottom-16 left-1/2 -translate-x-1/2 z-20 w-auto box-border"
           style={{ 
-            right: 'clamp(2%, 5%, 5%)', 
-            top: 'clamp(25%, 30%, 30%)',
             maxWidth: 'calc(100% - 1rem)'
           }}
         >
-          <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 border border-gray-100/50 max-w-[140px] sm:max-w-none">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#f51042] rounded-full animate-pulse" />
-              <span className="font-mono text-[9px] sm:text-[10px] md:text-[11px] text-[#f51042] uppercase tracking-wider font-medium">Live Now</span>
-            </div>
-            <div className="font-display text-lg sm:text-2xl md:text-3xl text-[#f51042] mb-0.5">St. John's</div>
-            <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">Newfoundland & Labrador</div>
-          </div>
-        </div>
-
-        {/* Stats bar - positioned significantly closer to map on mobile, properly centered */}
-        {/* Moved up from bottom on mobile to bring stats much closer to map */}
-        <div 
-          ref={statsRef}
-          className="absolute bottom-30 sm:bottom-2 md:bottom-8 lg:bottom-20 left-1/2 -translate-x-1/2 z-20"
-          style={{ 
-            width: 'max-content', 
-            maxWidth: 'calc(100% - 2rem)'
-          }}
-        >
-          <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-10 bg-white/95 backdrop-blur-md rounded-full px-3 sm:px-4 md:px-6 lg:px-10 py-2 sm:py-3 md:py-4 lg:py-5 shadow-2xl border border-gray-100/50">
+          <div className="flex justify-center gap-4 sm:gap-3 md:gap-5 lg:gap-8 xl:gap-10 bg-white/95 backdrop-blur-md rounded-full px-5 sm:px-3 md:px-5 lg:px-8 xl:px-10 py-2.5 sm:py-2 md:py-3 lg:py-4 xl:py-5 shadow-lg sm:shadow-xl md:shadow-2xl border border-gray-100/50 mx-auto">
             <div className="text-center">
-              <div className="font-display text-xl sm:text-2xl md:text-3xl text-[#f51042]">1</div>
-              <div className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1">City</div>
+              <div className="font-display text-xl sm:text-lg md:text-2xl lg:text-3xl text-[#f51042]">1</div>
+              <div className="font-mono text-[8px] sm:text-[7px] md:text-[9px] lg:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">City</div>
             </div>
             <div className="w-px bg-gray-200/80" />
             <div className="text-center">
-              <div className="font-display text-xl sm:text-2xl md:text-3xl text-[#f51042]">15+</div>
-              <div className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1">Local Chefs</div>
+              <div className="font-display text-xl sm:text-lg md:text-2xl lg:text-3xl text-[#f51042]">15+</div>
+              <div className="font-mono text-[8px] sm:text-[7px] md:text-[9px] lg:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 whitespace-nowrap">Local Chefs</div>
             </div>
             <div className="w-px bg-gray-200/80" />
             <div className="text-center">
-              <div className="font-display text-xl sm:text-2xl md:text-3xl text-[#f51042]">150+</div>
-              <div className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1">Happy Orders</div>
+              <div className="font-display text-xl sm:text-lg md:text-2xl lg:text-3xl text-[#f51042]">150+</div>
+              <div className="font-mono text-[8px] sm:text-[7px] md:text-[9px] lg:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 whitespace-nowrap">Happy Orders</div>
             </div>
           </div>
         </div>
 
-        {/* Scroll hint */}
+        {/* Scroll hint - positioned below where stats bar will appear */}
         <div 
           ref={scrollHintRef}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10"
         >
           <div className="flex flex-col items-center text-gray-400">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] mb-2">Scroll to explore</span>

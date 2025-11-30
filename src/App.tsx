@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Navbar from './components/Navbar'
@@ -16,42 +17,19 @@ import SmoothScroll from './components/SmoothScroll'
 import WaveDivider from './components/WaveDivider'
 import Preloader from './components/Preloader'
 import DiscountPopup from './components/DiscountPopup'
+import ContactPage from './components/ContactPage'
+import NewsletterSection from './components/NewsletterSection'
 
 gsap.registerPlugin(ScrollTrigger)
 
 // Session storage key for preloader
 const PRELOADER_SHOWN_KEY = 'localcooks_preloader_shown'
 
-function App() {
-  // Check if preloader has already been shown this session
-  const hasSeenPreloader = sessionStorage.getItem(PRELOADER_SHOWN_KEY) === 'true'
-  
-  const [showPreloader, setShowPreloader] = useState(!hasSeenPreloader)
-  const [isContentReady, setIsContentReady] = useState(hasSeenPreloader)
-  const [showQuickFade, setShowQuickFade] = useState(hasSeenPreloader) // Quick fade for returning visitors
+// Home Page Component
+function HomePage() {
   const appRef = useRef<HTMLDivElement>(null)
 
-  // Handle preloader completion
-  const handlePreloaderComplete = () => {
-    sessionStorage.setItem(PRELOADER_SHOWN_KEY, 'true')
-    setShowPreloader(false)
-    setIsContentReady(true)
-  }
-
-  // Quick fade out for returning visitors
   useEffect(() => {
-    if (hasSeenPreloader && showQuickFade) {
-      // Small delay to ensure content is painted
-      const timer = setTimeout(() => {
-        setShowQuickFade(false)
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [hasSeenPreloader, showQuickFade])
-
-  useEffect(() => {
-    if (!isContentReady) return
-
     const ctx = gsap.context(() => {
       // ========================================
       // SCROLL-TRIGGERED SECTION ANIMATIONS
@@ -209,14 +187,91 @@ function App() {
       // Clean up normalize scroll
       ScrollTrigger.normalizeScroll(false)
     }
-  }, [isContentReady])
+  }, [])
+
+  return (
+    <SmoothScroll>
+      <div ref={appRef} className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
+        {/* Scroll Progress Bar */}
+        <div className="scroll-progress fixed top-0 left-0 right-0 h-1 bg-[var(--color-primary)] z-[100] origin-left scale-x-0" />
+        
+        <Navbar />
+        <Hero />
+        {/* Pill Marquee - Like Done Drinks */}
+        <PillMarquee />
+        <div className="animate-section">
+          <About />
+        </div>
+        {/* Wave: Primary (FeaturedChefs below) bleeds UP into cream (About above) */}
+        <WaveDivider 
+          direction="down" 
+          waveColor="var(--color-primary)" 
+          bgColor="var(--color-cream)"
+        />
+        <FeaturedChefs />
+        {/* Wave: Primary (FeaturedChefs above) bleeds DOWN into cream (HowItWorks below) */}
+        <WaveDivider 
+          direction="up" 
+          waveColor="var(--color-primary)" 
+          bgColor="var(--color-cream)"
+        />
+        <div className="animate-section">
+          <HowItWorks />
+        </div>
+        <div className="animate-section">
+          <Testimonials />
+        </div>
+        {/* Canada Map - NOT wrapped in animate-section due to ScrollTrigger pin */}
+        <CanadaMap />
+        <div className="animate-section">
+          <AppPromo />
+        </div>
+        <NewsletterSection />
+        <Footer />
+      </div>
+    </SmoothScroll>
+  )
+}
+
+function App() {
+  const location = useLocation()
+  
+  // Check if preloader has already been shown this session
+  const hasSeenPreloader = sessionStorage.getItem(PRELOADER_SHOWN_KEY) === 'true'
+  
+  const [showPreloader, setShowPreloader] = useState(!hasSeenPreloader && location.pathname === '/')
+  const [isContentReady, setIsContentReady] = useState(hasSeenPreloader || location.pathname !== '/')
+  const [showQuickFade, setShowQuickFade] = useState(hasSeenPreloader && location.pathname === '/') // Quick fade for returning visitors
+
+  // Handle preloader completion
+  const handlePreloaderComplete = () => {
+    sessionStorage.setItem(PRELOADER_SHOWN_KEY, 'true')
+    setShowPreloader(false)
+    setIsContentReady(true)
+  }
+
+  // Quick fade out for returning visitors
+  useEffect(() => {
+    if (hasSeenPreloader && showQuickFade) {
+      // Small delay to ensure content is painted
+      const timer = setTimeout(() => {
+        setShowQuickFade(false)
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [hasSeenPreloader, showQuickFade])
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   return (
     <>
       {/* Custom Cursor - Always rendered at top level */}
       <CustomCursor />
 
-      {/* Preloader - Only shown once per session */}
+      {/* Preloader - Only shown once per session on home page */}
       {showPreloader && (
         <Preloader 
           onComplete={handlePreloaderComplete}
@@ -224,8 +279,8 @@ function App() {
         />
       )}
 
-      {/* Discount Popup - Only shown once per session, after content is ready */}
-      {isContentReady && <DiscountPopup />}
+      {/* Discount Popup - Only shown once per session, after content is ready, on home page */}
+      {isContentReady && location.pathname === '/' && <DiscountPopup />}
 
       {/* Quick fade overlay for returning visitors - prevents flash of unstyled content */}
       {showQuickFade && (
@@ -235,47 +290,12 @@ function App() {
         />
       )}
 
-      {/* Main content - Always rendered, visibility controlled */}
+      {/* Main content */}
       {isContentReady && (
-        <SmoothScroll>
-          <div ref={appRef} className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden">
-            {/* Scroll Progress Bar */}
-            <div className="scroll-progress fixed top-0 left-0 right-0 h-1 bg-[var(--color-primary)] z-[100] origin-left scale-x-0" />
-            
-            <Navbar />
-            <Hero />
-            {/* Pill Marquee - Like Done Drinks */}
-            <PillMarquee />
-            <div className="animate-section">
-              <About />
-            </div>
-            {/* Wave: Primary (FeaturedChefs below) bleeds UP into cream (About above) */}
-            <WaveDivider 
-              direction="down" 
-              waveColor="var(--color-primary)" 
-              bgColor="var(--color-cream)"
-            />
-            <FeaturedChefs />
-            {/* Wave: Primary (FeaturedChefs above) bleeds DOWN into cream (HowItWorks below) */}
-            <WaveDivider 
-              direction="up" 
-              waveColor="var(--color-primary)" 
-              bgColor="var(--color-cream)"
-            />
-            <div className="animate-section">
-              <HowItWorks />
-            </div>
-            <div className="animate-section">
-              <Testimonials />
-            </div>
-            {/* Canada Map - NOT wrapped in animate-section due to ScrollTrigger pin */}
-            <CanadaMap />
-            <div className="animate-section">
-              <AppPromo />
-            </div>
-            <Footer />
-          </div>
-        </SmoothScroll>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/contact" element={<ContactPage />} />
+        </Routes>
       )}
     </>
   )

@@ -96,22 +96,24 @@ export default function About() {
   return (
     <section id="about" className="py-24 md:py-32 relative overflow-hidden">
       {/* Floating Food Decoration - Biryani with 3D Parallax (like Done Drinks) */}
-      {/* Bigger size (280px) and z-50 to stay on top of pill marquee - Hidden on mobile/tablet */}
+      {/* HIDDEN on laptop and below (< 1536px) to prevent overlap with "Empowering Local Chefs" content */}
+      {/* Only visible on 2xl+ screens (1536px+) where there's enough space */}
+      {/* Positioned at the very edge with clip overflow to prevent horizontal bleeding */}
       <div 
         ref={biryaniRef}
-        className="parallax-food absolute top-[5%] right-[3%] pointer-events-none select-none z-50 hidden xl:block"
+        className="parallax-food absolute top-[15%] right-[3%] pointer-events-none select-none z-10 hidden 2xl:block"
         style={{ 
-          width: '280px',
-          height: '280px',
+          width: 'clamp(180px, 15vw, 280px)',
+          height: 'clamp(180px, 15vw, 280px)',
           transformStyle: 'preserve-3d',
-          willChange: 'transform'
+          willChange: 'transform',
         }}
       >
         <img 
           src="/food-biryani.png" 
           alt="" 
           className="w-full h-full object-contain"
-          style={{ filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.25))' }}
+          style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.2))' }}
           draggable={false}
         />
       </div>
@@ -120,8 +122,8 @@ export default function About() {
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-primary)]/5 to-transparent rounded-l-[100px] -z-10" />
       <div className="parallax-bg absolute bottom-20 left-10 w-64 h-64 bg-[var(--color-butter)] rounded-full blur-3xl opacity-40" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-x-clip">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Left content */}
           <div ref={ref}>
             <motion.span
@@ -137,7 +139,7 @@ export default function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)] leading-tight mb-4 sm:mb-6"
+              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)] leading-tight mb-5 sm:mb-6"
             >
               Why Are We{' '}
               <span className="font-display text-[var(--color-primary)]">Unique?</span>
@@ -147,9 +149,9 @@ export default function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="font-body text-base sm:text-lg text-[var(--color-charcoal-light)] leading-relaxed mb-6 sm:mb-8"
+              className="font-body text-sm sm:text-base md:text-lg text-[var(--color-charcoal-light)] leading-relaxed mb-6 sm:mb-8"
             >
-              <span className="font-display text-[var(--color-primary)] text-xl">Local Cooks</span> was born from a simple belief: everyone deserves access to authentic, 
+              <span className="font-display text-[var(--color-primary)] text-lg sm:text-xl">Local Cooks</span> was born from a simple belief: everyone deserves access to authentic, 
               homemade meals that tell a story. We're not just a delivery platform – we're a 
               bridge connecting passionate home chefs with food lovers in their community.
             </motion.p>
@@ -158,7 +160,7 @@ export default function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap gap-4"
+              className="flex flex-wrap gap-2 sm:gap-4"
             >
               {[
                 { icon: '✓', text: 'Independent Local Chefs' },
@@ -166,30 +168,30 @@ export default function About() {
                 { icon: '✓', text: 'Secure Payments' },
                 { icon: '✓', text: 'Real-time Tracking' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-full shadow-sm border border-[var(--color-primary)]/10">
-                  <span className="text-[var(--color-primary)] font-bold">{item.icon}</span>
-                  <span className="font-mono text-sm">{item.text}</span>
+                <div key={i} className="flex items-center gap-1.5 sm:gap-2 bg-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-sm border border-[var(--color-primary)]/10">
+                  <span className="text-[var(--color-primary)] font-bold text-sm sm:text-base">{item.icon}</span>
+                  <span className="font-mono text-xs sm:text-sm">{item.text}</span>
                 </div>
               ))}
             </motion.div>
           </div>
 
           {/* Right - Feature Cards */}
-          <div ref={cardsRef} className="space-y-6 stagger-children">
+          <div ref={cardsRef} className="space-y-4 sm:space-y-6 stagger-children">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="feature-card stagger-item card-hover bg-white rounded-3xl p-8 shadow-lg shadow-black/5 border border-[var(--color-cream-dark)] group"
+                className="feature-card stagger-item card-hover bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-lg shadow-black/5 border border-[var(--color-cream-dark)] group"
               >
-                <div className="flex items-start gap-5">
-                  <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-coral)]/10 rounded-2xl flex items-center justify-center text-[var(--color-primary)] group-hover:scale-110 transition-transform duration-300">
+                <div className="flex items-start gap-3 sm:gap-5">
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-coral)]/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-[var(--color-primary)] group-hover:scale-110 transition-transform duration-300 [&_svg]:w-6 [&_svg]:h-6 sm:[&_svg]:w-8 sm:[&_svg]:h-8">
                     {feature.icon}
                   </div>
                   <div>
-                    <h3 className="font-heading text-xl text-[var(--color-charcoal)] mb-2 group-hover:text-[var(--color-primary)] transition-colors duration-300">
+                    <h3 className="font-heading text-base sm:text-xl text-[var(--color-charcoal)] mb-1 sm:mb-2 group-hover:text-[var(--color-primary)] transition-colors duration-300">
                       {feature.title}
                     </h3>
-                    <p className="font-body text-[var(--color-charcoal-light)] leading-relaxed">
+                    <p className="font-body text-sm sm:text-base text-[var(--color-charcoal-light)] leading-relaxed">
                       {feature.description}
                     </p>
                   </div>

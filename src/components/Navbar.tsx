@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Link, useLocation } from 'react-router-dom'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 
 const navLinks = [
@@ -8,6 +9,7 @@ const navLinks = [
   { name: 'Chefs', href: '#chefs' },
   { name: 'How It Works', href: '#how-it-works' },
   { name: 'Testimonials', href: '#testimonials' },
+  { name: 'Contact', href: '/contact', isRoute: true },
 ]
 
 // Threshold for navbar "pop out" effect (in pixels)
@@ -18,6 +20,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const { scrollTo } = useSmoothScroll()
+  const location = useLocation()
 
   // Handle smooth scroll for anchor links
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -70,7 +73,7 @@ export default function Navbar() {
           borderBottom: isScrolled ? '1px solid rgba(0, 0, 0, 0.04)' : '1px solid transparent',
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between w-full box-border">
           {/* Logo - Using actual LocalCooks logo */}
           <a 
             href="#home" 
@@ -96,15 +99,32 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="font-body text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 relative group"
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--color-primary)] group-hover:w-full transition-all duration-300" />
-              </a>
+              'isRoute' in link && link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`font-body transition-colors duration-300 relative group ${
+                    location.pathname === link.href 
+                      ? 'text-[var(--color-primary)]' 
+                      : 'text-[var(--color-charcoal)] hover:text-[var(--color-primary)]'
+                  }`}
+                >
+                  {link.name}
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--color-primary)] transition-all duration-300 ${
+                    location.pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`} />
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="font-body text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 relative group"
+                >
+                  {link.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--color-primary)] group-hover:w-full transition-all duration-300" />
+                </a>
+              )
             ))}
           </div>
 
@@ -180,20 +200,41 @@ export default function Navbar() {
             >
               <div className="flex flex-col gap-6">
                 {navLinks.map((link, index) => (
-                  <motion.a
-                    key={link.name}
-                    href={link.href}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={(e) => {
-                      handleNavClick(e, link.href)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="font-heading text-2xl text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors"
-                  >
-                    {link.name}
-                  </motion.a>
+                  'isRoute' in link && link.isRoute ? (
+                    <motion.div
+                      key={link.name}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link
+                        to={link.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`font-heading text-2xl transition-colors ${
+                          location.pathname === link.href 
+                            ? 'text-[var(--color-primary)]' 
+                            : 'text-[var(--color-charcoal)] hover:text-[var(--color-primary)]'
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    </motion.div>
+                  ) : (
+                    <motion.a
+                      key={link.name}
+                      href={link.href}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={(e) => {
+                        handleNavClick(e, link.href)
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="font-heading text-2xl text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors"
+                    >
+                      {link.name}
+                    </motion.a>
+                  )
                 ))}
                 <hr className="border-[var(--color-cream-dark)] my-4" />
                 <a

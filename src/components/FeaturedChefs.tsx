@@ -6,22 +6,22 @@ import { useRef, useState } from 'react'
 function CloverButton({ href, children }: { href: string; children: React.ReactNode }) {
   const [isHovered, setIsHovered] = useState(false)
   const textWidth = 240 // Approximate width of text "Explore Local Cooks for Chefs"
+  const mobileTextWidth = 140 // Shorter text on mobile
   
   return (
     <motion.a
       href={href}
-      className="clover-link-btn inline-flex items-center cursor-pointer"
+      className="clover-link-btn inline-flex items-center cursor-pointer max-w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ minWidth: `${textWidth + 120}px` }}
     >
-      {/* Container with relative positioning */}
-      <div className="relative flex items-center h-12" style={{ width: `${textWidth + 100}px` }}>
+      {/* Container with relative positioning - responsive width */}
+      <div className="relative flex items-center h-10 sm:h-12" style={{ width: 'min(calc(100vw - 6rem), 340px)' }}>
         {/* Logo container - animates from left to right */}
         <motion.div 
-          className="absolute flex-shrink-0 z-10 flex items-center gap-2"
+          className="absolute flex-shrink-0 z-10 flex items-center gap-1 sm:gap-2"
           animate={{ 
-            x: isHovered ? textWidth + 16 : 0
+            x: isHovered ? (typeof window !== 'undefined' && window.innerWidth < 640 ? mobileTextWidth + 8 : textWidth + 16) : 0
           }}
           transition={{ 
             duration: 0.6,
@@ -30,7 +30,7 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
         >
           {/* LocalCooks Logo with elegant scale + glow effect */}
           <motion.div 
-            className="w-12 h-12 relative"
+            className="w-9 h-9 sm:w-12 sm:h-12 relative"
             animate={{ 
               scale: isHovered ? 1.15 : 1,
               filter: isHovered ? 'drop-shadow(0 0 8px rgba(233, 68, 99, 0.5))' : 'drop-shadow(0 0 0px rgba(233, 68, 99, 0))'
@@ -47,9 +47,9 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
             />
           </motion.div>
           
-          {/* Arrow appears to the RIGHT of the logo (not overlapping) */}
+          {/* Arrow appears to the RIGHT of the logo (not overlapping) - hidden on mobile */}
           <motion.div 
-            className="flex items-center justify-center"
+            className="hidden sm:flex items-center justify-center"
             animate={{ 
               opacity: isHovered ? 1 : 0,
               x: isHovered ? 0 : -10
@@ -75,9 +75,9 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
         
         {/* Text - animates from right to left, becomes bold */}
         <motion.span
-          className="absolute text-lg text-[var(--color-primary)] whitespace-nowrap font-body"
+          className="absolute text-sm sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body"
           animate={{ 
-            x: isHovered ? 0 : 64,
+            x: isHovered ? 0 : (typeof window !== 'undefined' && window.innerWidth < 640 ? 48 : 64),
             fontWeight: isHovered ? 700 : 400
           }}
           transition={{ 
@@ -85,7 +85,8 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
             ease: [0.25, 0.1, 0.25, 1]
           }}
         >
-          {children}
+          <span className="hidden sm:inline">{children}</span>
+          <span className="sm:hidden">Explore for Chefs</span>
         </motion.span>
       </div>
     </motion.a>
@@ -128,8 +129,8 @@ export default function FeaturedChefs() {
         />
       </div>
 
-      {/* Main content */}
-      <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6">
+      {/* Main content - properly contained */}
+      <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-x-clip">
         {/* Hero headline section - compact layout */}
         <div className="pt-12 sm:pt-16 pb-8 sm:pb-10 md:pt-20 md:pb-12">
           <div className="grid lg:grid-cols-12 gap-6 items-end">
@@ -193,18 +194,20 @@ export default function FeaturedChefs() {
           </div>
         </div>
 
-        {/* Bento-style content grid - removed scale transform to prevent glitches */}
-        <div className="pb-16 sm:pb-24 md:pb-32">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        {/* Bento-style content grid - PRESERVE layout on all screen sizes */}
+        {/* User requirement: Keep 3-column aesthetic even on mobile - content scales down */}
+        <div className="pb-16 sm:pb-24 md:pb-32 overflow-x-clip">
+          {/* Grid maintains 3-column layout on ALL screens - scales proportionally */}
+          <div className="grid grid-cols-3 gap-1 xs:gap-1.5 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full" style={{ minWidth: 0 }}>
             
             {/* Large feature card - For Chefs */}
             <motion.div
               initial={{ opacity: 0, y: 60 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:col-span-2 lg:row-span-2 group will-change-transform"
+              className="col-span-2 row-span-2 group will-change-transform"
             >
-              <div className="relative h-full bg-white rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-12 overflow-hidden min-h-[400px] sm:min-h-[500px] flex flex-col justify-between">
+              <div className="relative h-full bg-white rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] p-3 sm:p-5 md:p-8 lg:p-12 overflow-hidden min-h-[180px] sm:min-h-[280px] md:min-h-[400px] lg:min-h-[500px] flex flex-col justify-between">
                 {/* Background accent */}
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-cream)] to-transparent opacity-50" />
                 
@@ -217,54 +220,54 @@ export default function FeaturedChefs() {
                 </motion.div>
 
                 <div className="relative">
-                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)]/10 rounded-full mb-6">
-                    <span className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-pulse" />
-                    <span className="font-mono text-xs text-[var(--color-primary)] uppercase tracking-wider">For Chefs</span>
+                  <span className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1 sm:py-2 bg-[var(--color-primary)]/10 rounded-full mb-2 sm:mb-4 md:mb-6">
+                    <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-[var(--color-primary)] rounded-full animate-pulse" />
+                    <span className="font-mono text-[8px] sm:text-[10px] md:text-xs text-[var(--color-primary)] uppercase tracking-wider">For Chefs</span>
                   </span>
 
-                  <h3 className="font-heading text-2xl sm:text-3xl md:text-4xl text-[var(--color-charcoal)] leading-tight mb-4 sm:mb-6">
-                  Your recipes deserve an audience.
+                  <h3 className="font-heading text-[11px] sm:text-xl md:text-2xl lg:text-4xl text-[var(--color-charcoal)] leading-tight mb-1 sm:mb-3 md:mb-6">
+                    Your recipes deserve an audience.
                     <br />
-                    <span className="text-[var(--color-primary)]">Turn your kitchen into your business.</span>
+                    <span className="text-[var(--color-primary)] text-[10px] sm:text-lg md:text-2xl lg:text-4xl">Turn your kitchen into your business.</span>
                   </h3>
 
-                  <p className="font-body text-base sm:text-lg text-[var(--color-charcoal)]/70 leading-relaxed max-w-lg mb-4">
+                  <p className="font-body text-[7px] sm:text-sm md:text-base lg:text-lg text-[var(--color-charcoal)]/70 leading-snug sm:leading-relaxed max-w-lg mb-1 sm:mb-4">
                     Your authentic recipes—whether it's Jiggs dinner, Filipino adobo, or Middle Eastern shawarma—are your competitive advantage. Monetize your culinary passion and turn it into sustainable income.
                   </p>
                   
-                  <ul className="font-body text-sm sm:text-base text-[var(--color-charcoal)]/80 space-y-3 overflow-x-auto">
-                    <li className="flex items-center gap-3 min-w-fit">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
-                        <svg className="w-3 h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <ul className="font-body text-[6px] sm:text-xs md:text-sm lg:text-base text-[var(--color-charcoal)]/80 space-y-0.5 sm:space-y-2 md:space-y-3">
+                    <li className="flex items-center gap-1 sm:gap-2 md:gap-3">
+                      <div className="flex-shrink-0 w-2.5 sm:w-4 md:w-5 h-2.5 sm:h-4 md:h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
+                        <svg className="w-1.5 sm:w-2.5 md:w-3 h-1.5 sm:h-2.5 md:h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="whitespace-nowrap"><strong>Earn real income</strong> — Your skills, your kitchen, your business. No restaurant middleman.</span>
+                      <span><strong>Earn real income</strong> — Your skills, your kitchen, your business. No restaurant middleman.</span>
                     </li>
-                    <li className="flex items-center gap-3 min-w-fit">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
-                        <svg className="w-3 h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <li className="flex items-center gap-1 sm:gap-2 md:gap-3">
+                      <div className="flex-shrink-0 w-2.5 sm:w-4 md:w-5 h-2.5 sm:h-4 md:h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
+                        <svg className="w-1.5 sm:w-2.5 md:w-3 h-1.5 sm:h-2.5 md:h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="whitespace-nowrap"><strong>Work your way</strong> — Set your schedule, control your menu, choose your pricing.</span>
+                      <span><strong>Work your way</strong> — Set your schedule, control your menu, choose your pricing.</span>
                     </li>
-                    <li className="flex items-center gap-3 min-w-fit">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
-                        <svg className="w-3 h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <li className="flex items-center gap-1 sm:gap-2 md:gap-3">
+                      <div className="flex-shrink-0 w-2.5 sm:w-4 md:w-5 h-2.5 sm:h-4 md:h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
+                        <svg className="w-1.5 sm:w-2.5 md:w-3 h-1.5 sm:h-2.5 md:h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="whitespace-nowrap"><strong>Own your customers</strong> — Direct relationships with people who value authentic food.</span>
+                      <span><strong>Own your customers</strong> — Direct relationships with people who value authentic food.</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="relative mt-6 flex flex-wrap gap-3">
+                <div className="relative mt-2 sm:mt-4 md:mt-6 flex flex-wrap gap-1 sm:gap-2 md:gap-3">
                   {['Zero upfront costs', 'Weekly payouts', '$30-40+/hr potential'].map((tag, i) => (
                     <span
                       key={i}
-                      className="px-4 py-2 bg-[var(--color-primary)]/10 rounded-full font-mono text-sm text-[var(--color-primary)] font-medium"
+                      className="px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 bg-[var(--color-primary)]/10 rounded-full font-mono text-[7px] sm:text-[10px] md:text-xs lg:text-sm text-[var(--color-primary)] font-medium"
                     >
                       {tag}
                     </span>
@@ -278,25 +281,25 @@ export default function FeaturedChefs() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="group will-change-transform"
+              className="col-span-1 group will-change-transform"
             >
-              <div className="relative h-full bg-[var(--color-charcoal)] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 overflow-hidden min-h-[200px] sm:min-h-[240px]">
+              <div className="relative h-full bg-[var(--color-charcoal)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[240px]">
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/5" />
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>
-                    <span className="font-mono text-xs text-white/40 uppercase tracking-wider">Trial Phase</span>
-                    <div className="mt-3 flex items-baseline gap-2">
-                      <span className="font-heading text-6xl md:text-7xl text-white">0%</span>
-                      <span className="font-body text-white/60">fees</span>
+                    <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/40 uppercase tracking-wider">Trial Phase</span>
+                    <div className="mt-1 sm:mt-2 md:mt-3 flex items-baseline gap-1">
+                      <span className="font-heading text-xl sm:text-3xl md:text-5xl lg:text-7xl text-white">0%</span>
+                      <span className="font-body text-[8px] sm:text-xs md:text-sm text-white/60">fees</span>
                     </div>
                   </div>
                   
                   <div>
-                    <p className="font-body text-sm text-white/50">
+                    <p className="font-body text-[5px] sm:text-[10px] md:text-xs lg:text-sm text-white/50 leading-tight">
                       Keep 100% of your sales. We're building this for chefs, so we're waiving our cut.
                     </p>
-                    <p className="font-mono text-[10px] text-white/30 mt-2">
+                    <p className="font-mono text-[4px] sm:text-[8px] md:text-[10px] text-white/30 mt-0.5 sm:mt-1 leading-tight">
                       *Standard payment processing fees apply (2.9% + 30¢ via Stripe)
                     </p>
                   </div>
@@ -309,26 +312,26 @@ export default function FeaturedChefs() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="group will-change-transform"
+              className="col-span-1 group will-change-transform"
             >
-              <div className="relative h-full bg-[var(--color-sage)] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 overflow-hidden min-h-[200px] sm:min-h-[240px]">
+              <div className="relative h-full bg-[var(--color-sage)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[240px]">
                 <motion.div
                   style={{ rotate }}
-                  className="absolute -bottom-4 -right-4 text-8xl opacity-30"
+                  className="absolute -bottom-2 -right-2 text-2xl sm:text-4xl md:text-6xl lg:text-8xl opacity-30"
                 >
                   🏠
                 </motion.div>
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>
-                    <span className="font-mono text-xs text-white/60 uppercase tracking-wider">Your Space</span>
-                    <h4 className="font-heading text-2xl text-white mt-3 leading-tight">
+                    <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">Your Space</span>
+                    <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
                       Cook at home or use our partnered commercial kitchens
                     </h4>
                   </div>
                   
-                  <p className="font-body text-sm text-white/70 mt-4">
-                  We help you navigate all required provincial licenses and food safety standards so you can start selling with confidence. Rent our partnered commercial kitchens when you need professional space. No commitments.
+                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
+                    We help you navigate all required provincial licenses and food safety standards so you can start selling with confidence. Rent our partnered commercial kitchens when you need professional space. No commitments.
                   </p>
                 </div>
               </div>
@@ -339,21 +342,21 @@ export default function FeaturedChefs() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="group will-change-transform"
+              className="col-span-1 group will-change-transform"
             >
-              <div className="relative h-full bg-white rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 overflow-hidden min-h-[200px] sm:min-h-[240px] border border-white/20">
+              <div className="relative h-full bg-white rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[240px] border border-white/20">
                 <div className="relative h-full flex flex-col justify-between">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="font-mono text-xs text-[var(--color-charcoal-light)] uppercase tracking-wider">For Food Lovers</span>
-                      <h4 className="font-heading text-2xl text-[var(--color-charcoal)] mt-3 leading-tight">
+                      <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal-light)] uppercase tracking-wider">For Food Lovers</span>
+                      <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-2 md:mt-3 leading-tight">
                         Discover authentic meals from talented neighbors
                       </h4>
                     </div>
-                    <span className="text-4xl">🍽️</span>
+                    <span className="text-base sm:text-2xl md:text-3xl lg:text-4xl">🍽️</span>
                   </div>
                   
-                  <p className="font-body text-sm text-[var(--color-charcoal)]/60 mt-4">
+                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/60 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
                     Fresh, authentic food from talented home chefs. Know your chef, support local, taste the difference.
                   </p>
                 </div>
@@ -365,27 +368,23 @@ export default function FeaturedChefs() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
-              className="group will-change-transform"
+              className="col-span-1 group will-change-transform"
             >
-              <div className="relative h-full bg-[var(--color-gold)] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 overflow-hidden min-h-[200px] sm:min-h-[240px]">
-                <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/20 rounded-full blur-2xl" />
+              <div className="relative h-full bg-[var(--color-gold)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[240px]">
+                <div className="absolute -top-3 -right-3 w-16 sm:w-24 md:w-32 h-16 sm:h-24 md:h-32 bg-white/20 rounded-full blur-2xl" />
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="font-mono text-xs text-[var(--color-charcoal)]/60 uppercase tracking-wider">For Chefs</span>
-                      <h4 className="font-heading text-2xl text-[var(--color-charcoal)] mt-3 leading-tight">
-                        Your Schedule.
-                        <br />
-                        Your Menu.
-                        <br />
-                        Your Rules.
+                      <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal)]/60 uppercase tracking-wider">For Chefs</span>
+                      <h4 className="font-heading text-[7px] sm:text-xs md:text-lg lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-2 md:mt-3 leading-tight">
+                        Your Schedule.<br />Your Menu.<br />Your Rules.
                       </h4>
                     </div>
-                    <span className="text-4xl">🔪</span>
+                    <span className="text-base sm:text-2xl md:text-3xl lg:text-4xl">🔪</span>
                   </div>
                   
-                  <p className="font-body text-sm text-[var(--color-charcoal)]/70 mt-4">
+                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
                     No minimums. No locked contracts. Cook when you want. Cook what you love. Earn what you deserve.
                   </p>
                 </div>
@@ -397,25 +396,25 @@ export default function FeaturedChefs() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="group will-change-transform"
+              className="col-span-1 group will-change-transform"
             >
-              <div className="relative h-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 overflow-hidden min-h-[200px] sm:min-h-[240px]">
+              <div className="relative h-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[240px]">
                 <div className="absolute inset-0 opacity-20">
                   <div className="absolute inset-0" style={{
                     backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                    backgroundSize: '24px 24px',
+                    backgroundSize: '16px 16px',
                   }} />
                 </div>
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>
-                    <span className="font-mono text-xs text-white/60 uppercase tracking-wider">We Handle Logistics</span>
-                    <h4 className="font-heading text-2xl text-white mt-3 leading-tight">
+                    <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">We Handle Logistics</span>
+                    <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
                       Delivery. Payments. Customer support.
                     </h4>
                   </div>
                   
-                  <p className="font-body text-sm text-white/70 mt-4">
+                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
                     You focus on cooking. We handle the rest—full earnings transparency included.
                   </p>
                 </div>
@@ -425,15 +424,15 @@ export default function FeaturedChefs() {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section - properly contained */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 1 }}
-          className="pb-16 sm:pb-24 md:pb-32 flex flex-col items-center relative z-10"
+          className="pb-16 sm:pb-24 md:pb-32 flex flex-col items-center relative z-10 w-full max-w-full overflow-hidden px-4"
         >
           {/* Clover-style button like les-arbres-fruitiers.fr "Pour les curieux" */}
-          <div className="bg-white rounded-full px-10 py-5 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+          <div className="bg-white rounded-full px-4 sm:px-10 py-3 sm:py-5 shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-[calc(100%-2rem)] sm:max-w-none">
             <CloverButton href="https://local-cooks-community.vercel.app/">
               Explore Local Cooks for Chefs
             </CloverButton>

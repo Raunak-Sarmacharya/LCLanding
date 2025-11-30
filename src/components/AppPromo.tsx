@@ -1,17 +1,117 @@
 import { motion, useScroll, useTransform, useInView } from 'motion/react'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useEffect } from 'react'
 
 /**
- * AppPromo Section - Award-Winning Redesign v3
+ * AppPromo Section - Premium Edition v4
  * 
- * Improvements v3:
- * - Changed "Instant Access" to "Browse Local Menus" (no conflict with native apps)
- * - Stripe logo SVG for Secure Checkout
- * - Apple + Android logos for native apps coming soon
- * - Elegant glassmorphism floating cards (smaller, subtle, refined)
+ * Redesigned to match the premium feel of FeaturedChefs section:
+ * - Consistent typography: font-heading, font-display, font-mono, font-body
+ * - Premium card styling with proper rounded corners and padding
+ * - Stripe official brand color (#635BFF / Blurple) for Secure Checkout
+ * - Clover-style Order Now button (same as DiscountPopup)
+ * - Premium bento-style grid layout
  */
+
+// Stripe official brand color
+const STRIPE_BLURPLE = '#635BFF'
+
+// Clover-style Order Now button component - matches DiscountPopup exactly
+function OrderNowButton({ href }: { href: string }) {
+  const [isHovered, setIsHovered] = useState(false)
+  const textWidth = 100 // Width for "Order Now" text
+  
+  return (
+    <motion.a
+      href={href}
+      className="clover-link-btn inline-flex items-center cursor-pointer bg-white rounded-full shadow-xl hover:shadow-2xl transition-shadow duration-300 px-5 py-3.5"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ minWidth: `${textWidth + 60}px` }}
+    >
+      <div className="relative flex items-center h-10" style={{ width: `${textWidth + 60}px` }}>
+        {/* Delivery icon container - animates from left to right */}
+        <motion.div 
+          className="absolute flex-shrink-0 z-10 flex items-center gap-2"
+          animate={{ 
+            x: isHovered ? textWidth + 12 : 0
+          }}
+          transition={{ 
+            duration: 0.6,
+            ease: [0.25, 0.1, 0.25, 1]
+          }}
+        >
+          {/* Delivery icon with elegant scale + glow effect */}
+          <motion.svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="flex-shrink-0"
+            animate={{ 
+              scale: isHovered ? 1.15 : 1,
+              filter: isHovered ? 'drop-shadow(0 0 10px rgba(245, 16, 66, 0.6))' : 'drop-shadow(0 0 0px rgba(245, 16, 66, 0))'
+            }}
+            transition={{ 
+              duration: 0.4,
+              ease: [0.34, 1.56, 0.64, 1]
+            }}
+          >
+            <path
+              d="M16.4 17.6C16.4 19.4778 17.8775 21 19.7 21C21.5225 21 23 19.4778 23 17.6C23 15.7222 21.5225 14.2 19.7 14.2C17.8775 14.2 16.4 15.7222 16.4 17.6ZM16.4 17.6L10.9 17.5997M10.9 17.5997V15.7452C10.9 13.4136 10.9 12.249 10.2554 11.5245C9.6108 10.8 8.5746 10.8 6.5 10.8H5.84C5.4319 10.8 5.2273 10.8 5.0546 10.8148C4.01011 10.9072 3.02922 11.4154 2.28838 12.248C1.54754 13.0807 1.09536 14.1831 1.0132 15.357C1 15.5511 1 15.7823 1 16.2398C1 16.3547 1 16.4128 1.0033 16.4598C1.02373 16.7535 1.1368 17.0293 1.32214 17.2376C1.50747 17.4459 1.75289 17.573 2.0142 17.596C2.07942 17.5994 2.14471 17.6006 2.21 17.5997H10.9ZM4.3 7.39972H9.8M2.1 4H7.6M12 4H12.5421C13.7772 4 14.3942 4 14.8901 4.38122C15.387 4.76117 15.6631 5.44713 16.2145 6.81903L19.1867 14.2M18.3068 11.65L19.006 11.01C19.276 10.7626 19.4115 10.6402 19.5049 10.4783C19.5689 10.3689 19.6185 10.2475 19.6517 10.1187C19.7 9.92875 19.7 9.72093 19.7 9.30528C19.7 8.51733 19.7 8.12462 19.5645 7.8301C19.4735 7.6325 19.3417 7.46873 19.1826 7.3558C18.9464 7.1875 18.6282 7.1875 17.9947 7.1875H16.62M9.25 17.6C9.25 18.5017 8.90232 19.3665 8.28345 20.0042C7.66458 20.6418 6.82521 21 5.95 21C5.07479 21 4.23542 20.6418 3.61655 20.0042C2.99768 19.3665 2.65 18.5017 2.65 17.6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              className="text-[var(--color-primary)]"
+            />
+          </motion.svg>
+          
+          {/* Arrow appears to the RIGHT of the icon */}
+          <motion.div 
+            className="flex items-center justify-center"
+            animate={{ 
+              opacity: isHovered ? 1 : 0,
+              x: isHovered ? 0 : -10
+            }}
+            transition={{ 
+              duration: 0.3, 
+              delay: isHovered ? 0.2 : 0,
+              ease: [0.25, 0.1, 0.25, 1]
+            }}
+          >
+            <div className="w-8 h-8 bg-[var(--color-primary)] rounded-full flex items-center justify-center shadow-md">
+              <svg 
+                className="w-4 h-4 text-white" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+          </motion.div>
+        </motion.div>
+        
+        {/* Text - animates from right to left, becomes bold */}
+        <motion.span
+          className="absolute text-base sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body"
+          animate={{ 
+            x: isHovered ? 0 : 48,
+            fontWeight: isHovered ? 700 : 500
+          }}
+          transition={{ 
+            duration: 0.6,
+            ease: [0.25, 0.1, 0.25, 1]
+          }}
+        >
+          Order Now
+        </motion.span>
+      </div>
+    </motion.a>
+  )
+}
 
 export default function AppPromo() {
   const sectionRef = useRef(null)
@@ -24,7 +124,9 @@ export default function AppPromo() {
 
   const phoneY = useTransform(scrollYProgress, [0, 1], [50, -50])
   const phoneRotate = useTransform(scrollYProgress, [0, 0.5, 1], [-2, 0, 2])
-  const contentY = useTransform(scrollYProgress, [0, 1], [25, -25])
+  const y1 = useTransform(scrollYProgress, [0, 1], [60, -60])
+  const y2 = useTransform(scrollYProgress, [0, 1], [30, -30])
+  const rotate = useTransform(scrollYProgress, [0, 1], [-3, 3])
 
   useEffect(() => {
     if (!isInView) return
@@ -52,291 +154,404 @@ export default function AppPromo() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-32 lg:py-40 bg-gradient-to-b from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-primary-dark)] overflow-hidden"
+      className="relative bg-gradient-to-b from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-primary-dark)] overflow-hidden"
     >
-      {/* Background */}
+      {/* Premium Background - Matching FeaturedChefs style */}
       <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          style={{ y: y1 }}
+          className="absolute top-[20%] -right-40 w-[800px] h-[800px] rounded-full bg-white/5 blur-[100px]"
+        />
+        <motion.div
+          style={{ y: y2 }}
+          className="absolute bottom-0 -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px]"
+        />
         <div
-          className="absolute inset-0 opacity-[0.05]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
             backgroundSize: '32px 32px',
           }}
         />
-        <div className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/4 -right-32 w-[350px] h-[350px] bg-[var(--color-coral)]/10 rounded-full blur-[80px]" />
       </div>
 
-      <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16">
-        <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 lg:gap-16 items-center">
-          
-          {/* Left Column - Content */}
-          <motion.div 
-            style={{ y: contentY }}
-            className="lg:col-span-6 order-2 lg:order-1"
-          >
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7 }}
-              className="font-heading text-[clamp(2rem,5vw,4rem)] sm:text-[clamp(2.5rem,5.5vw,4rem)] text-white leading-[0.95] tracking-tight mb-4 sm:mb-6"
-            >
-              Order Anytime,
-              <br />
-              <span className="font-display italic text-[var(--color-butter)]">Anywhere</span>
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-body text-base sm:text-lg md:text-xl text-white/80 leading-relaxed mb-6 sm:mb-8 max-w-lg"
-            >
-              Fresh homemade meals from passionate local chefs, just a tap away. 
-              Start exploring flavors from around the world.
-            </motion.p>
-
-            {/* Bento-Style Feature Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-10">
-              {/* Browse Local Menus - Changed from Instant Access */}
+      {/* Main Content - properly contained */}
+      <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-clip">
+        {/* Header Section - Matching FeaturedChefs typography exactly */}
+        <div className="pt-16 sm:pt-20 pb-8 sm:pb-10 md:pt-24 md:pb-12">
+          <div className="grid lg:grid-cols-12 gap-6 items-end">
+            {/* Left side - Main headline */}
+            <div className="lg:col-span-7">
               <motion.div
-                className="app-feature-card group col-span-2 relative bg-white rounded-xl sm:rounded-[1.5rem] p-4 sm:p-6 overflow-hidden"
-                whileHover={{ scale: 1.02, y: -4 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-6 sm:mb-8"
               >
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-cream)] to-transparent opacity-50" />
-                <div className="absolute -bottom-4 -right-4 text-7xl opacity-10 group-hover:opacity-20 transition-opacity">
-                  🍽️
-                </div>
-                <div className="relative flex items-start gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                    <span className="text-2xl">🔍</span>
-                  </div>
-                  <div>
-                    <h4 className="font-heading text-xl text-[var(--color-charcoal)] mb-1">Browse Local Menus</h4>
-                    <p className="font-body text-sm text-[var(--color-charcoal)]/70">
-                      Discover authentic cuisines from chefs in your neighborhood. Updated daily.
-                    </p>
-                  </div>
+                <div className="inline-block relative pb-2 sm:pb-3">
+                  <span className="font-display text-[clamp(1.5rem,4vw,2.5rem)] sm:text-[clamp(1.75rem,4.5vw,3rem)] text-white leading-tight tracking-tight">
+                    Local Cooks{' '}
+                    <span className="font-heading text-[clamp(1.5rem,4vw,2.5rem)] sm:text-[clamp(1.75rem,4.5vw,3rem)] text-white/90">
+                      for Foodies
+                    </span>
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] sm:h-[2px] bg-gradient-to-r from-transparent via-white/50 via-white/70 via-white/50 to-transparent" />
                 </div>
               </motion.div>
 
-              {/* Live Tracking */}
               <motion.div
-                className="app-feature-card group relative bg-[var(--color-charcoal)] rounded-xl sm:rounded-[1.5rem] p-4 sm:p-5 overflow-hidden"
-                whileHover={{ scale: 1.03, y: -4 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 40 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-4"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5" />
-                <div className="absolute -bottom-2 -right-2 text-5xl opacity-20 group-hover:opacity-30 transition-opacity">
-                  📍
-                </div>
-                <div className="relative">
-                  <div className="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center mb-3">
-                    <span className="text-xl">📍</span>
-                  </div>
-                  <h4 className="font-body font-semibold text-white text-sm mb-1">Live Tracking</h4>
-                  <p className="font-mono text-xs text-white/50">Kitchen to doorstep</p>
-                </div>
+                <span className="inline-block font-mono text-xs text-white/60 uppercase tracking-[0.3em]">
+                  Fresh • Local • Authentic
+                </span>
               </motion.div>
 
-              {/* Secure Checkout - With Stripe Logo */}
-              <motion.div
-                className="app-feature-card group relative bg-[var(--color-sage)] rounded-xl sm:rounded-[1.5rem] p-4 sm:p-5 overflow-hidden"
-                whileHover={{ scale: 1.03, y: -4 }}
-                transition={{ duration: 0.3 }}
+              <motion.h2
+                initial={{ opacity: 0, y: 60 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="font-heading text-[clamp(2rem,6vw,5.5rem)] sm:text-[clamp(2.5rem,7vw,5.5rem)] text-white leading-[0.85] tracking-tight"
               >
-                <div className="absolute -bottom-2 -right-2 text-5xl opacity-20 group-hover:opacity-30 transition-opacity">
-                  💳
-                </div>
-                <div className="relative">
-                  <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center mb-3">
-                    {/* Stripe Logo SVG */}
-                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="white">
-                      <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
-                    </svg>
-                  </div>
-                  <h4 className="font-body font-semibold text-white text-sm mb-1">Secure Checkout</h4>
-                  <p className="font-mono text-xs text-white/60">Powered by Stripe</p>
-                </div>
-              </motion.div>
-
-              {/* Rate & Review */}
-              <motion.div
-                className="app-feature-card group relative bg-[var(--color-gold)] rounded-xl sm:rounded-[1.5rem] p-4 sm:p-5 overflow-hidden"
-                whileHover={{ scale: 1.03, y: -4 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="absolute -bottom-2 -right-2 text-5xl opacity-20 group-hover:opacity-30 transition-opacity">
-                  ⭐
-                </div>
-                <div className="relative">
-                  <div className="w-11 h-11 bg-white/30 rounded-xl flex items-center justify-center mb-3">
-                    <span className="text-xl">⭐</span>
-                  </div>
-                  <h4 className="font-body font-semibold text-[var(--color-charcoal)] text-sm mb-1">Rate & Review</h4>
-                  <p className="font-mono text-xs text-[var(--color-charcoal)]/60">Build community</p>
-                </div>
-              </motion.div>
-
-              {/* Food Safety */}
-              <motion.div
-                className="app-feature-card group relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl sm:rounded-[1.5rem] p-4 sm:p-5 overflow-hidden"
-                whileHover={{ scale: 1.03, y: -4 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="absolute -bottom-2 -right-2 text-5xl opacity-20 group-hover:opacity-30 transition-opacity">
-                  ✓
-                </div>
-                <div className="relative">
-                  <div className="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center mb-3">
-                    <span className="text-xl">🛡️</span>
-                  </div>
-                  <h4 className="font-body font-semibold text-white text-sm mb-1">Food Safety</h4>
-                  <p className="font-mono text-xs text-white/50">Certified chefs</p>
-                </div>
-              </motion.div>
+                Order <span className="font-display text-white/90">Anytime,</span>
+                <br />
+                <span className="font-display text-[var(--color-butter)] italic">Anywhere</span>
+              </motion.h2>
             </div>
 
-            {/* CTA Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="space-y-4"
-            >
-              <a
-                href="https://localcook.shop/app/index.php"
-                className="group inline-flex items-center justify-center gap-3 bg-white text-[var(--color-primary)] px-6 sm:px-10 py-4 sm:py-5 rounded-full font-body font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-xl"
+            {/* Right side - Subtext */}
+            <div className="lg:col-span-5 lg:pb-2">
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="font-body text-base sm:text-lg md:text-xl text-white/70 leading-relaxed max-w-md"
               >
-                <span>Order Now</span>
-                <svg 
-                  className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </a>
-              
-              {/* Native Apps Coming Soon - Apple + Android Logos */}
-              <div className="flex items-center gap-3 text-white/60">
-                <div className="flex items-center gap-2">
-                  {/* Apple Logo */}
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                  </svg>
-                  {/* Android Logo */}
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.523 15.341c-.576 0-1.044-.467-1.044-1.043 0-.576.468-1.043 1.044-1.043.576 0 1.043.467 1.043 1.043 0 .576-.467 1.043-1.043 1.043m-11.046 0c-.576 0-1.043-.467-1.043-1.043 0-.576.467-1.043 1.043-1.043.576 0 1.044.467 1.044 1.043 0 .576-.468 1.043-1.044 1.043m11.405-6.02l1.997-3.46a.416.416 0 00-.152-.566.416.416 0 00-.566.152l-2.022 3.504C15.555 8.062 13.847 7.576 12 7.576c-1.847 0-3.555.486-5.139 1.375L4.839 5.447a.416.416 0 00-.566-.152.416.416 0 00-.152.566l1.997 3.46C2.688 11.197.343 14.795.343 18.946h23.314c0-4.15-2.345-7.749-5.775-9.625"/>
-                  </svg>
-                </div>
-                <span className="font-mono text-xs">Native apps launching soon</span>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Column - Phone Mockup */}
-          <div className="lg:col-span-6 order-1 lg:order-2 flex justify-center lg:justify-end pr-0 md:pr-6 lg:pr-10">
-            <motion.div
-              style={{ y: phoneY, rotateY: phoneRotate, perspective: 1000 }}
-              className="app-phone-mockup relative"
-            >
-              {/* Glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-[var(--color-butter)]/15 rounded-[50px] blur-3xl scale-90 opacity-50" />
-              
-              {/* Phone Frame - Smaller */}
-              <div className="relative">
-                <div className="relative w-[180px] sm:w-[220px] md:w-[240px] lg:w-[260px] bg-[#1a1a1a] rounded-[36px] sm:rounded-[42px] p-[7px] sm:p-[9px] shadow-2xl shadow-black/30">
-                  <div className="relative bg-[#0a0a0a] rounded-[28px] sm:rounded-[34px] overflow-hidden">
-                    {/* Dynamic Island */}
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
-                      <div className="w-[70px] h-[22px] bg-black rounded-full flex items-center justify-center gap-1.5">
-                        <div className="w-1.5 h-1.5 bg-[#1a1a1a] rounded-full" />
-                        <div className="w-2 h-2 bg-[#1a1a1a] rounded-full ring-1 ring-[#333]" />
-                      </div>
-                    </div>
-                    
-                    {/* Screen */}
-                    <div className="relative aspect-[390/844] overflow-hidden">
-                      <img 
-                        src="/sc_lcapp.png" 
-                        alt="LocalCooks App" 
-                        className="w-full h-full object-cover object-top"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-transparent pointer-events-none" />
-                    </div>
-                  </div>
-                  
-                  {/* Side buttons */}
-                  <div className="absolute -left-[2px] top-[80px] w-[2px] h-[24px] bg-[#2a2a2a] rounded-l-sm" />
-                  <div className="absolute -left-[2px] top-[115px] w-[2px] h-[45px] bg-[#2a2a2a] rounded-l-sm" />
-                  <div className="absolute -left-[2px] top-[170px] w-[2px] h-[45px] bg-[#2a2a2a] rounded-l-sm" />
-                  <div className="absolute -right-[2px] top-[115px] w-[2px] h-[60px] bg-[#2a2a2a] rounded-r-sm" />
-                </div>
-
-                {/* Floating Card - Order Status (Glassmorphism, smaller, elegant) */}
-                <motion.div 
-                  className="app-floating-card absolute -right-2 sm:-right-3 md:-right-6 lg:-right-10 top-[8%] hidden sm:block"
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="bg-white/95 backdrop-blur-xl rounded-xl px-3 py-2.5 shadow-lg shadow-black/10 border border-white/50">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-gradient-to-br from-[var(--color-sage)] to-[var(--color-sage)]/80 rounded-lg flex items-center justify-center text-sm shadow-sm">
-                        🚗
-                      </div>
-                      <div>
-                        <p className="font-body text-xs text-[var(--color-charcoal)] font-semibold leading-tight">On the way!</p>
-                        <p className="font-mono text-[10px] text-[var(--color-charcoal-light)]">ETA: 12 mins</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Floating Card - Support Local (Glassmorphism, smaller, elegant) */}
-                <motion.div 
-                  className="app-floating-card absolute -left-2 sm:-left-3 md:-left-6 lg:-left-10 top-[25%] hidden sm:block"
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="bg-white/95 backdrop-blur-xl rounded-xl px-3 py-2.5 shadow-lg shadow-black/10 border border-white/50">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-lg flex items-center justify-center shadow-sm">
-                        <span className="text-white text-sm">👨‍🍳</span>
-                      </div>
-                      <div>
-                        <p className="font-body text-xs text-[var(--color-charcoal)] font-semibold leading-tight">Support</p>
-                        <p className="font-body text-xs text-[var(--color-primary)] font-semibold leading-tight">Local Chefs</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Floating Card - Rating (Glassmorphism, gold accent, elegant) */}
-                <motion.div 
-                  className="app-floating-card absolute -right-2 sm:-right-5 md:-right-8 bottom-[22%] hidden sm:block"
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="bg-gradient-to-br from-[var(--color-butter)] to-[var(--color-gold)]/90 backdrop-blur-xl rounded-xl px-3 py-2.5 shadow-lg shadow-[var(--color-gold)]/20 border border-[var(--color-gold)]/30">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 bg-white/40 rounded-lg flex items-center justify-center">
-                        <span className="text-sm">⭐</span>
-                      </div>
-                      <div>
-                        <p className="font-heading text-lg text-[var(--color-charcoal)] leading-none">5.0</p>
-                        <p className="font-mono text-[10px] text-[var(--color-charcoal)]/70">Rating</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
+                Fresh homemade meals from passionate local chefs, just a tap away. 
+                Start exploring flavors from around the world.
+              </motion.p>
+            </div>
           </div>
         </div>
 
+        {/* Bento Grid Section - PRESERVE layout on all screens */}
+        <div className="pb-16 sm:pb-24 md:pb-32 w-full max-w-full overflow-x-clip">
+          <div className="grid grid-cols-12 gap-1 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full">
+            
+            {/* Left Column - Feature Cards */}
+            <div className="col-span-7 sm:col-span-6 order-2 lg:order-1">
+              {/* Preserve 2-column grid layout on all screens */}
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
+                
+                {/* Browse Local Menus - Large Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 60 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="app-feature-card col-span-2 group will-change-transform"
+                >
+                  <div className="relative h-full bg-white rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[60px] sm:min-h-[100px] md:min-h-[140px] lg:min-h-[180px]">
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-cream)] to-transparent opacity-50" />
+                    <motion.div
+                      style={{ rotate }}
+                      className="absolute top-2 right-2 sm:top-4 sm:right-4 md:top-6 md:right-6 text-2xl sm:text-4xl md:text-6xl lg:text-7xl opacity-15 group-hover:opacity-25 transition-opacity duration-500"
+                    >
+                      🍽️
+                    </motion.div>
+                    
+                    <div className="relative flex items-start gap-2 sm:gap-3 md:gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+                        <span className="text-sm sm:text-lg md:text-2xl lg:text-3xl">🔍</span>
+                      </div>
+                      <div>
+                        <span className="hidden sm:inline-flex items-center gap-1 sm:gap-2 px-2 py-0.5 sm:px-3 sm:py-1 bg-[var(--color-primary)]/10 rounded-full mb-1 sm:mb-2 md:mb-3">
+                          <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[var(--color-primary)] rounded-full animate-pulse" />
+                          <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-[var(--color-primary)] uppercase tracking-wider">For Foodies</span>
+                        </span>
+                        <h4 className="font-heading text-[10px] sm:text-sm md:text-xl lg:text-2xl text-[var(--color-charcoal)] mb-0.5 sm:mb-1 md:mb-2 leading-tight">
+                          Browse Local Menus
+                        </h4>
+                        <p className="font-body text-[7px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/70 leading-snug hidden sm:block">
+                          <span className="hidden md:inline">Discover authentic cuisines from chefs in your neighborhood.</span>
+                          <span className="md:hidden">Local chefs, daily updates.</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Live Tracking Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="app-feature-card col-span-1 group will-change-transform"
+                >
+                  <div className="relative h-full bg-[var(--color-charcoal)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/5" />
+                    <motion.div
+                      style={{ rotate }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    >
+                      📍
+                    </motion.div>
+                    
+                    <div className="relative h-full flex flex-col justify-between">
+                      <div>
+                        <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-white/40 uppercase tracking-wider">Real-time</span>
+                        <h4 className="font-heading text-[9px] sm:text-xs md:text-lg lg:text-2xl text-white mt-0.5 sm:mt-1 md:mt-2 leading-tight">
+                          Live Tracking
+                        </h4>
+                      </div>
+                      <p className="font-body text-[6px] sm:text-[8px] md:text-xs lg:text-sm text-white/50 mt-1 sm:mt-2 md:mt-3 hidden sm:block">
+                        <span className="hidden md:inline">Watch your order from kitchen to doorstep.</span>
+                        <span className="md:hidden">Track orders live</span>
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Secure Checkout - Stripe Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="app-feature-card col-span-1 group will-change-transform"
+                >
+                  <div 
+                    className="relative h-full rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]"
+                    style={{ backgroundColor: STRIPE_BLURPLE }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent" />
+                    <motion.div
+                      style={{ rotate }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    >
+                      💳
+                    </motion.div>
+                    
+                    <div className="relative h-full flex flex-col justify-between">
+                      <div>
+                        <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-white/60 uppercase tracking-wider">Secure</span>
+                        <h4 className="font-heading text-[9px] sm:text-xs md:text-lg lg:text-2xl text-white mt-0.5 sm:mt-1 md:mt-2 leading-tight">
+                          <span className="hidden sm:inline">Secure Checkout</span>
+                          <span className="sm:hidden">Secure</span>
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-1 md:gap-2 mt-1 sm:mt-2 md:mt-3">
+                        {/* Official Stripe Wordmark - inverted to white */}
+                        <img 
+                          src="/Stripe_wordmark_-_slate.svg" 
+                          alt="Stripe" 
+                          className="h-2.5 sm:h-3 md:h-5 lg:h-6"
+                          style={{ filter: 'brightness(0) invert(1)' }}
+                        />
+                        <p className="font-mono text-[5px] sm:text-[7px] md:text-[10px] lg:text-xs text-white/60 hidden md:block">Powered by Stripe</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Rate & Review Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="app-feature-card col-span-1 group will-change-transform"
+                >
+                  <div className="relative h-full bg-[var(--color-gold)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]">
+                    <div className="absolute -top-3 -right-3 w-16 sm:w-24 md:w-32 h-16 sm:h-24 md:h-32 bg-white/20 rounded-full blur-2xl" />
+                    <motion.div
+                      style={{ rotate }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    >
+                      ⭐
+                    </motion.div>
+                    
+                    <div className="relative h-full flex flex-col justify-between">
+                      <div>
+                        <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-[var(--color-charcoal)]/50 uppercase tracking-wider">Community</span>
+                        <h4 className="font-heading text-[9px] sm:text-xs md:text-lg lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-1 md:mt-2 leading-tight">
+                          Rate & Review
+                        </h4>
+                      </div>
+                      <p className="font-body text-[6px] sm:text-[8px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/60 mt-1 sm:mt-2 md:mt-3 hidden sm:block">
+                        <span className="hidden md:inline">Share your experience and help others.</span>
+                        <span className="md:hidden">Share experiences</span>
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Food Safety Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  className="app-feature-card col-span-1 group will-change-transform"
+                >
+                  <div className="relative h-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]">
+                    <motion.div
+                      style={{ rotate }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    >
+                      🛡️
+                    </motion.div>
+                    
+                    <div className="relative h-full flex flex-col justify-between">
+                      <div>
+                        <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-white/50 uppercase tracking-wider">Verified</span>
+                        <h4 className="font-heading text-[9px] sm:text-xs md:text-lg lg:text-2xl text-white mt-0.5 sm:mt-1 md:mt-2 leading-tight">
+                          Food Safety
+                        </h4>
+                      </div>
+                      <p className="font-body text-[6px] sm:text-[8px] md:text-xs lg:text-sm text-white/50 mt-1 sm:mt-2 md:mt-3 hidden sm:block">
+                        <span className="hidden md:inline">All chefs are certified and follow strict standards.</span>
+                        <span className="md:hidden">Certified chefs</span>
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* CTA Section */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="col-span-2 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 pt-2 sm:pt-4"
+                >
+                  <div className="hidden sm:block">
+                    <OrderNowButton href="https://localcook.shop/app/index.php" />
+                  </div>
+                  {/* Simpler button for tiny screens */}
+                  <a 
+                    href="https://localcook.shop/app/index.php"
+                    className="sm:hidden bg-white text-[var(--color-primary)] px-3 py-1.5 rounded-full text-[10px] font-bold"
+                  >
+                    Order Now
+                  </a>
+                  
+                  {/* Native Apps Coming Soon - hidden on very small screens */}
+                  <div className="hidden md:flex items-center gap-2 sm:gap-3 text-white/50">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      {/* Apple Logo */}
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                      </svg>
+                      {/* Android Logo */}
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.523 15.341c-.576 0-1.044-.467-1.044-1.043 0-.576.468-1.043 1.044-1.043.576 0 1.043.467 1.043 1.043 0 .576-.467 1.043-1.043 1.043m-11.046 0c-.576 0-1.043-.467-1.043-1.043 0-.576.467-1.043 1.043-1.043.576 0 1.044.467 1.044 1.043 0 .576-.468 1.043-1.044 1.043m11.405-6.02l1.997-3.46a.416.416 0 00-.152-.566.416.416 0 00-.566.152l-2.022 3.504C15.555 8.062 13.847 7.576 12 7.576c-1.847 0-3.555.486-5.139 1.375L4.839 5.447a.416.416 0 00-.566-.152.416.416 0 00-.152.566l1.997 3.46C2.688 11.197.343 14.795.343 18.946h23.314c0-4.15-2.345-7.749-5.775-9.625"/>
+                      </svg>
+                    </div>
+                    <span className="font-mono text-[8px] sm:text-xs">Native apps soon</span>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Right Column - Phone Mockup */}
+            <div className="col-span-5 sm:col-span-6 order-1 lg:order-2 flex justify-center lg:justify-end">
+              <motion.div
+                style={{ y: phoneY, rotateY: phoneRotate, perspective: 1000 }}
+                className="app-phone-mockup relative"
+              >
+                {/* Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-[var(--color-butter)]/15 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] blur-2xl sm:blur-3xl scale-90 opacity-50" />
+                
+                {/* Phone Frame - scales proportionally */}
+                <div className="relative">
+                  <div className="relative w-[100px] sm:w-[160px] md:w-[220px] lg:w-[280px] xl:w-[300px] bg-[#1a1a1a] rounded-[20px] sm:rounded-[30px] md:rounded-[40px] lg:rounded-[48px] p-[4px] sm:p-[6px] md:p-[8px] lg:p-[10px] shadow-xl sm:shadow-2xl shadow-black/40">
+                    <div className="relative bg-[#0a0a0a] rounded-[16px] sm:rounded-[24px] md:rounded-[32px] lg:rounded-[38px] overflow-hidden">
+                      {/* Dynamic Island - scales down */}
+                      <div className="absolute top-1 sm:top-1.5 md:top-2.5 left-1/2 -translate-x-1/2 z-20">
+                        <div className="w-[40px] sm:w-[55px] md:w-[70px] lg:w-[80px] h-[13px] sm:h-[18px] md:h-[22px] lg:h-[26px] bg-black rounded-full flex items-center justify-center gap-1 md:gap-2">
+                          <div className="w-1 sm:w-1.5 md:w-2 h-1 sm:h-1.5 md:h-2 bg-[#1a1a1a] rounded-full" />
+                          <div className="w-1 sm:w-1.5 md:w-2 lg:w-2.5 h-1 sm:h-1.5 md:h-2 lg:h-2.5 bg-[#1a1a1a] rounded-full ring-1 ring-[#333]" />
+                        </div>
+                      </div>
+                      
+                      {/* Screen */}
+                      <div className="relative aspect-[390/844] overflow-hidden">
+                        <img 
+                          src="/sc_lcapp.png" 
+                          alt="LocalCooks App" 
+                          className="w-full h-full object-cover object-top"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                    </div>
+                    
+                    {/* Side buttons - hidden on very small screens */}
+                    <div className="absolute -left-[1px] sm:-left-[2px] top-[45px] sm:top-[70px] md:top-[90px] w-[2px] sm:w-[3px] h-[14px] sm:h-[20px] md:h-[28px] bg-[#2a2a2a] rounded-l-sm hidden sm:block" />
+                    <div className="absolute -left-[1px] sm:-left-[2px] top-[65px] sm:top-[100px] md:top-[130px] w-[2px] sm:w-[3px] h-[25px] sm:h-[35px] md:h-[50px] bg-[#2a2a2a] rounded-l-sm hidden sm:block" />
+                    <div className="absolute -left-[1px] sm:-left-[2px] top-[95px] sm:top-[145px] md:top-[190px] w-[2px] sm:w-[3px] h-[25px] sm:h-[35px] md:h-[50px] bg-[#2a2a2a] rounded-l-sm hidden sm:block" />
+                    <div className="absolute -right-[1px] sm:-right-[2px] top-[65px] sm:top-[100px] md:top-[130px] w-[2px] sm:w-[3px] h-[35px] sm:h-[50px] md:h-[70px] bg-[#2a2a2a] rounded-r-sm hidden sm:block" />
+                  </div>
+
+                  {/* Floating Card - Order Status - only on larger screens, contained */}
+                  <motion.div 
+                    className="app-floating-card absolute right-0 lg:-right-4 xl:-right-8 top-[10%] hidden lg:block"
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="bg-white/95 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 shadow-lg md:shadow-xl shadow-black/15 border border-white/50">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10 bg-gradient-to-br from-[var(--color-sage)] to-[var(--color-sage)]/80 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base lg:text-lg shadow-sm">
+                          🚗
+                        </div>
+                        <div>
+                          <p className="font-heading text-[10px] md:text-xs lg:text-sm text-[var(--color-charcoal)] leading-tight">On the way!</p>
+                          <p className="font-mono text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal-light)]">ETA: 12 mins</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Floating Card - Support Local - only on larger screens, contained */}
+                  <motion.div 
+                    className="app-floating-card absolute left-0 lg:-left-4 xl:-left-8 top-[28%] hidden lg:block"
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="bg-white/95 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 shadow-lg md:shadow-xl shadow-black/15 border border-white/50">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-lg md:rounded-xl flex items-center justify-center shadow-sm">
+                          <span className="text-white text-sm md:text-base lg:text-lg">👨‍🍳</span>
+                        </div>
+                        <div>
+                          <p className="font-heading text-[10px] md:text-xs lg:text-sm text-[var(--color-charcoal)] leading-tight">Support</p>
+                          <p className="font-heading text-[10px] md:text-xs lg:text-sm text-[var(--color-primary)] leading-tight">Local Chefs</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Floating Card - Rating - only on larger screens, contained */}
+                  <motion.div 
+                    className="app-floating-card absolute right-0 lg:-right-2 xl:-right-6 bottom-[20%] hidden lg:block"
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="bg-gradient-to-br from-[var(--color-butter)] to-[var(--color-gold)]/90 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 shadow-lg md:shadow-xl shadow-[var(--color-gold)]/25 border border-[var(--color-gold)]/30">
+                      <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2.5">
+                        <div className="w-5 md:w-7 lg:w-9 h-5 md:h-7 lg:h-9 bg-white/40 rounded-lg md:rounded-xl flex items-center justify-center">
+                          <span className="text-sm md:text-base lg:text-lg">⭐</span>
+                        </div>
+                        <div>
+                          <p className="font-heading text-lg md:text-xl lg:text-2xl text-[var(--color-charcoal)] leading-none">5.0</p>
+                          <p className="font-mono text-[7px] md:text-[8px] lg:text-[10px] text-[var(--color-charcoal)]/60">Rating</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )
