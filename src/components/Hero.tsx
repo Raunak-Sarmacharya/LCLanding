@@ -246,7 +246,8 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-visible">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4 md:gap-6 lg:gap-10 items-center w-full max-w-full">
           {/* Left Side - Text Content - left aligned on mobile */}
-          <div className="text-left lg:pr-8 col-span-1 order-2 sm:order-1 mt-2 sm:mt-0" style={{ transform: 'skewY(-1deg)' }}>
+          {/* mt-8 on mobile creates gap between chef image above and this title section */}
+          <div className="text-left lg:pr-8 col-span-1 order-2 sm:order-1 mt-8 sm:mt-0" style={{ transform: 'skewY(-1deg)' }}>
             {/* Badge - only shown on sm+ screens here, mobile badge is above image */}
             <div className="hero-badge mb-3 sm:mb-4 md:mb-6 hidden sm:flex justify-start" style={{ transform: 'skewY(1deg)' }}>
               <span className="inline-flex items-center gap-1.5 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[8px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
@@ -312,7 +313,7 @@ export default function Hero() {
           {/* Right Side - Chef Image - centered on mobile with badge above and floating food decorations */}
           <div ref={imageRef} className="relative flex flex-col items-center col-span-1 order-1 sm:order-2 sm:py-0">
             {/* Badge - shown above image on mobile only, centered, positioned higher */}
-            <div className="hero-badge mb-20 -mt-0 flex sm:hidden justify-center">
+            <div className="hero-badge mb-16 flex sm:hidden justify-center">
               <span className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-2.5 py-1.5 rounded-full font-mono text-[8px] text-[var(--color-charcoal)] shadow-md border border-[var(--color-primary)]/10">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
