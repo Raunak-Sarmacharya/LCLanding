@@ -224,7 +224,7 @@ export default function Hero() {
     <section
       id="home"
       ref={heroRef}
-      className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12 grain"
+      className="relative min-h-screen flex items-center overflow-x-clip overflow-y-visible pt-24 pb-12 grain"
     >
       {/* Animated Background Pattern */}
       <div className="absolute inset-0 opacity-15">
@@ -243,13 +243,13 @@ export default function Hero() {
       <div className="hero-orb parallax-fast absolute top-1/3 right-0 w-[500px] h-[500px] bg-[var(--color-primary)]/8 rounded-full blur-3xl animate-[pulse-soft_8s_ease-in-out_infinite]" />
 
       {/* Main Content - Split Layout - properly contained */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-x-clip">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-4 md:gap-6 lg:gap-10 items-center w-full max-w-full">
-          {/* Left Side - Text Content */}
-          <div className="text-left sm:text-left lg:pr-8 col-span-1 order-2 sm:order-1" style={{ transform: 'skewY(-1deg)' }}>
-            {/* Badge - responsive sizing */}
-            <div className="hero-badge mb-3 sm:mb-4 md:mb-6" style={{ transform: 'skewY(1deg)' }}>
-              <span className="inline-flex items-center gap-1.5 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[9px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-visible">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4 md:gap-6 lg:gap-10 items-center w-full max-w-full">
+          {/* Left Side - Text Content - left aligned on mobile */}
+          <div className="text-left lg:pr-8 col-span-1 order-2 sm:order-1 mt-2 sm:mt-0" style={{ transform: 'skewY(-1deg)' }}>
+            {/* Badge - only shown on sm+ screens here, mobile badge is above image */}
+            <div className="hero-badge mb-3 sm:mb-4 md:mb-6 hidden sm:flex justify-start" style={{ transform: 'skewY(1deg)' }}>
+              <span className="inline-flex items-center gap-1.5 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[8px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
                 <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 bg-[var(--color-primary)]"></span>
@@ -258,10 +258,10 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* Main Title with Typewriter - responsive sizing */}
+            {/* Main Title with Typewriter - left aligned */}
             <h1
               ref={titleRef}
-              className="font-heading text-2xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-3 sm:mb-3 md:mb-6"
+              className="font-heading text-3xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-3 sm:mb-3 md:mb-6"
               style={{ perspective: '1000px', transform: 'skewY(1deg)' }}
             >
               <span className="block mb-1 sm:mb-2">{splitText('Your World of')}</span>
@@ -277,18 +277,16 @@ export default function Hero() {
               />
             </h1>
 
-            {/* Description - responsive sizing */}
+            {/* Description - left aligned, fits in 2 lines on mobile */}
             <p 
-              className="hero-description font-body text-[10px] sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-xl mb-4 sm:mb-5 md:mb-8 lg:mb-10 leading-relaxed"
+              className="hero-description font-body text-[13px] sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-[340px] sm:max-w-xl mb-4 sm:mb-5 md:mb-8 lg:mb-10 leading-snug sm:leading-relaxed"
               style={{ transform: 'skewY(1deg)' }}
             >
-              Discover authentic homemade meals from passionate local chefs.
-              <span className="text-[var(--color-primary)] font-medium"> Fresh ingredients,</span> cultural diversity, and
-              <span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
+              Discover authentic homemade meals from passionate local chefs.<span className="text-[var(--color-primary)] font-medium"> Fresh,</span> diverse, and<span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
             </p>
 
-            {/* CTA Buttons - responsive sizing */}
-            <div className="flex flex-row items-center gap-3 sm:gap-2 md:gap-4" style={{ transform: 'skewY(1deg)' }}>
+            {/* CTA Buttons - centered on mobile */}
+            <div className="flex flex-row items-center justify-center sm:justify-start gap-3 sm:gap-2 md:gap-4" style={{ transform: 'skewY(1deg)' }}>
               <a
                 href="https://localcook.shop/app/index.php"
                 className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-semibold text-[10px] sm:text-[10px] md:text-sm lg:text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 sm:gap-1.5 md:gap-2.5 shadow-lg shadow-[var(--color-primary)]/25"
@@ -311,54 +309,64 @@ export default function Hero() {
 
           </div>
 
-          {/* Right Side - Chef Image */}
-          <div ref={imageRef} className="relative flex justify-center sm:justify-center lg:justify-end col-span-1 order-1 sm:order-2">
+          {/* Right Side - Chef Image - centered on mobile with badge above and floating food decorations */}
+          <div ref={imageRef} className="relative flex flex-col items-center col-span-1 order-1 sm:order-2 sm:py-0">
+            {/* Badge - shown above image on mobile only, centered, positioned higher */}
+            <div className="hero-badge mb-20 -mt-0 flex sm:hidden justify-center">
+              <span className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-2.5 py-1.5 rounded-full font-mono text-[8px] text-[var(--color-charcoal)] shadow-md border border-[var(--color-primary)]/10">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--color-primary)]"></span>
+                </span>
+                Now serving in St. John's, Newfoundland
+              </span>
+            </div>
             <div className="hero-image-container hero-image-parallax relative">
-              {/* Decorative food images with minimal parallax - Hidden on mobile/tablet to prevent overlap */}
-              {/* Cake (bigger) - top left - moves UP */}
+              {/* Decorative food images with parallax - VISIBLE ON ALL SCREENS */}
+              {/* Cake - top left corner - moves UP on scroll */}
               <div 
                 ref={cakeRef}
-                className="hero-food-parallax absolute -top-6 left-0 lg:-left-8 xl:-left-12 z-20 pointer-events-none select-none hidden lg:block"
-                style={{ width: '100px', height: '100px' }}
+                className="hero-food-parallax absolute -top-8 -left-8 sm:-top-6 sm:-left-4 lg:-left-8 xl:-left-12 z-20 pointer-events-none select-none"
+                style={{ width: 'clamp(60px, 18vw, 100px)', height: 'clamp(60px, 18vw, 100px)' }}
               >
                 <img 
                   src="/food-cake.png" 
                   alt="" 
                   className="w-full h-full object-contain"
-                  style={{ filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.2))' }}
+                  style={{ filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.25))' }}
                   draggable={false}
                 />
               </div>
-              {/* Noodles (bigger) - top right - moves UP */}
+              {/* Noodles - right side - moves UP on scroll */}
               <div 
                 ref={noodlesRef}
-                className="hero-food-parallax absolute top-1/4 right-0 lg:-right-6 xl:-right-10 z-20 pointer-events-none select-none hidden lg:block"
-                style={{ width: '122px', height: '122px' }}
+                className="hero-food-parallax absolute top-[5%] -right-8 sm:top-1/4 sm:-right-4 lg:-right-6 xl:-right-10 z-20 pointer-events-none select-none"
+                style={{ width: 'clamp(65px, 20vw, 122px)', height: 'clamp(65px, 20vw, 122px)' }}
               >
                 <img 
                   src="/food-noodles.png" 
                   alt="" 
                   className="w-full h-full object-contain"
-                  style={{ filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.2))' }}
+                  style={{ filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.25))' }}
                   draggable={false}
                 />
               </div>
-              {/* Wrap (bigger) - bottom left - moves DOWN */}
+              {/* Wrap - bottom left - moves DOWN on scroll */}
               <div 
                 ref={wrapRef}
-                className="hero-food-parallax absolute bottom-4 left-0 lg:-left-10 xl:-left-16 z-20 pointer-events-none select-none hidden lg:block"
-                style={{ width: '115px', height: '115px' }}
+                className="hero-food-parallax absolute -bottom-4 -left-8 sm:bottom-4 sm:-left-4 lg:-left-10 xl:-left-16 z-20 pointer-events-none select-none"
+                style={{ width: 'clamp(60px, 18vw, 115px)', height: 'clamp(60px, 18vw, 115px)' }}
               >
                 <img 
                   src="/food-wrap.png" 
                   alt="" 
                   className="w-full h-full object-contain"
-                  style={{ filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.2))' }}
+                  style={{ filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.25))' }}
                   draggable={false}
                 />
               </div>
 
-              {/* Main Image Container - responsive sizing to preserve layout */}
+              {/* Main Image Container - centered on mobile */}
               <div className="relative w-[200px] h-[260px] sm:w-[180px] sm:h-[240px] md:w-[280px] md:h-[380px] lg:w-[360px] lg:h-[480px] xl:w-[420px] xl:h-[540px] rounded-2xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-xl sm:shadow-xl md:shadow-2xl shadow-black/15">
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/20 via-transparent to-transparent z-[1]" />

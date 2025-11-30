@@ -152,8 +152,8 @@ section {
   }
   
   /* Prevent decorative elements from overflowing on mobile */
-  .parallax-food,
-  .hero-food-parallax {
+  /* Note: .hero-food-parallax is NOT hidden - we want food items visible in Hero on mobile */
+  .parallax-food {
     display: none !important;
   }
 }
