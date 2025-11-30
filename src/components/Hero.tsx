@@ -249,13 +249,12 @@ export default function Hero() {
           <div className="text-left sm:text-left lg:pr-8 col-span-1 order-2 sm:order-1" style={{ transform: 'skewY(-1deg)' }}>
             {/* Badge - responsive sizing */}
             <div className="hero-badge mb-3 sm:mb-4 md:mb-6" style={{ transform: 'skewY(1deg)' }}>
-              <span className="inline-flex items-center gap-2 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-3 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[10px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
-                <span className="relative flex h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5">
+              <span className="inline-flex items-center gap-1.5 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[9px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
+                <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 bg-[var(--color-primary)]"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 bg-[var(--color-primary)]"></span>
                 </span>
-                <span className="hidden sm:inline">Now serving in St. John's, Newfoundland</span>
-                <span className="sm:hidden">Now in St. John's</span>
+                Now serving in St. John's, Newfoundland
               </span>
             </div>
 
@@ -280,42 +279,33 @@ export default function Hero() {
 
             {/* Description - responsive sizing */}
             <p 
-              className="hero-description font-body text-sm sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-xl mb-4 sm:mb-5 md:mb-8 lg:mb-10 leading-relaxed sm:leading-relaxed"
+              className="hero-description font-body text-[10px] sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-xl mb-4 sm:mb-5 md:mb-8 lg:mb-10 leading-relaxed"
               style={{ transform: 'skewY(1deg)' }}
             >
-              <span className="hidden sm:inline">
-                Discover authentic homemade meals from passionate local chefs.
-                <span className="text-[var(--color-primary)] font-medium"> Fresh ingredients,</span> cultural diversity, and
-                <span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
-              </span>
-              <span className="sm:hidden">
-                Authentic homemade meals from passionate local chefs.
-                <span className="text-[var(--color-primary)] font-medium"> Fresh,</span> diverse, and
-                <span className="text-[var(--color-gold)] font-medium"> delivered to you.</span>
-              </span>
+              Discover authentic homemade meals from passionate local chefs.
+              <span className="text-[var(--color-primary)] font-medium"> Fresh ingredients,</span> cultural diversity, and
+              <span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
             </p>
 
             {/* CTA Buttons - responsive sizing */}
             <div className="flex flex-row items-center gap-3 sm:gap-2 md:gap-4" style={{ transform: 'skewY(1deg)' }}>
               <a
                 href="https://localcook.shop/app/index.php"
-                className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-4 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-semibold text-xs sm:text-[10px] md:text-sm lg:text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 sm:gap-1.5 md:gap-2.5 shadow-lg sm:shadow-lg shadow-[var(--color-primary)]/25"
+                className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-semibold text-[10px] sm:text-[10px] md:text-sm lg:text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 sm:gap-1.5 md:gap-2.5 shadow-lg shadow-[var(--color-primary)]/25"
               >
-                <span className="hidden sm:inline">Start Ordering</span>
-                <span className="sm:hidden">Order Now</span>
-                <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                Start Ordering
+                <svg className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
               <a
                 href="#how-it-works"
-                className="hero-cta group flex items-center justify-center gap-2 sm:gap-1.5 md:gap-2.5 px-4 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-medium text-xs sm:text-[10px] md:text-sm lg:text-base text-[var(--color-charcoal)] border border-[var(--color-charcoal)]/15 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90"
+                className="hero-cta group flex items-center justify-center gap-1.5 sm:gap-1.5 md:gap-2.5 px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-medium text-[10px] sm:text-[10px] md:text-sm lg:text-base text-[var(--color-charcoal)] border border-[var(--color-charcoal)]/15 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90"
               >
-                <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-[var(--color-charcoal-light)] group-hover:text-[var(--color-primary)] transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4 text-[var(--color-charcoal-light)] group-hover:text-[var(--color-primary)] transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                <span className="hidden sm:inline">See How It Works</span>
-                <span className="sm:hidden">Learn More</span>
+                See How It Works
               </a>
             </div>
 

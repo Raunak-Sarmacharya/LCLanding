@@ -6,20 +6,20 @@ import { useRef, useState } from 'react'
 function CloverButton({ href, children }: { href: string; children: React.ReactNode }) {
   const [isHovered, setIsHovered] = useState(false)
   const textWidth = 240 // Approximate width of text "Explore Local Cooks for Chefs"
-  const mobileTextWidth = 140 // Shorter text on mobile
+  const mobileTextWidth = 190 // Full text on mobile - "Explore Local Cooks for Chefs"
   
   return (
     <motion.a
       href={href}
-      className="clover-link-btn inline-flex items-center cursor-pointer max-w-full"
+      className="clover-link-btn inline-flex items-center cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Container with relative positioning - responsive width */}
-      <div className="relative flex items-center h-10 sm:h-12" style={{ width: 'min(calc(100vw - 6rem), 340px)' }}>
+      {/* Container with relative positioning - fits content on mobile */}
+      <div className="relative flex items-center h-10 sm:h-12 w-auto">
         {/* Logo container - animates from left to right */}
         <motion.div 
-          className="absolute flex-shrink-0 z-10 flex items-center gap-1 sm:gap-2"
+          className="flex-shrink-0 z-10 flex items-center gap-1 sm:gap-2"
           animate={{ 
             x: isHovered ? (typeof window !== 'undefined' && window.innerWidth < 640 ? mobileTextWidth + 8 : textWidth + 16) : 0
           }}
@@ -30,7 +30,7 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
         >
           {/* LocalCooks Logo with elegant scale + glow effect */}
           <motion.div 
-            className="w-9 h-9 sm:w-12 sm:h-12 relative"
+            className="w-8 h-8 sm:w-12 sm:h-12 relative"
             animate={{ 
               scale: isHovered ? 1.15 : 1,
               filter: isHovered ? 'drop-shadow(0 0 8px rgba(233, 68, 99, 0.5))' : 'drop-shadow(0 0 0px rgba(233, 68, 99, 0))'
@@ -73,11 +73,10 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
           </motion.div>
         </motion.div>
         
-        {/* Text - animates from right to left, becomes bold */}
+        {/* Text - positioned after logo, animates with logo movement */}
         <motion.span
-          className="absolute text-sm sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body"
+          className="text-[11px] sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body ml-2"
           animate={{ 
-            x: isHovered ? 0 : (typeof window !== 'undefined' && window.innerWidth < 640 ? 48 : 64),
             fontWeight: isHovered ? 700 : 400
           }}
           transition={{ 
@@ -85,8 +84,7 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
             ease: [0.25, 0.1, 0.25, 1]
           }}
         >
-          <span className="hidden sm:inline">{children}</span>
-          <span className="sm:hidden">Explore for Chefs</span>
+          {children}
         </motion.span>
       </div>
     </motion.a>

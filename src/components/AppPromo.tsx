@@ -238,8 +238,8 @@ export default function AppPromo() {
         </div>
 
         {/* Bento Grid Section - PRESERVE layout on all screens */}
-        <div className="pb-16 sm:pb-24 md:pb-32 w-full max-w-full overflow-x-clip">
-          <div className="grid grid-cols-12 gap-1 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full">
+        <div className="pb-16 sm:pb-24 md:pb-32 w-full max-w-full overflow-visible">
+          <div className="grid grid-cols-12 gap-1 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full overflow-visible">
             
             {/* Left Column - Feature Cards */}
             <div className="col-span-7 sm:col-span-6 order-2 lg:order-1">
@@ -267,16 +267,15 @@ export default function AppPromo() {
                         <span className="text-sm sm:text-lg md:text-2xl lg:text-3xl">🔍</span>
                       </div>
                       <div>
-                        <span className="hidden sm:inline-flex items-center gap-1 sm:gap-2 px-2 py-0.5 sm:px-3 sm:py-1 bg-[var(--color-primary)]/10 rounded-full mb-1 sm:mb-2 md:mb-3">
+                        <span className="inline-flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 sm:px-3 sm:py-1 bg-[var(--color-primary)]/10 rounded-full mb-1 sm:mb-2 md:mb-3">
                           <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[var(--color-primary)] rounded-full animate-pulse" />
-                          <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-[var(--color-primary)] uppercase tracking-wider">For Foodies</span>
+                          <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] text-[var(--color-primary)] uppercase tracking-wider">For Foodies</span>
                         </span>
                         <h4 className="font-heading text-[10px] sm:text-sm md:text-xl lg:text-2xl text-[var(--color-charcoal)] mb-0.5 sm:mb-1 md:mb-2 leading-tight">
                           Browse Local Menus
                         </h4>
-                        <p className="font-body text-[7px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/70 leading-snug hidden sm:block">
-                          <span className="hidden md:inline">Discover authentic cuisines from chefs in your neighborhood.</span>
-                          <span className="md:hidden">Local chefs, daily updates.</span>
+                        <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/70 leading-tight sm:leading-snug">
+                          Discover authentic cuisines from chefs in your neighborhood.
                         </p>
                       </div>
                     </div>
@@ -306,9 +305,8 @@ export default function AppPromo() {
                           Live Tracking
                         </h4>
                       </div>
-                      <p className="font-body text-[6px] sm:text-[8px] md:text-xs lg:text-sm text-white/50 mt-1 sm:mt-2 md:mt-3 hidden sm:block">
-                        <span className="hidden md:inline">Watch your order from kitchen to doorstep.</span>
-                        <span className="md:hidden">Track orders live</span>
+                      <p className="font-body text-[5px] sm:text-[8px] md:text-xs lg:text-sm text-white/50 mt-1 sm:mt-2 md:mt-3">
+                        Watch your order from kitchen to doorstep.
                       </p>
                     </div>
                   </div>
@@ -337,8 +335,7 @@ export default function AppPromo() {
                       <div>
                         <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] text-white/60 uppercase tracking-wider">Secure</span>
                         <h4 className="font-heading text-[9px] sm:text-xs md:text-lg lg:text-2xl text-white mt-0.5 sm:mt-1 md:mt-2 leading-tight">
-                          <span className="hidden sm:inline">Secure Checkout</span>
-                          <span className="sm:hidden">Secure</span>
+                          Secure Checkout
                         </h4>
                       </div>
                       <div className="flex items-center gap-1 md:gap-2 mt-1 sm:mt-2 md:mt-3">
@@ -346,10 +343,10 @@ export default function AppPromo() {
                         <img 
                           src="/Stripe_wordmark_-_slate.svg" 
                           alt="Stripe" 
-                          className="h-2.5 sm:h-3 md:h-5 lg:h-6"
+                          className="h-2 sm:h-3 md:h-5 lg:h-6"
                           style={{ filter: 'brightness(0) invert(1)' }}
                         />
-                        <p className="font-mono text-[5px] sm:text-[7px] md:text-[10px] lg:text-xs text-white/60 hidden md:block">Powered by Stripe</p>
+                        <p className="font-mono text-[4px] sm:text-[7px] md:text-[10px] lg:text-xs text-white/60">Powered by Stripe</p>
                       </div>
                     </div>
                   </div>
@@ -378,9 +375,8 @@ export default function AppPromo() {
                           Rate & Review
                         </h4>
                       </div>
-                      <p className="font-body text-[6px] sm:text-[8px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/60 mt-1 sm:mt-2 md:mt-3 hidden sm:block">
-                        <span className="hidden md:inline">Share your experience and help others.</span>
-                        <span className="md:hidden">Share experiences</span>
+                      <p className="font-body text-[5px] sm:text-[8px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/60 mt-1 sm:mt-2 md:mt-3">
+                        Share your experience and help others.
                       </p>
                     </div>
                   </div>
@@ -408,9 +404,8 @@ export default function AppPromo() {
                           Food Safety
                         </h4>
                       </div>
-                      <p className="font-body text-[6px] sm:text-[8px] md:text-xs lg:text-sm text-white/50 mt-1 sm:mt-2 md:mt-3 hidden sm:block">
-                        <span className="hidden md:inline">All chefs are certified and follow strict standards.</span>
-                        <span className="md:hidden">Certified chefs</span>
+                      <p className="font-body text-[5px] sm:text-[8px] md:text-xs lg:text-sm text-white/50 mt-1 sm:mt-2 md:mt-3">
+                        All chefs are certified and follow strict standards.
                       </p>
                     </div>
                   </div>
@@ -434,29 +429,29 @@ export default function AppPromo() {
                     Order Now
                   </a>
                   
-                  {/* Native Apps Coming Soon - hidden on very small screens */}
-                  <div className="hidden md:flex items-center gap-2 sm:gap-3 text-white/50">
-                    <div className="flex items-center gap-1 sm:gap-2">
+                  {/* Native Apps Coming Soon - visible on all screens */}
+                  <div className="flex items-center gap-1.5 sm:gap-3 text-white/50">
+                    <div className="flex items-center gap-0.5 sm:gap-2">
                       {/* Apple Logo */}
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-2.5 h-2.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                       </svg>
                       {/* Android Logo */}
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-2.5 h-2.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M17.523 15.341c-.576 0-1.044-.467-1.044-1.043 0-.576.468-1.043 1.044-1.043.576 0 1.043.467 1.043 1.043 0 .576-.467 1.043-1.043 1.043m-11.046 0c-.576 0-1.043-.467-1.043-1.043 0-.576.467-1.043 1.043-1.043.576 0 1.044.467 1.044 1.043 0 .576-.468 1.043-1.044 1.043m11.405-6.02l1.997-3.46a.416.416 0 00-.152-.566.416.416 0 00-.566.152l-2.022 3.504C15.555 8.062 13.847 7.576 12 7.576c-1.847 0-3.555.486-5.139 1.375L4.839 5.447a.416.416 0 00-.566-.152.416.416 0 00-.152.566l1.997 3.46C2.688 11.197.343 14.795.343 18.946h23.314c0-4.15-2.345-7.749-5.775-9.625"/>
                       </svg>
                     </div>
-                    <span className="font-mono text-[8px] sm:text-xs">Native apps soon</span>
+                    <span className="font-mono text-[6px] sm:text-xs">Native apps soon</span>
                   </div>
                 </motion.div>
               </div>
             </div>
 
-            {/* Right Column - Phone Mockup */}
-            <div className="col-span-5 sm:col-span-6 order-1 lg:order-2 flex justify-center lg:justify-end">
+            {/* Right Column - Phone Mockup - overflow-visible to prevent card clipping */}
+            <div className="col-span-5 sm:col-span-6 order-1 lg:order-2 flex justify-center lg:justify-end overflow-visible pr-4 sm:pr-6 md:pr-8">
               <motion.div
                 style={{ y: phoneY, rotateY: phoneRotate, perspective: 1000 }}
-                className="app-phone-mockup relative"
+                className="app-phone-mockup relative overflow-visible"
               >
                 {/* Glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-[var(--color-butter)]/15 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] blur-2xl sm:blur-3xl scale-90 opacity-50" />
@@ -491,58 +486,59 @@ export default function AppPromo() {
                     <div className="absolute -right-[1px] sm:-right-[2px] top-[65px] sm:top-[100px] md:top-[130px] w-[2px] sm:w-[3px] h-[35px] sm:h-[50px] md:h-[70px] bg-[#2a2a2a] rounded-r-sm hidden sm:block" />
                   </div>
 
-                  {/* Floating Card - Order Status - only on larger screens, contained */}
+                  {/* Floating Card - Order Status - visible on all screens with responsive sizing */}
+                  {/* Mobile: top-[18%] to avoid phone notch/dynamic island, sm+ uses normal positioning */}
                   <motion.div 
-                    className="app-floating-card absolute right-0 lg:-right-4 xl:-right-8 top-[10%] hidden lg:block"
+                    className="app-floating-card absolute -right-2 sm:-right-4 lg:-right-4 xl:-right-8 top-[14%] sm:top-[10%]"
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="bg-white/95 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 shadow-lg md:shadow-xl shadow-black/15 border border-white/50">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <div className="w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10 bg-gradient-to-br from-[var(--color-sage)] to-[var(--color-sage)]/80 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base lg:text-lg shadow-sm">
+                    <div className="bg-white/95 backdrop-blur-xl rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl px-1.5 sm:px-2 md:px-3 lg:px-4 py-1 sm:py-1.5 md:py-2 lg:py-3 shadow-md sm:shadow-lg md:shadow-xl shadow-black/15 border border-white/50">
+                      <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+                        <div className="w-4 sm:w-6 md:w-8 lg:w-10 h-4 sm:h-6 md:h-8 lg:h-10 bg-gradient-to-br from-[var(--color-sage)] to-[var(--color-sage)]/80 rounded-md sm:rounded-lg md:rounded-xl flex items-center justify-center text-[8px] sm:text-sm md:text-base lg:text-lg shadow-sm">
                           🚗
                         </div>
                         <div>
-                          <p className="font-heading text-[10px] md:text-xs lg:text-sm text-[var(--color-charcoal)] leading-tight">On the way!</p>
-                          <p className="font-mono text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal-light)]">ETA: 12 mins</p>
+                          <p className="font-heading text-[7px] sm:text-[10px] md:text-xs lg:text-sm text-[var(--color-charcoal)] leading-tight">On the way!</p>
+                          <p className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal-light)]">ETA: 12 mins</p>
                         </div>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Floating Card - Support Local - only on larger screens, contained */}
+                  {/* Floating Card - Support Local - visible on all screens with responsive sizing */}
                   <motion.div 
-                    className="app-floating-card absolute left-0 lg:-left-4 xl:-left-8 top-[28%] hidden lg:block"
+                    className="app-floating-card absolute -left-2 sm:-left-4 lg:-left-4 xl:-left-8 top-[34%] sm:top-[28%]"
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="bg-white/95 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 shadow-lg md:shadow-xl shadow-black/15 border border-white/50">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <div className="w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-lg md:rounded-xl flex items-center justify-center shadow-sm">
-                          <span className="text-white text-sm md:text-base lg:text-lg">👨‍🍳</span>
+                    <div className="bg-white/95 backdrop-blur-xl rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl px-1.5 sm:px-2 md:px-3 lg:px-4 py-1 sm:py-1.5 md:py-2 lg:py-3 shadow-md sm:shadow-lg md:shadow-xl shadow-black/15 border border-white/50">
+                      <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+                        <div className="w-4 sm:w-6 md:w-8 lg:w-10 h-4 sm:h-6 md:h-8 lg:h-10 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-md sm:rounded-lg md:rounded-xl flex items-center justify-center shadow-sm">
+                          <span className="text-white text-[8px] sm:text-sm md:text-base lg:text-lg">👨‍🍳</span>
                         </div>
                         <div>
-                          <p className="font-heading text-[10px] md:text-xs lg:text-sm text-[var(--color-charcoal)] leading-tight">Support</p>
-                          <p className="font-heading text-[10px] md:text-xs lg:text-sm text-[var(--color-primary)] leading-tight">Local Chefs</p>
+                          <p className="font-heading text-[7px] sm:text-[10px] md:text-xs lg:text-sm text-[var(--color-charcoal)] leading-tight">Support</p>
+                          <p className="font-heading text-[7px] sm:text-[10px] md:text-xs lg:text-sm text-[var(--color-primary)] leading-tight">Local Chefs</p>
                         </div>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Floating Card - Rating - only on larger screens, contained */}
+                  {/* Floating Card - Rating - visible on all screens with responsive sizing */}
                   <motion.div 
-                    className="app-floating-card absolute right-0 lg:-right-2 xl:-right-6 bottom-[20%] hidden lg:block"
+                    className="app-floating-card absolute -right-2 sm:-right-4 lg:-right-2 xl:-right-6 bottom-[18%] sm:bottom-[20%]"
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="bg-gradient-to-br from-[var(--color-butter)] to-[var(--color-gold)]/90 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 shadow-lg md:shadow-xl shadow-[var(--color-gold)]/25 border border-[var(--color-gold)]/30">
-                      <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2.5">
-                        <div className="w-5 md:w-7 lg:w-9 h-5 md:h-7 lg:h-9 bg-white/40 rounded-lg md:rounded-xl flex items-center justify-center">
-                          <span className="text-sm md:text-base lg:text-lg">⭐</span>
+                    <div className="bg-gradient-to-br from-[var(--color-butter)] to-[var(--color-gold)]/90 backdrop-blur-xl rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl px-1.5 sm:px-2 md:px-3 lg:px-4 py-1 sm:py-1.5 md:py-2 lg:py-3 shadow-md sm:shadow-lg md:shadow-xl shadow-[var(--color-gold)]/25 border border-[var(--color-gold)]/30">
+                      <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5">
+                        <div className="w-4 sm:w-5 md:w-7 lg:w-9 h-4 sm:h-5 md:h-7 lg:h-9 bg-white/40 rounded-md sm:rounded-lg md:rounded-xl flex items-center justify-center">
+                          <span className="text-[8px] sm:text-sm md:text-base lg:text-lg">⭐</span>
                         </div>
                         <div>
-                          <p className="font-heading text-lg md:text-xl lg:text-2xl text-[var(--color-charcoal)] leading-none">5.0</p>
-                          <p className="font-mono text-[7px] md:text-[8px] lg:text-[10px] text-[var(--color-charcoal)]/60">Rating</p>
+                          <p className="font-heading text-sm sm:text-lg md:text-xl lg:text-2xl text-[var(--color-charcoal)] leading-none">5.0</p>
+                          <p className="font-mono text-[5px] sm:text-[7px] md:text-[8px] lg:text-[10px] text-[var(--color-charcoal)]/60">Rating</p>
                         </div>
                       </div>
                     </div>

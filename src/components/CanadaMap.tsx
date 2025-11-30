@@ -404,8 +404,8 @@ export default function CanadaMap() {
         />
 
         {/* Dynamic Section Headers - Three phases with proper padding from nav */}
-        {/* Mobile: clearance from navbar (top-20), closer to map */}
-        <div className="absolute top-20 sm:top-20 md:top-20 lg:top-20 xl:top-24 left-0 right-0 text-center z-10 px-2 sm:px-4 max-w-full overflow-x-clip box-border">
+        {/* Mobile: more clearance from navbar (top-32), sm+ uses standard spacing */}
+        <div className="absolute top-32 sm:top-20 md:top-20 lg:top-20 xl:top-24 left-0 right-0 text-center z-10 px-2 sm:px-4 max-w-full overflow-x-clip box-border">
           {/* Phase 1: Full Canada view */}
           <div ref={text1Ref} className="absolute inset-x-0 top-0">
             <p className="font-mono text-xs sm:text-[10px] md:text-xs text-[#f51042] uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2 md:mb-3">
@@ -448,7 +448,7 @@ export default function CanadaMap() {
 
         {/* Map container - balanced spacing: tight on mobile, proper clearance on larger screens */}
         {/* Mobile: minimal margin for compact layout (map closer to title), Laptop/Desktop: more clearance for header */}
-        <div className="relative w-full max-w-5xl h-[38vh] sm:h-[42vh] md:h-[45vh] lg:h-[48vh] xl:h-[50vh] mx-auto px-4 mt-6 sm:mt-20 md:mt-28 lg:mt-36 xl:mt-40">
+        <div className="relative w-full max-w-5xl h-[38vh] sm:h-[42vh] md:h-[45vh] lg:h-[48vh] xl:h-[50vh] mx-auto px-4 mt-2 sm:mt-20 md:mt-28 lg:mt-36 xl:mt-40">
           {/* SVG container */}
           <div 
             ref={svgContainerRef}
@@ -498,10 +498,10 @@ export default function CanadaMap() {
           </div>
         </div>
 
-        {/* Stats bar - positioned closer to map on mobile, proper spacing on larger screens */}
+        {/* Stats bar - positioned closer to map on mobile (bottom-32), proper spacing on larger screens */}
         <div 
           ref={statsRef}
-          className="absolute bottom-16 sm:bottom-4 md:bottom-10 lg:bottom-16 xl:bottom-16 left-1/2 -translate-x-1/2 z-20 w-auto box-border"
+          className="absolute bottom-32 sm:bottom-4 md:bottom-10 lg:bottom-16 xl:bottom-16 left-1/2 -translate-x-1/2 z-20 w-auto box-border"
           style={{ 
             maxWidth: 'calc(100% - 1rem)'
           }}

@@ -66,22 +66,22 @@ export default function Footer() {
   return (
     <footer id="contact" ref={ref} className="bg-white relative overflow-hidden">
       {/* Main Footer Content - properly contained */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pt-8 sm:pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 md:pb-10 w-full box-border overflow-x-clip">
-        {/* Two Column Layout - preserving aesthetic on all screens */}
-        <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-0">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-12 sm:pt-16 md:pt-16 lg:pt-20 pb-8 sm:pb-8 md:pb-10 w-full box-border overflow-x-clip">
+        {/* Two Column Layout - stacks vertically on mobile like ContactPage */}
+        <div className="flex flex-col sm:flex-row gap-8 sm:gap-6 md:gap-8 lg:gap-0">
           
           {/* Left Column: Contact Us Text */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-            className="w-[35%] sm:w-[40%] lg:w-[45%] flex items-start lg:pr-8 xl:pr-16 flex-shrink-0"
+            className="sm:w-[40%] lg:w-[45%] flex items-start lg:pr-8 xl:pr-16 flex-shrink-0"
           >
             <Link 
               to="/contact"
               className="group inline-block footer-contact-link"
             >
-              <h2 className="font-display text-xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-[5.5rem] leading-[0.85] uppercase tracking-normal footer-contact-text select-none">
+              <h2 className="font-display text-5xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-[5.5rem] leading-[0.85] uppercase tracking-normal footer-contact-text select-none">
                 <span className="block">Contact</span>
                 <span className="block">Us</span>
               </h2>
@@ -93,50 +93,48 @@ export default function Footer() {
             initial={{ opacity: 0, x: 20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
-            className="w-[65%] sm:w-[60%] lg:w-[55%] flex flex-col justify-between lg:pl-8 lg:border-l lg:border-[var(--color-charcoal)]/10"
+            className="sm:w-[60%] lg:w-[55%] flex flex-col justify-between lg:pl-8 lg:border-l lg:border-[var(--color-charcoal)]/10"
           >
-            {/* Top Row: Contact Info */}
-            <div className="flex flex-wrap gap-x-3 sm:gap-x-5 md:gap-x-8 gap-y-3 sm:gap-y-4 md:gap-y-6 mb-4 sm:mb-6 md:mb-8">
+            {/* Top Row: Contact Info - larger sizes on mobile to match ContactPage */}
+            <div className="flex flex-wrap gap-x-6 sm:gap-x-5 md:gap-x-8 gap-y-4 sm:gap-y-4 md:gap-y-6 mb-6 sm:mb-6 md:mb-8">
               {/* Talk to us */}
-              <div className="space-y-0.5 sm:space-y-1 md:space-y-1.5">
-                <h3 className="font-body font-bold text-[var(--color-charcoal)] text-[8px] sm:text-[9px] md:text-[11px] uppercase tracking-wider sm:tracking-widest">
+              <div className="space-y-1 sm:space-y-1 md:space-y-1.5">
+                <h3 className="font-body font-bold text-[var(--color-charcoal)] text-[11px] sm:text-[9px] md:text-[11px] uppercase tracking-widest">
                   Talk to us
                 </h3>
                 <div className="space-y-0.5">
                   <a 
                     href="tel:+17095550123"
-                    className="block font-body text-[var(--color-charcoal)]/60 text-[9px] sm:text-xs md:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
+                    className="block font-body text-[var(--color-charcoal)]/60 text-sm sm:text-xs md:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                   >
-                    <span className="hidden sm:inline">+1 (709) 555-0123</span>
-                    <span className="sm:hidden">709-555-0123</span>
+                    +1 (709) 555-0123
                   </a>
                   <a 
                     href="mailto:hello@localcooks.ca"
-                    className="block font-body text-[var(--color-charcoal)]/60 text-[9px] sm:text-xs md:text-sm hover:text-[var(--color-primary)] transition-colors duration-200 truncate"
+                    className="block font-body text-[var(--color-charcoal)]/60 text-sm sm:text-xs md:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                   >
-                    <span className="hidden sm:inline">hello@localcooks.ca</span>
-                    <span className="sm:hidden">Email us</span>
+                    hello@localcooks.ca
                   </a>
                 </div>
               </div>
 
-              {/* Come see us - hidden on very small screens */}
-              <div className="space-y-0.5 sm:space-y-1 md:space-y-1.5 hidden sm:block">
-                <h3 className="font-body font-bold text-[var(--color-charcoal)] text-[8px] sm:text-[9px] md:text-[11px] uppercase tracking-wider sm:tracking-widest">
+              {/* Come see us - visible on all screens */}
+              <div className="space-y-1 sm:space-y-1 md:space-y-1.5">
+                <h3 className="font-body font-bold text-[var(--color-charcoal)] text-[11px] sm:text-[9px] md:text-[11px] uppercase tracking-widest">
                   Visit us
                 </h3>
-                <p className="font-body text-[var(--color-charcoal)]/60 text-[9px] sm:text-xs md:text-sm leading-snug">
-                  St. John's, NL<br className="hidden md:block" />
-                  <span className="hidden md:inline">Canada</span>
+                <p className="font-body text-[var(--color-charcoal)]/60 text-sm sm:text-xs md:text-sm leading-snug">
+                  St. John's, NL<br />
+                  Canada
                 </p>
               </div>
 
               {/* Follow us */}
-              <div className="space-y-0.5 sm:space-y-1 md:space-y-1.5">
-                <h3 className="font-body font-bold text-[var(--color-charcoal)] text-[8px] sm:text-[9px] md:text-[11px] uppercase tracking-wider sm:tracking-widest">
+              <div className="space-y-1 sm:space-y-1 md:space-y-1.5">
+                <h3 className="font-body font-bold text-[var(--color-charcoal)] text-[11px] sm:text-[9px] md:text-[11px] uppercase tracking-widest">
                   Follow us
                 </h3>
-                <div className="flex gap-0.5 sm:gap-1">
+                <div className="flex gap-1 sm:gap-1">
                   {socialLinks.map((social) => (
                     <motion.a
                       key={social.name}
@@ -145,7 +143,7 @@ export default function Footer() {
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-[var(--color-charcoal)]/20 flex items-center justify-center text-[var(--color-charcoal)]/70 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition-all duration-300 [&_svg]:w-3 [&_svg]:h-3 sm:[&_svg]:w-4 sm:[&_svg]:h-4 md:[&_svg]:w-5 md:[&_svg]:h-5"
+                      className="w-10 h-10 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-[var(--color-charcoal)]/20 flex items-center justify-center text-[var(--color-charcoal)]/70 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition-all duration-300 [&_svg]:w-5 [&_svg]:h-5 sm:[&_svg]:w-4 sm:[&_svg]:h-4 md:[&_svg]:w-5 md:[&_svg]:h-5"
                       aria-label={social.name}
                     >
                       {social.icon}
@@ -155,10 +153,10 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Bottom Row: Nav Links + Logo */}
-            <div className="flex flex-row justify-between items-end gap-2 sm:gap-4 md:gap-6">
+            {/* Bottom Row: Nav Links + Logo - stacks on mobile like ContactPage */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-4 md:gap-6">
               {/* Navigation Links */}
-              <div className="flex flex-wrap gap-x-2 sm:gap-x-3 md:gap-x-5 gap-y-1">
+              <div className="flex flex-wrap gap-x-4 sm:gap-x-3 md:gap-x-5 gap-y-1.5">
                 {mainNavLinks.map((link, index) => (
                   <motion.div
                     key={link.name}
@@ -169,7 +167,7 @@ export default function Footer() {
                     {link.isRoute ? (
                       <Link
                         to={link.href}
-                        className="font-body font-semibold text-[var(--color-charcoal)] text-[8px] sm:text-[10px] md:text-xs lg:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
+                        className="font-body font-semibold text-[var(--color-charcoal)] text-sm sm:text-[10px] md:text-xs lg:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                       >
                         {link.name}
                       </Link>
@@ -178,18 +176,16 @@ export default function Footer() {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-body font-semibold text-[var(--color-charcoal)] text-[8px] sm:text-[10px] md:text-xs lg:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
+                        className="font-body font-semibold text-[var(--color-charcoal)] text-sm sm:text-[10px] md:text-xs lg:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                       >
-                        <span className="hidden sm:inline">{link.name}</span>
-                        <span className="sm:hidden">{link.name.split(' ')[0]}</span>
+                        {link.name}
                       </a>
                     ) : (
                       <a
                         href={link.href}
-                        className="font-body font-semibold text-[var(--color-charcoal)] text-[8px] sm:text-[10px] md:text-xs lg:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
+                        className="font-body font-semibold text-[var(--color-charcoal)] text-sm sm:text-[10px] md:text-xs lg:text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                       >
-                        <span className="hidden sm:inline">{link.name}</span>
-                        <span className="sm:hidden">{link.name.split(' ')[0]}</span>
+                        {link.name}
                       </a>
                     )}
                   </motion.div>

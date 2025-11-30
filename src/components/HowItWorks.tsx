@@ -369,9 +369,8 @@ export default function HowItWorks() {
                     <h3 className="font-heading text-[9px] sm:text-xs md:text-base lg:text-xl text-[var(--color-charcoal)] mb-0.5 sm:mb-1 md:mb-2 lg:mb-3 group-hover:text-[var(--color-primary)] transition-colors duration-300 leading-tight">
                       {step.title}
                     </h3>
-                    <p className="font-body text-[7px] sm:text-[9px] md:text-xs lg:text-base text-[var(--color-charcoal-light)] leading-snug sm:leading-relaxed hidden sm:block">
-                      <span className="hidden lg:inline">{step.description}</span>
-                      <span className="lg:hidden">{step.description.split('.')[0]}.</span>
+                    <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-base text-[var(--color-charcoal-light)] leading-tight sm:leading-relaxed">
+                      {step.description}
                     </p>
                   </div>
                   
