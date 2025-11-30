@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, type Variants } from 'motion/react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 
@@ -18,26 +18,26 @@ const navLinks = [
 // ============================================
 
 // The color splash background - reveals via clipPath from top-right (burger position)
-const colorSplashVariants = {
+const colorSplashVariants: Variants = {
   closed: {
     clipPath: 'circle(0% at calc(100% - 40px) 40px)',
     transition: {
       duration: 0.6,
-      ease: [0.77, 0, 0.175, 1], // Custom easing for smooth close
-      delay: 0.3, // Wait for content to fade out first
+      ease: [0.77, 0, 0.175, 1],
+      delay: 0.3,
     }
   },
   open: {
     clipPath: 'circle(150% at calc(100% - 40px) 40px)',
     transition: {
       duration: 0.8,
-      ease: [0.77, 0, 0.175, 1], // Smooth reveal easing
+      ease: [0.77, 0, 0.175, 1],
     }
   }
 }
 
 // Menu content container - appears AFTER the splash reveals
-const menuContentVariants = {
+const menuContentVariants: Variants = {
   closed: {
     opacity: 0,
     transition: {
@@ -49,7 +49,7 @@ const menuContentVariants = {
     opacity: 1,
     transition: {
       duration: 0.3,
-      delay: 0.5, // Wait for color splash to reveal first
+      delay: 0.5,
       when: 'beforeChildren',
       staggerChildren: 0.08,
       delayChildren: 0.1,
@@ -58,7 +58,7 @@ const menuContentVariants = {
 }
 
 // Individual menu items - slide up and fade in with stagger
-const menuItemVariants = {
+const menuItemVariants: Variants = {
   closed: { 
     opacity: 0, 
     y: 40,
@@ -71,13 +71,13 @@ const menuItemVariants = {
     y: 0,
     transition: {
       duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94], // Smooth easeOut
+      ease: [0.25, 0.46, 0.45, 0.94],
     }
   }
 }
 
 // Secondary items (CTA, links at bottom) - delayed more
-const secondaryItemVariants = {
+const secondaryItemVariants: Variants = {
   closed: { 
     opacity: 0, 
     y: 20,
@@ -355,7 +355,7 @@ export default function Navbar() {
               {/* Main navigation links - centered and large */}
               <div className="flex-1 flex flex-col justify-center px-8 -mt-16">
                 <div className="flex flex-col gap-2">
-                  {navLinks.map((link, index) => (
+                  {navLinks.map((link) => (
                     'isRoute' in link && link.isRoute ? (
                       <motion.div
                         key={link.name}
