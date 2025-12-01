@@ -126,14 +126,18 @@ export default function Testimonials() {
     }, 6000)
   }, [emblaApi])
 
-  const scrollPrev = useCallback(() => {
+  const scrollPrev = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    // Remove focus immediately for cleaner UX (no persistent highlight)
+    e.currentTarget.blur()
     if (emblaApi) {
       pauseAutoplayTemporarily()
       emblaApi.scrollPrev()
     }
   }, [emblaApi, pauseAutoplayTemporarily])
 
-  const scrollNext = useCallback(() => {
+  const scrollNext = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    // Remove focus immediately for cleaner UX (no persistent highlight)
+    e.currentTarget.blur()
     if (emblaApi) {
       pauseAutoplayTemporarily()
       emblaApi.scrollNext()
@@ -223,6 +227,8 @@ export default function Testimonials() {
             <button 
               className="embla__arrow embla__arrow--prev"
               onClick={scrollPrev}
+              onTouchEnd={(e) => e.currentTarget.blur()}
+              onMouseUp={(e) => e.currentTarget.blur()}
               aria-label="Previous testimonial"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 23 14" fill="none">
@@ -232,6 +238,8 @@ export default function Testimonials() {
             <button 
               className="embla__arrow embla__arrow--next"
               onClick={scrollNext}
+              onTouchEnd={(e) => e.currentTarget.blur()}
+              onMouseUp={(e) => e.currentTarget.blur()}
               aria-label="Next testimonial"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 24 14" fill="none">

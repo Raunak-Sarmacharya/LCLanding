@@ -38,6 +38,20 @@
 .embla {
   overflow: hidden;
   width: 100%;
+  position: relative;
+}
+
+/* Smooth gradient fade at bottom to eliminate harsh shadow edges */
+.embla::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent 0%, var(--color-cream) 100%);
+  pointer-events: none;
+  z-index: 10;
 }
 
 .embla__container {
@@ -49,6 +63,8 @@
   -webkit-backface-visibility: hidden;
   transform-style: preserve-3d;
   will-change: transform;
+  /* Extra bottom padding for shadow breathing room */
+  padding-bottom: 20px;
 }
 
 /* Individual Slide - 33.333% for 3 visible cards with minimal gaps */
@@ -87,21 +103,30 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  /* Smooth diffused shadow - eliminates harsh edges */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.03);
 }
 
 /* Far slides (more than 1 away from center) */
 .embla__slide.is-far .testimonial_content {
   transform: scale(0.85);
   opacity: 0.45;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  /* Soft diffused shadow */
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.02),
+    0 4px 16px rgba(0, 0, 0, 0.02);
 }
 
 /* Adjacent slides (1 away from center) */
 .embla__slide.is-adjacent .testimonial_content {
   transform: scale(0.92);
   opacity: 0.7;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  /* Medium diffused shadow */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    0 8px 28px rgba(0, 0, 0, 0.05);
 }
 
 /* Active slide (centered) - larger and fully visible */
@@ -110,7 +135,11 @@
   opacity: 1;
   min-height: 165px;
   padding: 2.25rem 3.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  /* Smooth layered shadow - no harsh edges */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.08),
+    0 20px 48px rgba(0, 0, 0, 0.04);
 }
 
 .text-align-center {
@@ -215,6 +244,25 @@
     color 0.3s ease,
     transform 0.2s ease,
     border-color 0.3s ease;
+  
+  /* Remove all focus outlines and rings - for clean click experience */
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Remove focus ring for mouse users, keep for keyboard accessibility */
+.embla__arrow:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Only show focus indicator for keyboard navigation (accessibility) */
+.embla__arrow:focus-visible {
+  outline: 2px solid var(--color-charcoal);
+  outline-offset: 2px;
 }
 
 .embla__arrow:hover {
@@ -226,6 +274,9 @@
 .embla__arrow:active {
   transform: scale(0.95);
   transition: transform 0.1s ease;
+  /* Ensure no highlight on active state */
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .embla__arrow svg {
