@@ -224,7 +224,7 @@ export default function Hero() {
     <section
       id="home"
       ref={heroRef}
-      className="relative min-h-screen flex items-center overflow-x-clip overflow-y-visible pt-24 pb-12 grain"
+      className="relative min-h-screen flex items-center overflow-x-clip overflow-y-visible pt-16 sm:pt-24 pb-8 sm:pb-12 grain"
     >
       {/* Animated Background Pattern */}
       <div className="absolute inset-0 opacity-15">
@@ -246,8 +246,8 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-visible">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4 md:gap-6 lg:gap-10 items-center w-full max-w-full">
           {/* Left Side - Text Content - left aligned on mobile */}
-          {/* mt-8 on mobile creates gap between chef image above and this title section */}
-          <div className="text-left lg:pr-8 col-span-1 order-2 sm:order-1 mt-8 sm:mt-0" style={{ transform: 'skewY(-1deg)' }}>
+          {/* mt-6 on mobile creates gap between chef image above and this title section - MOBILE: adjusted for larger image */}
+          <div className="text-left lg:pr-8 col-span-1 order-2 sm:order-1 mt-6 sm:mt-0" style={{ transform: 'skewY(-1deg)' }}>
             {/* Badge - only shown on sm+ screens here, mobile badge is above image */}
             <div className="hero-badge mb-3 sm:mb-4 md:mb-6 hidden sm:flex justify-start" style={{ transform: 'skewY(1deg)' }}>
               <span className="inline-flex items-center gap-1.5 sm:gap-2 md:gap-3 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 md:px-5 py-1.5 sm:py-1.5 md:py-2.5 rounded-full font-mono text-[8px] sm:text-[9px] md:text-sm text-[var(--color-charcoal)] shadow-md sm:shadow-lg border border-[var(--color-primary)]/10">
@@ -259,10 +259,10 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* Main Title with Typewriter - left aligned */}
+            {/* Main Title with Typewriter - left aligned - MOBILE: larger text for better readability */}
             <h1
               ref={titleRef}
-              className="font-heading text-3xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-3 sm:mb-3 md:mb-6"
+              className="font-heading text-[2.5rem] sm:text-2xl md:text-4xl lg:text-5xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-4 sm:mb-3 md:mb-6"
               style={{ perspective: '1000px', transform: 'skewY(1deg)' }}
             >
               <span className="block mb-1 sm:mb-2">{splitText('Your World of')}</span>
@@ -278,30 +278,30 @@ export default function Hero() {
               />
             </h1>
 
-            {/* Description - left aligned, fits in 2 lines on mobile */}
+            {/* Description - left aligned, fits in 2 lines on mobile - MOBILE: optimized for 2-line fit */}
             <p 
-              className="hero-description font-body text-[13px] sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-[340px] sm:max-w-xl mb-4 sm:mb-5 md:mb-8 lg:mb-10 leading-snug sm:leading-relaxed"
+              className="hero-description font-body text-[14px] sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-[380px] sm:max-w-xl mb-5 sm:mb-5 md:mb-8 lg:mb-10 leading-snug sm:leading-relaxed"
               style={{ transform: 'skewY(1deg)' }}
             >
               Discover authentic homemade meals from passionate local chefs.<span className="text-[var(--color-primary)] font-medium"> Fresh,</span> diverse, and<span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
             </p>
 
-            {/* CTA Buttons - centered on mobile */}
+            {/* CTA Buttons - centered on mobile - MOBILE: larger buttons for better tap targets */}
             <div className="flex flex-row items-center justify-center sm:justify-start gap-3 sm:gap-2 md:gap-4" style={{ transform: 'skewY(1deg)' }}>
               <a
                 href="https://localcook.shop/app/index.php"
-                className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-semibold text-[10px] sm:text-[10px] md:text-sm lg:text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 sm:gap-1.5 md:gap-2.5 shadow-lg shadow-[var(--color-primary)]/25"
+                className="hero-cta group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-5 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-semibold text-[12px] sm:text-[10px] md:text-sm lg:text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 sm:gap-1.5 md:gap-2.5 shadow-lg shadow-[var(--color-primary)]/25"
               >
                 Start Ordering
-                <svg className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-3 sm:h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
               <a
                 href="#how-it-works"
-                className="hero-cta group flex items-center justify-center gap-1.5 sm:gap-1.5 md:gap-2.5 px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-medium text-[10px] sm:text-[10px] md:text-sm lg:text-base text-[var(--color-charcoal)] border border-[var(--color-charcoal)]/15 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90"
+                className="hero-cta group flex items-center justify-center gap-2 sm:gap-1.5 md:gap-2.5 px-5 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-2 md:py-3 lg:py-4 rounded-full font-body font-medium text-[12px] sm:text-[10px] md:text-sm lg:text-base text-[var(--color-charcoal)] border border-[var(--color-charcoal)]/15 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90"
               >
-                <svg className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4 text-[var(--color-charcoal-light)] group-hover:text-[var(--color-primary)] transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-3 sm:h-3 md:w-4 md:h-4 text-[var(--color-charcoal-light)] group-hover:text-[var(--color-primary)] transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
                 See How It Works
@@ -312,23 +312,23 @@ export default function Hero() {
 
           {/* Right Side - Chef Image - centered on mobile with badge above and floating food decorations */}
           <div ref={imageRef} className="relative flex flex-col items-center col-span-1 order-1 sm:order-2 sm:py-0">
-            {/* Badge - shown above image on mobile only, centered, positioned higher */}
-            <div className="hero-badge mb-16 flex sm:hidden justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-2.5 py-1.5 rounded-full font-mono text-[8px] text-[var(--color-charcoal)] shadow-md border border-[var(--color-primary)]/10">
-                <span className="relative flex h-1.5 w-1.5">
+            {/* Badge - shown above image on mobile only, centered - MOBILE: larger and better positioned */}
+            <div className="hero-badge mb-6 flex sm:hidden justify-center">
+              <span className="inline-flex items-center gap-2 bg-white/85 backdrop-blur-sm px-4 py-2 rounded-full font-mono text-[10px] text-[var(--color-charcoal)] shadow-lg border border-[var(--color-primary)]/15">
+                <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--color-primary)]"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary)]"></span>
                 </span>
                 Now serving in St. John's, Newfoundland
               </span>
             </div>
             <div className="hero-image-container hero-image-parallax relative">
               {/* Decorative food images with parallax - VISIBLE ON ALL SCREENS */}
-              {/* Cake - top left corner - moves UP on scroll */}
+              {/* Cake - top left corner - moves UP on scroll - MOBILE: larger proportionally */}
               <div 
                 ref={cakeRef}
-                className="hero-food-parallax absolute -top-8 -left-8 sm:-top-6 sm:-left-4 lg:-left-8 xl:-left-12 z-20 pointer-events-none select-none"
-                style={{ width: 'clamp(60px, 18vw, 100px)', height: 'clamp(60px, 18vw, 100px)' }}
+                className="hero-food-parallax absolute -top-10 -left-10 sm:-top-6 sm:-left-4 lg:-left-8 xl:-left-12 z-20 pointer-events-none select-none"
+                style={{ width: 'clamp(80px, 22vw, 100px)', height: 'clamp(80px, 22vw, 100px)' }}
               >
                 <img 
                   src="/food-cake.png" 
@@ -338,11 +338,11 @@ export default function Hero() {
                   draggable={false}
                 />
               </div>
-              {/* Noodles - right side - moves UP on scroll */}
+              {/* Noodles - right side - moves UP on scroll - MOBILE: larger proportionally */}
               <div 
                 ref={noodlesRef}
-                className="hero-food-parallax absolute top-[5%] -right-8 sm:top-1/4 sm:-right-4 lg:-right-6 xl:-right-10 z-20 pointer-events-none select-none"
-                style={{ width: 'clamp(65px, 20vw, 122px)', height: 'clamp(65px, 20vw, 122px)' }}
+                className="hero-food-parallax absolute top-[5%] -right-10 sm:top-1/4 sm:-right-4 lg:-right-6 xl:-right-10 z-20 pointer-events-none select-none"
+                style={{ width: 'clamp(85px, 24vw, 122px)', height: 'clamp(85px, 24vw, 122px)' }}
               >
                 <img 
                   src="/food-noodles.png" 
@@ -352,11 +352,11 @@ export default function Hero() {
                   draggable={false}
                 />
               </div>
-              {/* Wrap - bottom left - moves DOWN on scroll */}
+              {/* Wrap - bottom left - moves DOWN on scroll - MOBILE: larger proportionally */}
               <div 
                 ref={wrapRef}
-                className="hero-food-parallax absolute -bottom-4 -left-8 sm:bottom-4 sm:-left-4 lg:-left-10 xl:-left-16 z-20 pointer-events-none select-none"
-                style={{ width: 'clamp(60px, 18vw, 115px)', height: 'clamp(60px, 18vw, 115px)' }}
+                className="hero-food-parallax absolute -bottom-6 -left-10 sm:bottom-4 sm:-left-4 lg:-left-10 xl:-left-16 z-20 pointer-events-none select-none"
+                style={{ width: 'clamp(80px, 22vw, 115px)', height: 'clamp(80px, 22vw, 115px)' }}
               >
                 <img 
                   src="/food-wrap.png" 
@@ -367,8 +367,8 @@ export default function Hero() {
                 />
               </div>
 
-              {/* Main Image Container - centered on mobile */}
-              <div className="relative w-[200px] h-[260px] sm:w-[180px] sm:h-[240px] md:w-[280px] md:h-[380px] lg:w-[360px] lg:h-[480px] xl:w-[420px] xl:h-[540px] rounded-2xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-xl sm:shadow-xl md:shadow-2xl shadow-black/15">
+              {/* Main Image Container - centered on mobile - MOBILE: larger for better visual impact */}
+              <div className="relative w-[280px] h-[360px] sm:w-[180px] sm:h-[240px] md:w-[280px] md:h-[380px] lg:w-[360px] lg:h-[480px] xl:w-[420px] xl:h-[540px] rounded-3xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-2xl sm:shadow-xl md:shadow-2xl shadow-black/20">
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/20 via-transparent to-transparent z-[1]" />
                 
@@ -379,12 +379,12 @@ export default function Hero() {
                   className="w-full h-full object-cover object-center"
                 />
                 
-                {/* Decorative border glow */}
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] border-2 sm:border-3 md:border-4 border-white/20 pointer-events-none" />
+                {/* Decorative border glow - MOBILE: matches larger rounded corners */}
+                <div className="absolute inset-0 rounded-3xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] border-3 sm:border-3 md:border-4 border-white/20 pointer-events-none" />
               </div>
 
-              {/* Background decorative shape */}
-              <div className="absolute -z-10 top-3 sm:top-4 md:top-8 right-0 sm:-right-2 md:-right-4 w-[95%] sm:w-full h-full bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-coral)]/10 rounded-2xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] transform rotate-3" />
+              {/* Background decorative shape - MOBILE: matches larger image with rounded-3xl */}
+              <div className="absolute -z-10 top-4 sm:top-4 md:top-8 right-0 sm:-right-2 md:-right-4 w-[95%] sm:w-full h-full bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-coral)]/10 rounded-3xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] transform rotate-3" />
             </div>
           </div>
         </div>
