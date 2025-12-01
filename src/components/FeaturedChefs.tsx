@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, useInView } from 'motion/react'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 // Clover-style button component inspired by les-arbres-fruitiers.fr "Pour les curieux" button
 // When hovered: logo moves from left to right of text, and text becomes bold
@@ -91,9 +91,222 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
   )
 }
 
+// Mobile card data - extracted for the stacked card view
+const mobileCardsData = [
+  {
+    id: 'for-chefs-main',
+    type: 'feature',
+    badge: 'For Chefs',
+    title: 'Your recipes deserve an audience.',
+    subtitle: 'Turn your kitchen into your business.',
+    description: 'Your authentic recipes—whether it\'s Jiggs dinner, Filipino adobo, or Middle Eastern shawarma—are your competitive advantage. Monetize your culinary passion.',
+    features: [
+      { bold: 'Earn real income', text: '— Your skills, your kitchen, your business.' },
+      { bold: 'Work your way', text: '— Set your schedule, control your menu.' },
+      { bold: 'Own your customers', text: '— Direct relationships with people who value authentic food.' },
+    ],
+    tags: ['Zero upfront costs', 'Weekly payouts', '$30-40+/hr potential'],
+    bgColor: 'bg-white',
+    textColor: 'text-[var(--color-charcoal)]',
+    emoji: '🍴',
+  },
+  {
+    id: 'trial-fees',
+    type: 'stat',
+    badge: 'Trial Phase',
+    stat: '0%',
+    statLabel: 'fees',
+    description: 'Keep 100% of your sales. We\'re building this for chefs, so we\'re waiving our cut.',
+    note: '*Standard payment processing fees apply (2.9% + 30¢ via Stripe)',
+    bgColor: 'bg-[var(--color-charcoal)]',
+    textColor: 'text-white',
+  },
+  {
+    id: 'your-space',
+    type: 'info',
+    badge: 'Your Space',
+    title: 'Cook at home or use our partnered commercial kitchens',
+    description: 'We help you navigate all required provincial licenses and food safety standards. Rent our partnered commercial kitchens when you need professional space.',
+    bgColor: 'bg-[var(--color-sage)]',
+    textColor: 'text-white',
+    emoji: '🏠',
+  },
+  {
+    id: 'for-food-lovers',
+    type: 'info',
+    badge: 'For Food Lovers',
+    title: 'Discover authentic meals from talented neighbors',
+    description: 'Fresh, authentic food from talented home chefs. Know your chef, support local, taste the difference.',
+    bgColor: 'bg-white',
+    textColor: 'text-[var(--color-charcoal)]',
+    emoji: '🍽️',
+    hasBorder: true,
+  },
+  {
+    id: 'your-schedule',
+    type: 'info',
+    badge: 'For Chefs',
+    title: 'Your Schedule.\nYour Menu.\nYour Rules.',
+    description: 'No minimums. No locked contracts. Cook when you want. Cook what you love. Earn what you deserve.',
+    bgColor: 'bg-[var(--color-gold)]',
+    textColor: 'text-[var(--color-charcoal)]',
+    emoji: '🔪',
+  },
+  {
+    id: 'logistics',
+    type: 'info',
+    badge: 'We Handle Logistics',
+    title: 'Delivery. Payments. Customer support.',
+    description: 'You focus on cooking. We handle the rest—full earnings transparency included.',
+    bgColor: 'bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)]',
+    textColor: 'text-white',
+    hasPattern: true,
+  },
+]
+
+// Mobile stacked card component with scroll reveal animation
+function MobileStackedCard({ card, index: _index }: { card: typeof mobileCardsData[0]; index: number }) {
+  const cardRef = useRef(null)
+  const isInView = useInView(cardRef, { once: false, amount: 0.4 })
+  
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 60, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.3, y: 30, scale: 0.97 }}
+      transition={{ 
+        duration: 0.5, 
+        delay: 0.05,
+        ease: [0.22, 1, 0.36, 1]
+      }}
+      className={`mobile-stack-card relative w-full rounded-2xl overflow-hidden shadow-xl ${card.bgColor} ${card.hasBorder ? 'border border-gray-100' : ''}`}
+      style={{ 
+        minHeight: card.type === 'feature' ? '320px' : '200px',
+      }}
+    >
+      {/* Background pattern for logistics card */}
+      {card.hasPattern && (
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '16px 16px',
+          }} />
+        </div>
+      )}
+      
+      {/* Floating emoji decoration */}
+      {card.emoji && card.type !== 'feature' && (
+        <div className="absolute top-4 right-4 text-4xl opacity-30">
+          {card.emoji}
+        </div>
+      )}
+      
+      <div className="relative p-5 h-full flex flex-col justify-between">
+        {/* Badge */}
+        <div>
+          <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 ${
+            card.bgColor === 'bg-white' 
+              ? 'bg-[var(--color-primary)]/10' 
+              : 'bg-white/10'
+          }`}>
+            {card.type === 'feature' && (
+              <span className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-pulse" />
+            )}
+            <span className={`font-mono text-[10px] uppercase tracking-wider ${
+              card.bgColor === 'bg-white' 
+                ? 'text-[var(--color-primary)]' 
+                : 'text-white/90'
+            }`}>
+              {card.badge}
+            </span>
+          </span>
+          
+          {/* Content based on type */}
+          {card.type === 'feature' && (
+            <>
+              <h3 className={`font-heading text-xl leading-tight mb-2 ${card.textColor}`}>
+                {card.title}
+                <br />
+                <span className="text-[var(--color-primary)] text-lg">{card.subtitle}</span>
+              </h3>
+              <p className={`font-body text-sm ${card.textColor} opacity-70 leading-relaxed mb-4`}>
+                {card.description}
+              </p>
+              <ul className="space-y-2 mb-4">
+                {card.features?.map((feature, i) => (
+                  <li key={i} className={`flex items-start gap-2 text-xs ${card.textColor} opacity-80`}>
+                    <div className="flex-shrink-0 w-4 h-4 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mt-0.5">
+                      <svg className="w-2.5 h-2.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span><strong>{feature.bold}</strong>{feature.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          
+          {card.type === 'stat' && (
+            <>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className={`font-heading text-5xl ${card.textColor}`}>{card.stat}</span>
+                <span className={`font-body text-sm ${card.textColor} opacity-60`}>{card.statLabel}</span>
+              </div>
+              <p className={`font-body text-sm ${card.textColor} opacity-50 mt-4 leading-relaxed`}>
+                {card.description}
+              </p>
+              <p className={`font-mono text-[9px] ${card.textColor} opacity-30 mt-2`}>
+                {card.note}
+              </p>
+            </>
+          )}
+          
+          {card.type === 'info' && (
+            <>
+              <h4 className={`font-heading text-lg leading-tight mt-2 whitespace-pre-line ${card.textColor}`}>
+                {card.title}
+              </h4>
+              <p className={`font-body text-sm ${card.textColor} opacity-70 mt-3 leading-relaxed`}>
+                {card.description}
+              </p>
+            </>
+          )}
+        </div>
+        
+        {/* Tags for feature card */}
+        {card.tags && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {card.tags.map((tag, i) => (
+              <span
+                key={i}
+                className="px-3 py-1.5 bg-[var(--color-primary)]/10 rounded-full font-mono text-[10px] text-[var(--color-primary)] font-medium"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
 export default function FeaturedChefs() {
   const sectionRef = useRef(null)
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' })
+  const [isMobile, setIsMobile] = useState(false)
+  
+  // Detect mobile viewport for conditional rendering
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640) // Below sm breakpoint
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -192,10 +405,20 @@ export default function FeaturedChefs() {
           </div>
         </div>
 
-        {/* Bento-style content grid - PRESERVE layout on all screen sizes */}
-        {/* User requirement: Keep 3-column aesthetic even on mobile - content scales down */}
+        {/* Bento-style content grid - MOBILE: Stacked cards, DESKTOP: Bento grid */}
         <div className="pb-16 sm:pb-24 md:pb-32 overflow-x-clip">
-          {/* Grid maintains 3-column layout on ALL screens - scales proportionally */}
+          
+          {/* MOBILE VIEW: Aurora-style stacked cards with scroll reveal */}
+          {isMobile && (
+            <div className="flex flex-col gap-4 w-full px-1">
+              {mobileCardsData.map((card, index) => (
+                <MobileStackedCard key={card.id} card={card} index={index} />
+              ))}
+            </div>
+          )}
+          
+          {/* DESKTOP/TABLET VIEW: Original bento grid layout */}
+          {!isMobile && (
           <div className="grid grid-cols-3 gap-1 xs:gap-1.5 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full" style={{ minWidth: 0 }}>
             
             {/* Large feature card - For Chefs */}
@@ -420,6 +643,7 @@ export default function FeaturedChefs() {
             </motion.div>
 
           </div>
+          )}
         </div>
 
         {/* CTA Section - properly contained */}

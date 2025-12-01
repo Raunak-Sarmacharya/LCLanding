@@ -656,3 +656,50 @@ input:focus, textarea:focus, button:focus {
 .contact-input::placeholder {
   color: rgba(26, 26, 26, 0.3);
 }
+
+/* ========================================
+   MOBILE STACKED CARDS - Aurora-inspired
+   Only applies below sm breakpoint (640px)
+   ======================================== */
+@media (max-width: 639px) {
+  /* Mobile stacked card styles */
+  .mobile-stack-card {
+    /* Card base styling */
+    transform-origin: center top;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Subtle shadow enhancement on interaction */
+  .mobile-stack-card:active {
+    transform: scale(0.98);
+    transition: transform 0.15s ease;
+  }
+  
+  /* Smooth scroll reveal effect - complement to motion animation */
+  .mobile-stack-card {
+    /* Glass morphism subtle effect */
+    backdrop-filter: blur(0px);
+    transition: backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Card in view - enhanced presence */
+  .mobile-stack-card[data-in-view="true"] {
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      0 20px 40px -10px rgba(245, 16, 66, 0.08);
+  }
+  
+  /* Mobile card container spacing */
+  #chefs .flex.flex-col.gap-4 {
+    padding-bottom: 1rem;
+  }
+  
+  /* Ensure cards don't cause horizontal overflow */
+  .mobile-stack-card {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
