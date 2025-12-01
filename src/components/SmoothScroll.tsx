@@ -118,22 +118,22 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       options={{ 
         autoRaf: false,
         // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
-        // Mobile-optimized settings for lighter, more responsive feel
-        // Increased lerp for more immediate response (less laggy feel)
-        lerp: isMobile ? 0.15 : 0.08, // Higher on mobile for more responsive, lighter feel
-        // Reduced duration for snappier, less weighed-down scrolling
-        duration: isMobile ? 0.8 : 1.5, // Shorter on mobile for lighter feel
+        // Aggressively optimized for mobile - much lighter and more responsive feel
+        // Significantly increased lerp for immediate, snappy response (reduces sluggishness)
+        lerp: isMobile ? 0.2 : 0.08, // Much higher on mobile for immediate response, less sluggish
+        // Significantly reduced duration for very snappy, light scrolling
+        duration: isMobile ? 0.6 : 1.5, // Much shorter on mobile for lighter, faster feel
         smoothWheel: true,
         wheelMultiplier: isMobile ? 1.0 : 0.85,
-        // Increased touchMultiplier for more responsive touch input (lighter feel)
-        touchMultiplier: isMobile ? 1.7 : 1.6, // Higher on mobile for easier scrolling
+        // Significantly increased touchMultiplier for very responsive touch input
+        touchMultiplier: isMobile ? 2.0 : 1.6, // Much higher on mobile for easier, lighter scrolling
         infinite: false,
         // Enable smooth touch scrolling with momentum
         syncTouch: true,
-        // Reduced syncTouchLerp for less smoothing during touch inertia (more immediate feel)
-        syncTouchLerp: isMobile ? 0.07 : 0.05, // Lower on mobile for lighter, less weighed-down feel
-        // Reduced touchInertiaExponent for less inertia/weight (lighter feel)
-        touchInertiaExponent: isMobile ? 1.4 : 1.7, // Lower on mobile for lighter scrolling
+        // Minimized syncTouchLerp for minimal smoothing during touch inertia (very immediate feel)
+        syncTouchLerp: isMobile ? 0.05 : 0.05, // Very low on mobile for immediate, non-sluggish feel
+        // Significantly reduced touchInertiaExponent for minimal inertia/weight (much lighter feel)
+        touchInertiaExponent: isMobile ? 1.2 : 1.7, // Much lower on mobile for very light scrolling
         // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
           // Optimized easing: smooth acceleration and deceleration
