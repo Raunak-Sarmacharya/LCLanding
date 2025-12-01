@@ -1,7 +1,10 @@
-import { motion, useScroll, useTransform, useInView } from 'motion/react'
+import { motion, useInView } from 'motion/react'
 import { useRef, useState } from 'react'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useEffect } from 'react'
+
+gsap.registerPlugin(ScrollTrigger)
 
 /**
  * AppPromo Section - Premium Edition v4
@@ -131,34 +134,137 @@ export default function AppPromo() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  })
+  // Use GSAP ScrollTrigger instead of Motion's useScroll for Lenis compatibility
+  const phoneYRef = useRef<HTMLDivElement>(null)
+  const phoneRotateRef = useRef<HTMLDivElement>(null)
+  const bg1Ref = useRef<HTMLDivElement>(null)
+  const bg2Ref = useRef<HTMLDivElement>(null)
+  const rotateRefs = useRef<(HTMLDivElement | null)[]>([])
 
-  const phoneY = useTransform(scrollYProgress, [0, 1], [50, -50])
-  const phoneRotate = useTransform(scrollYProgress, [0, 0.5, 1], [-2, 0, 2])
-  const y1 = useTransform(scrollYProgress, [0, 1], [60, -60])
-  const y2 = useTransform(scrollYProgress, [0, 1], [30, -30])
-  const rotate = useTransform(scrollYProgress, [0, 1], [-3, 3])
-
+  // Setup scroll-based animations using ScrollTrigger (Lenis-compatible)
   useEffect(() => {
-    if (!isInView) return
+    if (!isInView || !sectionRef.current) return
 
     const ctx = gsap.context(() => {
+      // Parallax effects using ScrollTrigger (works with Lenis)
+      if (phoneYRef.current) {
+        gsap.to(phoneYRef.current, {
+          y: -50,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2, // Smooth scrub value for Lenis
+          }
+        })
+      }
+
+      if (phoneRotateRef.current) {
+        gsap.to(phoneRotateRef.current, {
+          rotateY: 2,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2,
+          }
+        })
+      }
+
+      if (bg1Ref.current) {
+        gsap.to(bg1Ref.current, {
+          y: -60,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.5,
+          }
+        })
+      }
+
+      if (bg2Ref.current) {
+        gsap.to(bg2Ref.current, {
+          y: -30,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.5,
+          }
+        })
+      }
+
+      // Rotate animations for decorative elements (all rotate icons)
+      rotateRefs.current.forEach((ref, index) => {
+        if (ref) {
+          gsap.to(ref, {
+            rotate: 3,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.5,
+            }
+          })
+        }
+      })
+
+      // Initial reveal animations
       gsap.fromTo('.app-phone-mockup',
         { opacity: 0, y: 60, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }
+        { 
+          opacity: 1, 
+          y: 0, 
+          scale: 1, 
+          duration: 1, 
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          }
+        }
       )
 
       gsap.fromTo('.app-feature-card',
         { opacity: 0, y: 40, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.12, delay: 0.3, ease: 'power3.out' }
+        { 
+          opacity: 1, 
+          y: 0, 
+          scale: 1, 
+          duration: 0.7, 
+          stagger: 0.12, 
+          delay: 0.3, 
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          }
+        }
       )
 
       gsap.fromTo('.app-floating-card',
         { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.6, stagger: 0.15, delay: 0.7, ease: 'back.out(1.2)' }
+        { 
+          opacity: 1, 
+          scale: 1, 
+          duration: 0.6, 
+          stagger: 0.15, 
+          delay: 0.7, 
+          ease: 'back.out(1.2)',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          }
+        }
       )
 
       // Premium mobile card animations (like HowItWorks) - only on mobile
@@ -177,6 +283,11 @@ export default function AppPromo() {
             stagger: 0.15,
             delay: 0.3,
             ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+            }
           }
         )
       }
@@ -189,16 +300,17 @@ export default function AppPromo() {
     <section
       ref={sectionRef}
       className="relative bg-gradient-to-b from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-primary-dark)] overflow-hidden"
+      style={{ willChange: 'scroll-position' }}
     >
       {/* Premium Background - Matching FeaturedChefs style */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          style={{ y: y1 }}
-          className="absolute top-[20%] -right-40 w-[800px] h-[800px] rounded-full bg-white/5 blur-[100px]"
+        <div
+          ref={bg1Ref}
+          className="absolute top-[20%] -right-40 w-[800px] h-[800px] rounded-full bg-white/5 blur-[100px] will-change-transform"
         />
-        <motion.div
-          style={{ y: y2 }}
-          className="absolute bottom-0 -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px]"
+        <div
+          ref={bg2Ref}
+          className="absolute bottom-0 -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px] will-change-transform"
         />
         <div
           className="absolute inset-0 opacity-[0.04]"
@@ -286,12 +398,12 @@ export default function AppPromo() {
                     <div className="mobile-app-card app-feature-card col-span-2 group will-change-transform">
                       <div className="relative h-full bg-white rounded-xl p-4 overflow-hidden min-h-[140px]">
                         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-cream)] to-transparent opacity-50" />
-                        <motion.div
-                          style={{ rotate }}
-                          className="absolute top-3 right-3 text-3xl opacity-15 group-hover:opacity-25 transition-opacity duration-500"
-                        >
-                          🍽️
-                        </motion.div>
+                    <div
+                      ref={(el) => { if (el) rotateRefs.current[0] = el }}
+                      className="absolute top-3 right-3 text-3xl opacity-15 group-hover:opacity-25 transition-opacity duration-500 will-change-transform"
+                    >
+                      🍽️
+                    </div>
                         
                         <div className="relative flex items-start gap-3">
                           <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-xl flex items-center justify-center shadow-lg">
@@ -317,12 +429,12 @@ export default function AppPromo() {
                     <div className="mobile-app-card app-feature-card col-span-1 group will-change-transform" style={{ perspective: '1000px' }}>
                       <div className="relative h-full bg-[var(--color-charcoal)] rounded-xl p-3 overflow-hidden min-h-[110px]" style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}>
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/5" />
-                        <motion.div
-                          style={{ rotate }}
-                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity"
+                        <div
+                          ref={(el) => { if (el) rotateRefs.current[1] = el }}
+                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                         >
                           📍
-                        </motion.div>
+                        </div>
                         
                         <div className="relative h-full flex flex-col justify-between">
                           <div>
@@ -345,12 +457,12 @@ export default function AppPromo() {
                         style={{ backgroundColor: STRIPE_BLURPLE, transformStyle: 'preserve-3d', willChange: 'transform' }}
                       >
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent" />
-                        <motion.div
-                          style={{ rotate }}
-                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity"
+                        <div
+                          ref={(el) => { if (el) rotateRefs.current[2] = el }}
+                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                         >
                           💳
-                        </motion.div>
+                        </div>
                         
                         <div className="relative h-full flex flex-col justify-between">
                           <div>
@@ -376,12 +488,12 @@ export default function AppPromo() {
                     <div className="mobile-app-card app-feature-card col-span-1 group will-change-transform" style={{ perspective: '1000px' }}>
                       <div className="relative h-full bg-[var(--color-gold)] rounded-xl p-3 overflow-hidden min-h-[110px]" style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}>
                         <div className="absolute -top-2 -right-2 w-20 h-20 bg-white/20 rounded-full blur-2xl" />
-                        <motion.div
-                          style={{ rotate }}
-                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity"
+                        <div
+                          ref={(el) => { if (el) rotateRefs.current[3] = el }}
+                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                         >
                           ⭐
-                        </motion.div>
+                        </div>
                         
                         <div className="relative h-full flex flex-col justify-between">
                           <div>
@@ -400,12 +512,12 @@ export default function AppPromo() {
                     {/* Food Safety Card */}
                     <div className="mobile-app-card app-feature-card col-span-1 group will-change-transform" style={{ perspective: '1000px' }}>
                       <div className="relative h-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 overflow-hidden min-h-[110px]" style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}>
-                        <motion.div
-                          style={{ rotate }}
-                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity"
+                        <div
+                          ref={(el) => { if (el) rotateRefs.current[4] = el }}
+                          className="absolute -bottom-1 -right-1 text-2xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                         >
                           🛡️
-                        </motion.div>
+                        </div>
                         
                         <div className="relative h-full flex flex-col justify-between">
                           <div>
@@ -455,10 +567,15 @@ export default function AppPromo() {
 
                 {/* Right Column - Phone Mockup - Visible on mobile */}
                 <div className="col-span-12 order-1 flex justify-center overflow-visible mb-4">
-                  <motion.div
-                    style={{ y: phoneY, rotateY: phoneRotate, perspective: 1000 }}
-                    className="app-phone-mockup relative overflow-visible"
+                  <div
+                    ref={phoneYRef}
+                    className="app-phone-mockup relative overflow-visible will-change-transform"
+                    style={{ perspective: 1000 }}
                   >
+                    <div
+                      ref={phoneRotateRef}
+                      className="relative will-change-transform"
+                    >
                     {/* Glow */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-[var(--color-butter)]/15 rounded-[30px] blur-2xl scale-90 opacity-50" />
                     
@@ -543,7 +660,8 @@ export default function AppPromo() {
                         </div>
                       </motion.div>
                     </div>
-                  </motion.div>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
@@ -565,12 +683,12 @@ export default function AppPromo() {
                 >
                   <div className="relative h-full bg-white rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[60px] sm:min-h-[100px] md:min-h-[140px] lg:min-h-[180px]">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-cream)] to-transparent opacity-50" />
-                    <motion.div
-                      style={{ rotate }}
-                      className="absolute top-2 right-2 sm:top-4 sm:right-4 md:top-6 md:right-6 text-2xl sm:text-4xl md:text-6xl lg:text-7xl opacity-15 group-hover:opacity-25 transition-opacity duration-500"
+                    <div
+                      ref={(el) => { if (el) rotateRefs.current[5] = el }}
+                      className="absolute top-2 right-2 sm:top-4 sm:right-4 md:top-6 md:right-6 text-2xl sm:text-4xl md:text-6xl lg:text-7xl opacity-15 group-hover:opacity-25 transition-opacity duration-500 will-change-transform"
                     >
                       🍽️
-                    </motion.div>
+                    </div>
                     
                     <div className="relative flex items-start gap-2 sm:gap-3 md:gap-4">
                       <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-coral)] rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
@@ -601,12 +719,12 @@ export default function AppPromo() {
                 >
                   <div className="relative h-full bg-[var(--color-charcoal)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]">
                     <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/5" />
-                    <motion.div
-                      style={{ rotate }}
-                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    <div
+                      ref={(el) => { if (el) rotateRefs.current[6] = el }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                     >
                       📍
-                    </motion.div>
+                    </div>
                     
                     <div className="relative h-full flex flex-col justify-between">
                       <div>
@@ -634,12 +752,12 @@ export default function AppPromo() {
                     style={{ backgroundColor: STRIPE_BLURPLE }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent" />
-                    <motion.div
-                      style={{ rotate }}
-                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    <div
+                      ref={(el) => { if (el) rotateRefs.current[7] = el }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                     >
                       💳
-                    </motion.div>
+                    </div>
                     
                     <div className="relative h-full flex flex-col justify-between">
                       <div>
@@ -671,12 +789,12 @@ export default function AppPromo() {
                 >
                   <div className="relative h-full bg-[var(--color-gold)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]">
                     <div className="absolute -top-3 -right-3 w-16 sm:w-24 md:w-32 h-16 sm:h-24 md:h-32 bg-white/20 rounded-full blur-2xl" />
-                    <motion.div
-                      style={{ rotate }}
-                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    <div
+                      ref={(el) => { if (el) rotateRefs.current[8] = el }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                     >
                       ⭐
-                    </motion.div>
+                    </div>
                     
                     <div className="relative h-full flex flex-col justify-between">
                       <div>
@@ -700,12 +818,12 @@ export default function AppPromo() {
                   className="app-feature-card col-span-1 group will-change-transform"
                 >
                   <div className="relative h-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-3 md:p-5 lg:p-6 overflow-hidden min-h-[55px] sm:min-h-[90px] md:min-h-[140px] lg:min-h-[180px]">
-                    <motion.div
-                      style={{ rotate }}
-                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity"
+                    <div
+                      ref={(el) => { if (el) rotateRefs.current[9] = el }}
+                      className="absolute -bottom-1 -right-1 text-xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20 group-hover:opacity-30 transition-opacity will-change-transform"
                     >
                       🛡️
-                    </motion.div>
+                    </div>
                     
                     <div className="relative h-full flex flex-col justify-between">
                       <div>
@@ -762,10 +880,15 @@ export default function AppPromo() {
             {/* Right Column - Phone Mockup - Only show on desktop/tablet */}
             {!isMobile && (
             <div className="col-span-5 sm:col-span-6 order-1 lg:order-2 flex justify-center lg:justify-end overflow-visible pr-4 sm:pr-6 md:pr-8">
-              <motion.div
-                style={{ y: phoneY, rotateY: phoneRotate, perspective: 1000 }}
-                className="app-phone-mockup relative overflow-visible"
+              <div
+                ref={phoneYRef}
+                className="app-phone-mockup relative overflow-visible will-change-transform"
+                style={{ perspective: 1000 }}
               >
+                <div
+                  ref={phoneRotateRef}
+                  className="relative will-change-transform"
+                >
                 {/* Glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-[var(--color-butter)]/15 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] blur-2xl sm:blur-3xl scale-90 opacity-50" />
                 
@@ -857,7 +980,8 @@ export default function AppPromo() {
                     </div>
                   </motion.div>
                 </div>
-              </motion.div>
+                </div>
+              </div>
             </div>
             )}
           </div>

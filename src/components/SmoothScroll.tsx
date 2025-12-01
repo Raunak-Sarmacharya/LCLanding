@@ -47,7 +47,21 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     // Update ScrollTrigger on Lenis scroll events
     const lenis = lenisRef.current?.lenis
+    
+    // Refresh ScrollTrigger on resize for responsive behavior
+    const handleResize = () => {
+      ScrollTrigger.refresh()
+    }
+    
+    // Debounced resize handler
+    let resizeTimeout: ReturnType<typeof setTimeout>
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(handleResize, 150)
+    }
+    
     if (lenis) {
+      // Critical: Update ScrollTrigger on every scroll for smooth sync
       lenis.on('scroll', ScrollTrigger.update)
       
       // Handle scroll end detection for snap-to-top
@@ -60,6 +74,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         scrollTimeoutRef.current = window.setTimeout(handleScrollEnd, 150)
       })
     }
+    
+    // Add resize listener for ScrollTrigger refresh
+    window.addEventListener('resize', debouncedResize)
 
     // Add Lenis raf to GSAP ticker for synchronized animations
     gsap.ticker.add(update)
@@ -75,6 +92,10 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current)
       }
+      window.removeEventListener('resize', debouncedResize)
+      clearTimeout(resizeTimeout)
+      // Refresh ScrollTrigger on cleanup to ensure proper state
+      ScrollTrigger.refresh()
     }
   }, [handleScrollEnd])
 
@@ -96,26 +117,28 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       ref={lenisRef}
       options={{ 
         autoRaf: false,
-        // Pretty Patty-style smooth scroll settings
+        // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
         // lerp: Linear interpolation factor (0-1)
-        // Lower = more "laggy/elastic" feel, higher = more immediate
-        // More responsive on mobile for better performance
-        lerp: isMobile ? 0.12 : 0.075, // Faster on mobile
-        duration: isMobile ? 1.2 : 1.6, // Shorter on mobile
+        // Lower = smoother but more laggy, higher = more immediate but less smooth
+        // Balanced for smoothness without lag
+        lerp: isMobile ? 0.1 : 0.08, // Optimized for smooth performance
+        duration: isMobile ? 1.2 : 1.5, // Balanced duration
         smoothWheel: true,
-        wheelMultiplier: isMobile ? 1.0 : 0.9, // More responsive on mobile
-        touchMultiplier: 1.8, // Better touch sensitivity
+        wheelMultiplier: isMobile ? 1.0 : 0.85, // Slightly reduced for smoother feel
+        touchMultiplier: 1.6, // Optimized touch sensitivity
         infinite: false,
         // Enable smooth touch scrolling with momentum
         syncTouch: true,
-        syncTouchLerp: isMobile ? 0.1 : 0.06, // Faster on mobile
+        syncTouchLerp: isMobile ? 0.08 : 0.05, // Optimized for smooth touch
         // Touch inertia for that premium feel
-        touchInertiaExponent: 1.8,
-        // Custom easing curve for smooth deceleration (like Pretty Patty)
+        touchInertiaExponent: 1.7, // Slightly reduced for smoother deceleration
+        // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
-          // Custom easing: starts fast, decelerates smoothly
-          return t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
+          // Optimized easing: smooth acceleration and deceleration
+          return t === 1 ? 1 : 1 - Math.pow(2, -8 * t)
         },
+        // Prevent overscroll for better control
+        overscroll: false,
       }}
     >
       <LenisProvider lenisRef={lenisRef}>
