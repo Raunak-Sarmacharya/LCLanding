@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useInView, AnimatePresence } from 'motion/react'
 import { Link } from 'react-router-dom'
 import SmoothScroll from './SmoothScroll'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
+import { useLenis } from '../contexts/LenisContext'
 
 type InquiryType = 'general' | 'chef'
 
@@ -75,6 +76,44 @@ function ContactPageContent() {
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
   const isFooterInView = useInView(footerRef, { once: true, margin: '-50px' })
   const { scrollToTop } = useSmoothScroll()
+  const { lenisRef } = useLenis()
+  
+  // Track scroll position to hide button when near top
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
+  const SCROLL_THRESHOLD = 300 // Hide button when within 300px of top
+
+  // Listen to Lenis scroll events to detect scroll position
+  useEffect(() => {
+    // Wait for Lenis to be available (it might not be ready immediately)
+    const checkLenis = () => {
+      const lenis = lenisRef?.current?.lenis
+      if (!lenis) {
+        // Retry after a short delay if Lenis is not ready
+        const timeout = setTimeout(checkLenis, 100)
+        return () => clearTimeout(timeout)
+      }
+
+      const handleScroll = () => {
+        // Use actualScroll for more accurate position (works with Lenis smooth scroll)
+        const scrollPosition = lenis.actualScroll || lenis.scroll || 0
+        // Show button only when scrolled past threshold
+        setShowScrollToTop(scrollPosition > SCROLL_THRESHOLD)
+      }
+
+      // Check initial scroll position
+      handleScroll()
+
+      // Listen to Lenis scroll events
+      lenis.on('scroll', handleScroll)
+
+      return () => {
+        lenis.off('scroll', handleScroll)
+      }
+    }
+
+    const cleanup = checkLenis()
+    return cleanup
+  }, [lenisRef, SCROLL_THRESHOLD])
 
   // Form state
   const [formData, setFormData] = useState({
@@ -695,18 +734,21 @@ function ContactPageContent() {
           </div>
         </motion.div>
 
-        {/* Back to top button */}
-        <motion.a
-          href="#"
-          onClick={handleBackToTop}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={isFooterInView ? { opacity: 1, scale: 1 } : {}}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-12 h-12 sm:w-14 sm:h-14 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white shadow-xl shadow-[var(--color-primary)]/30 z-40"
-          aria-label="Back to top"
-        >
+        {/* Back to top button - only visible when scrolled past threshold */}
+        <AnimatePresence>
+          {showScrollToTop && (
+            <motion.a
+              href="#"
+              onClick={handleBackToTop}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-12 h-12 sm:w-14 sm:h-14 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white shadow-xl shadow-[var(--color-primary)]/30 z-40"
+              aria-label="Back to top"
+            >
           <svg 
             className="w-5 h-5 sm:w-6 sm:h-6" 
             fill="none" 
@@ -718,7 +760,9 @@ function ContactPageContent() {
           >
             <path d="M5 10l7-7m0 0l7 7m-7-7v18" />
           </svg>
-        </motion.a>
+            </motion.a>
+          )}
+        </AnimatePresence>
       </footer>
     </main>
   )

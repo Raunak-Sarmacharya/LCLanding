@@ -367,8 +367,8 @@ export default function Hero() {
                 />
               </div>
 
-              {/* Main Image Container - centered on mobile - MOBILE: larger for better visual impact */}
-              <div className="relative w-[280px] h-[360px] sm:w-[180px] sm:h-[240px] md:w-[280px] md:h-[380px] lg:w-[360px] lg:h-[480px] xl:w-[420px] xl:h-[540px] rounded-3xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-2xl sm:shadow-xl md:shadow-2xl shadow-black/20">
+              {/* Main Image Container - centered on mobile - MOBILE: slightly reduced to create space for scroll indicator */}
+              <div className="relative w-[240px] h-[300px] sm:w-[180px] sm:h-[240px] md:w-[280px] md:h-[380px] lg:w-[360px] lg:h-[480px] xl:w-[420px] xl:h-[540px] rounded-3xl sm:rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-2xl sm:shadow-xl md:shadow-2xl shadow-black/20">
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/20 via-transparent to-transparent z-[1]" />
                 
@@ -390,8 +390,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator - Hidden on small screens */}
-      <div className="scroll-indicator absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1 sm:gap-2 hidden md:flex">
+      {/* Scroll Indicator - Visible on all screens, positioned below CTA buttons on mobile */}
+      <div className="scroll-indicator absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 sm:gap-2">
         <span className="font-mono text-[8px] sm:text-[10px] md:text-xs text-[var(--color-charcoal-light)] uppercase tracking-widest">
           Scroll to explore
         </span>
