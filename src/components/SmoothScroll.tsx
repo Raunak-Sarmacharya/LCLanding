@@ -118,18 +118,22 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       options={{ 
         autoRaf: false,
         // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
-        // Mobile-optimized settings based on Lenis best practices
-        lerp: isMobile ? 0.12 : 0.08, // Slightly higher on mobile for better responsiveness
-        duration: isMobile ? 1.0 : 1.5, // Shorter on mobile for snappier feel
+        // Mobile-optimized settings for lighter, more responsive feel
+        // Increased lerp for more immediate response (less laggy feel)
+        lerp: isMobile ? 0.15 : 0.08, // Higher on mobile for more responsive, lighter feel
+        // Reduced duration for snappier, less weighed-down scrolling
+        duration: isMobile ? 0.8 : 1.5, // Shorter on mobile for lighter feel
         smoothWheel: true,
         wheelMultiplier: isMobile ? 1.0 : 0.85,
-        touchMultiplier: isMobile ? 1.4 : 1.6, // Reduced on mobile to prevent over-scrolling
+        // Increased touchMultiplier for more responsive touch input (lighter feel)
+        touchMultiplier: isMobile ? 1.7 : 1.6, // Higher on mobile for easier scrolling
         infinite: false,
         // Enable smooth touch scrolling with momentum
         syncTouch: true,
-        syncTouchLerp: isMobile ? 0.1 : 0.05, // Higher on mobile for smoother touch inertia
-        // Touch inertia for that premium feel
-        touchInertiaExponent: isMobile ? 1.6 : 1.7, // Slightly lower on mobile for smoother stop
+        // Reduced syncTouchLerp for less smoothing during touch inertia (more immediate feel)
+        syncTouchLerp: isMobile ? 0.07 : 0.05, // Lower on mobile for lighter, less weighed-down feel
+        // Reduced touchInertiaExponent for less inertia/weight (lighter feel)
+        touchInertiaExponent: isMobile ? 1.4 : 1.7, // Lower on mobile for lighter scrolling
         // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
           // Optimized easing: smooth acceleration and deceleration
