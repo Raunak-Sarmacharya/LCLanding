@@ -147,145 +147,153 @@ export default function AppPromo() {
 
     const ctx = gsap.context(() => {
       // Parallax effects using ScrollTrigger (works with Lenis)
+      // Optimized scrub values for mobile - higher values = smoother but less responsive
+      const scrubValue = isMobile ? 1.8 : 1.2
+      
       if (phoneYRef.current) {
         gsap.to(phoneYRef.current, {
-          y: -50,
+          y: isMobile ? -30 : -50, // Reduced movement on mobile
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1.2, // Smooth scrub value for Lenis
+            scrub: scrubValue,
           }
         })
       }
 
       if (phoneRotateRef.current) {
         gsap.to(phoneRotateRef.current, {
-          rotateY: 2,
+          rotateY: isMobile ? 1 : 2, // Reduced rotation on mobile
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1.2,
+            scrub: scrubValue,
           }
         })
       }
 
       if (bg1Ref.current) {
         gsap.to(bg1Ref.current, {
-          y: -60,
+          y: isMobile ? -40 : -60, // Reduced movement on mobile
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1.5,
+            scrub: isMobile ? 1.8 : 1.5,
           }
         })
       }
 
       if (bg2Ref.current) {
         gsap.to(bg2Ref.current, {
-          y: -30,
+          y: isMobile ? -20 : -30, // Reduced movement on mobile
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1.5,
+            scrub: isMobile ? 1.8 : 1.5,
           }
         })
       }
 
       // Rotate animations for decorative elements (all rotate icons)
-      rotateRefs.current.forEach((ref, index) => {
+      // Optimized for mobile - smoother scrub values
+      rotateRefs.current.forEach((ref) => {
         if (ref) {
           gsap.to(ref, {
-            rotate: 3,
+            rotate: isMobile ? 2 : 3, // Reduced rotation on mobile
             ease: 'none',
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top bottom',
               end: 'bottom top',
-              scrub: 1.5,
+              scrub: isMobile ? 1.8 : 1.5, // Smoother on mobile
             }
           })
         }
       })
 
-      // Initial reveal animations
+      // Initial reveal animations - optimized for mobile
+      const revealStart = isMobile ? 'top 90%' : 'top 85%'
+      const mobileDuration = isMobile ? 0.5 : 1
+      const mobileStagger = isMobile ? 0.08 : 0.12
+
       gsap.fromTo('.app-phone-mockup',
-        { opacity: 0, y: 60, scale: 0.95 },
+        { opacity: 0, y: isMobile ? 40 : 60, scale: 0.96 },
         { 
           opacity: 1, 
           y: 0, 
           scale: 1, 
-          duration: 1, 
-          ease: 'power3.out',
+          duration: mobileDuration, 
+          ease: 'power2.out', // Simpler easing for mobile
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 85%',
+            start: revealStart,
             toggleActions: 'play none none reverse',
           }
         }
       )
 
       gsap.fromTo('.app-feature-card',
-        { opacity: 0, y: 40, scale: 0.95 },
+        { opacity: 0, y: isMobile ? 30 : 40, scale: 0.97 },
         { 
           opacity: 1, 
           y: 0, 
           scale: 1, 
-          duration: 0.7, 
-          stagger: 0.12, 
-          delay: 0.3, 
-          ease: 'power3.out',
+          duration: isMobile ? 0.5 : 0.7, 
+          stagger: mobileStagger, 
+          delay: isMobile ? 0.1 : 0.3, 
+          ease: 'power2.out', // Simpler easing for mobile
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 85%',
+            start: revealStart,
             toggleActions: 'play none none reverse',
           }
         }
       )
 
       gsap.fromTo('.app-floating-card',
-        { opacity: 0, scale: 0.9 },
+        { opacity: 0, scale: 0.95 },
         { 
           opacity: 1, 
           scale: 1, 
-          duration: 0.6, 
-          stagger: 0.15, 
-          delay: 0.7, 
-          ease: 'back.out(1.2)',
+          duration: isMobile ? 0.4 : 0.6, 
+          stagger: isMobile ? 0.1 : 0.15, 
+          delay: isMobile ? 0.4 : 0.7, 
+          ease: isMobile ? 'power2.out' : 'back.out(1.2)', // Simpler on mobile
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 80%',
+            start: revealStart,
             toggleActions: 'play none none reverse',
           }
         }
       )
 
-      // Premium mobile card animations (like HowItWorks) - only on mobile
+      // Premium mobile card animations - optimized for smooth mobile scrolling
       if (isMobile && mobileCardsRef.current) {
         gsap.fromTo('.mobile-app-card',
           { 
             opacity: 0, 
-            y: 60,
-            rotateX: -15
+            y: 40, // Reduced from 60 for smoother feel
+            rotateX: -10 // Reduced from -15 for smoother feel
           },
           {
             opacity: 1,
             y: 0,
             rotateX: 0,
-            duration: 0.8,
-            stagger: 0.15,
-            delay: 0.3,
-            ease: 'power3.out',
+            duration: 0.5, // Reduced from 0.8 for snappier feel
+            stagger: 0.1, // Reduced from 0.15 for faster reveal
+            delay: 0.1, // Reduced from 0.3
+            ease: 'power2.out', // Simpler easing
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: 'top 85%',
+              start: revealStart,
               toggleActions: 'play none none reverse',
             }
           }

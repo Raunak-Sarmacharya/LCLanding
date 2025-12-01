@@ -1,5 +1,9 @@
-import { motion, useScroll, useTransform, useInView } from 'motion/react'
+import { motion, useInView } from 'motion/react'
 import { useRef, useState, useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 // Clover-style button component inspired by les-arbres-fruitiers.fr "Pour les curieux" button
 // When hovered: logo moves from left to right of text, and text becomes bold
@@ -165,21 +169,43 @@ const mobileCardsData = [
 ]
 
 // Mobile stacked card component with scroll reveal animation
-function MobileStackedCard({ card, index: _index }: { card: typeof mobileCardsData[0]; index: number }) {
-  const cardRef = useRef(null)
-  const isInView = useInView(cardRef, { once: false, amount: 0.4 })
+// Optimized for smooth mobile scrolling with Lenis
+function MobileStackedCard({ card }: { card: typeof mobileCardsData[0] }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  
+  // Use GSAP for smoother animations that work with Lenis
+  // Optimized for mobile - less aggressive animations
+  useEffect(() => {
+    if (!cardRef.current) return
+
+    const ctx = gsap.context(() => {
+      // Set initial state
+      gsap.set(cardRef.current, { opacity: 0, y: 30, scale: 0.98 })
+      
+      // Animate on scroll into view
+      gsap.to(cardRef.current, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.5, // Optimized duration for mobile
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: cardRef.current,
+          start: 'top 85%', // Trigger earlier for smoother feel
+          toggleActions: 'play none none reverse',
+          // Optimize for mobile performance
+          once: false, // Allow reverse for smooth scrolling
+        }
+      })
+    }, cardRef)
+
+    return () => ctx.revert()
+  }, [])
   
   return (
-    <motion.div
+    <div
       ref={cardRef}
-      initial={{ opacity: 0, y: 60, scale: 0.95 }}
-      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.3, y: 30, scale: 0.97 }}
-      transition={{ 
-        duration: 0.5, 
-        delay: 0.05,
-        ease: [0.22, 1, 0.36, 1]
-      }}
-      className={`mobile-stack-card relative w-full rounded-2xl overflow-hidden shadow-xl ${card.bgColor} ${card.hasBorder ? 'border border-gray-100' : ''}`}
+      className={`mobile-stack-card relative w-full rounded-2xl overflow-hidden shadow-xl ${card.bgColor} ${card.hasBorder ? 'border border-gray-100' : ''} will-change-transform`}
       style={{ 
         minHeight: card.type === 'feature' ? '320px' : '200px',
       }}
@@ -288,7 +314,7 @@ function MobileStackedCard({ card, index: _index }: { card: typeof mobileCardsDa
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -308,18 +334,59 @@ export default function FeaturedChefs() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
   
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  })
+  // Use GSAP ScrollTrigger instead of Motion's useScroll for Lenis compatibility (especially on mobile)
+  const bg1Ref = useRef<HTMLDivElement>(null)
+  const bg2Ref = useRef<HTMLDivElement>(null)
+  const rotateRef = useRef<HTMLDivElement>(null)
 
-  // Simplified parallax transforms - less aggressive to prevent glitchiness
-  // Using smaller ranges and smoother transitions
-  const y1 = useTransform(scrollYProgress, [0, 1], [60, -60])
-  const y2 = useTransform(scrollYProgress, [0, 1], [30, -30])
-  // Removed y3 transform for cards - this was causing the glitchy behavior
-  const rotate = useTransform(scrollYProgress, [0, 1], [-3, 3])
-  // Removed scale transform - it was causing layout thrashing
+  // Setup scroll-based animations using ScrollTrigger (Lenis-compatible)
+  useEffect(() => {
+    if (!isInView || !sectionRef.current) return
+
+    const ctx = gsap.context(() => {
+      // Parallax background effects using ScrollTrigger (works with Lenis)
+      if (bg1Ref.current) {
+        gsap.to(bg1Ref.current, {
+          y: -60,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: isMobile ? 1.8 : 1.5, // Smoother on mobile
+          }
+        })
+      }
+
+      if (bg2Ref.current) {
+        gsap.to(bg2Ref.current, {
+          y: -30,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: isMobile ? 1.8 : 1.5, // Smoother on mobile
+          }
+        })
+      }
+
+      if (rotateRef.current) {
+        gsap.to(rotateRef.current, {
+          rotate: 3,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: isMobile ? 1.8 : 1.5, // Smoother on mobile
+          }
+        })
+      }
+    }, sectionRef)
+
+    return () => ctx.revert()
+  }, [isInView, isMobile])
 
   return (
     <section
@@ -330,13 +397,13 @@ export default function FeaturedChefs() {
     >
       {/* Solid background - extends fully to bottom to avoid line with wave */}
       <div className="absolute inset-0 bg-[var(--color-primary)]" style={{ bottom: 0 }}>
-        <motion.div
-          style={{ y: y1 }}
-          className="absolute top-[20%] -right-40 w-[800px] h-[800px] rounded-full bg-white/5 blur-[100px]"
+        <div
+          ref={bg1Ref}
+          className="absolute top-[20%] -right-40 w-[800px] h-[800px] rounded-full bg-white/5 blur-[100px] will-change-transform"
         />
-        <motion.div
-          style={{ y: y2 }}
-          className="absolute bottom-0 -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px]"
+        <div
+          ref={bg2Ref}
+          className="absolute bottom-0 -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px] will-change-transform"
         />
       </div>
 
@@ -411,8 +478,8 @@ export default function FeaturedChefs() {
           {/* MOBILE VIEW: Aurora-style stacked cards with scroll reveal */}
           {isMobile && (
             <div className="flex flex-col gap-4 w-full px-1">
-              {mobileCardsData.map((card, index) => (
-                <MobileStackedCard key={card.id} card={card} index={index} />
+              {mobileCardsData.map((card) => (
+                <MobileStackedCard key={card.id} card={card} />
               ))}
             </div>
           )}
@@ -433,12 +500,12 @@ export default function FeaturedChefs() {
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-cream)] to-transparent opacity-50" />
                 
                 {/* Floating emoji decoration */}
-                <motion.div
-                  style={{ rotate }}
-                  className="absolute top-8 right-8 md:top-12 md:right-12 text-8xl md:text-[10rem] opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                <div
+                  ref={rotateRef}
+                  className="absolute top-8 right-8 md:top-12 md:right-12 text-8xl md:text-[10rem] opacity-20 group-hover:opacity-30 transition-opacity duration-500 will-change-transform"
                 >
                   🍴
-                </motion.div>
+                </div>
 
                 <div className="relative">
                   <span className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1 sm:py-2 bg-[var(--color-primary)]/10 rounded-full mb-2 sm:mb-4 md:mb-6">
@@ -536,12 +603,11 @@ export default function FeaturedChefs() {
               className="col-span-1 group will-change-transform"
             >
               <div className="relative h-full bg-[var(--color-sage)] rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[240px]">
-                <motion.div
-                  style={{ rotate }}
+                <div
                   className="absolute -bottom-2 -right-2 text-2xl sm:text-4xl md:text-6xl lg:text-8xl opacity-30"
                 >
                   🏠
-                </motion.div>
+                </div>
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>

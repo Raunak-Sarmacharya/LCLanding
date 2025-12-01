@@ -118,20 +118,18 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       options={{ 
         autoRaf: false,
         // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
-        // lerp: Linear interpolation factor (0-1)
-        // Lower = smoother but more laggy, higher = more immediate but less smooth
-        // Balanced for smoothness without lag
-        lerp: isMobile ? 0.1 : 0.08, // Optimized for smooth performance
-        duration: isMobile ? 1.2 : 1.5, // Balanced duration
+        // Mobile-optimized settings based on Lenis best practices
+        lerp: isMobile ? 0.12 : 0.08, // Slightly higher on mobile for better responsiveness
+        duration: isMobile ? 1.0 : 1.5, // Shorter on mobile for snappier feel
         smoothWheel: true,
-        wheelMultiplier: isMobile ? 1.0 : 0.85, // Slightly reduced for smoother feel
-        touchMultiplier: 1.6, // Optimized touch sensitivity
+        wheelMultiplier: isMobile ? 1.0 : 0.85,
+        touchMultiplier: isMobile ? 1.4 : 1.6, // Reduced on mobile to prevent over-scrolling
         infinite: false,
         // Enable smooth touch scrolling with momentum
         syncTouch: true,
-        syncTouchLerp: isMobile ? 0.08 : 0.05, // Optimized for smooth touch
+        syncTouchLerp: isMobile ? 0.1 : 0.05, // Higher on mobile for smoother touch inertia
         // Touch inertia for that premium feel
-        touchInertiaExponent: 1.7, // Slightly reduced for smoother deceleration
+        touchInertiaExponent: isMobile ? 1.6 : 1.7, // Slightly lower on mobile for smoother stop
         // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
           // Optimized easing: smooth acceleration and deceleration
