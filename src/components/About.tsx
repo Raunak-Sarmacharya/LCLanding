@@ -156,11 +156,12 @@ export default function About() {
               bridge connecting passionate home chefs with food lovers in their community.
             </motion.p>
 
+            {/* Pills container - MOBILE: 2x2 symmetric grid, DESKTOP: flex wrap */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap gap-2 sm:gap-4"
+              className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-4"
             >
               {[
                 { icon: '✓', text: 'Independent Local Chefs' },
@@ -168,9 +169,12 @@ export default function About() {
                 { icon: '✓', text: 'Secure Payments' },
                 { icon: '✓', text: 'Real-time Tracking' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-1.5 sm:gap-2 bg-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-sm border border-[var(--color-primary)]/10">
-                  <span className="text-[var(--color-primary)] font-bold text-sm sm:text-base">{item.icon}</span>
-                  <span className="font-mono text-xs sm:text-sm">{item.text}</span>
+                <div 
+                  key={i} 
+                  className="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 bg-white px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-full shadow-sm border border-[var(--color-primary)]/10 transition-all duration-200 hover:shadow-md hover:border-[var(--color-primary)]/20"
+                >
+                  <span className="text-[var(--color-primary)] font-bold text-xs sm:text-base">{item.icon}</span>
+                  <span className="font-mono text-[10px] sm:text-sm text-[var(--color-charcoal)] whitespace-nowrap">{item.text}</span>
                 </div>
               ))}
             </motion.div>

@@ -264,24 +264,20 @@ export default function HowItWorks() {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="font-body text-[11px] sm:text-sm md:text-base lg:text-lg text-[var(--color-charcoal-light)] max-w-4xl mx-auto px-4 whitespace-nowrap overflow-hidden text-ellipsis"
-            style={{ 
-              fontSize: 'clamp(0.6875rem, 0.5rem + 0.5vw, 1.125rem)',
-            }}
+            className="font-body text-sm sm:text-sm md:text-base lg:text-lg text-[var(--color-charcoal-light)] max-w-4xl mx-auto px-4 sm:whitespace-nowrap sm:overflow-hidden sm:text-ellipsis leading-relaxed"
           >
             Getting delicious homemade food has never been easier. Four simple steps to culinary happiness.
           </motion.p>
         </div>
 
-        {/* Steps - PRESERVE 4-column layout on all screens */}
-        {/* User requirement: Keep layout even on mobile - content scales down */}
+        {/* Steps - MOBILE: 2x2 grid for readability, DESKTOP: 4-column layout */}
         {/* overflow-visible to allow step number badges to extend beyond cards without being clipped */}
         <div ref={stepsRef} className="relative w-full max-w-full overflow-visible pr-2 sm:pr-3 md:pr-4 lg:pr-6">
           {/* Connection line - show on larger screens */}
           <div className="connecting-line hidden md:block absolute top-1/2 left-0 right-0 h-0.5 md:h-1 bg-gradient-to-r from-[var(--color-primary)]/20 via-[var(--color-primary)]/40 to-[var(--color-primary)]/20 origin-left" />
 
-          {/* Grid maintains 4 columns on ALL screens - scales proportionally */}
-          <div className="grid grid-cols-4 gap-1 xs:gap-1.5 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full">
+          {/* MOBILE: 2-column grid for readability, SM+: 4 columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-full">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
@@ -332,7 +328,7 @@ export default function HowItWorks() {
                 }}
               >
                 <motion.div 
-                  className="card-inner bg-white rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl p-2 sm:p-3 md:p-5 lg:p-8 shadow-md sm:shadow-lg shadow-black/5 border border-[var(--color-cream-dark)]/50 relative z-10 h-full min-h-[80px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[280px]"
+                  className="card-inner bg-white rounded-xl sm:rounded-xl md:rounded-2xl lg:rounded-3xl p-4 sm:p-3 md:p-5 lg:p-8 shadow-lg sm:shadow-lg shadow-black/5 border border-[var(--color-cream-dark)]/50 relative z-10 h-full min-h-[140px] sm:min-h-[140px] md:min-h-[200px] lg:min-h-[280px]"
                   style={{ 
                     transformStyle: 'preserve-3d',
                     willChange: 'transform',
@@ -352,24 +348,24 @@ export default function HowItWorks() {
                   {/* Elegant border glow on hover - hidden on small screens */}
                   <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl border border-transparent group-hover:border-[var(--color-primary)]/20 transition-all duration-500 pointer-events-none hidden sm:block" />
                   
-                  {/* Step number - responsive sizing */}
-                  <div className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 md:-top-3 md:-right-3 lg:-top-4 lg:-right-4 w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-[var(--color-primary)] rounded-full flex items-center justify-center font-mono text-[8px] sm:text-[10px] md:text-xs lg:text-sm text-white font-bold shadow-md sm:shadow-lg shadow-[var(--color-primary)]/30 z-20 group-hover:scale-105 transition-all duration-300">
+                  {/* Step number - responsive sizing - MOBILE: larger for readability */}
+                  <div className="absolute -top-2 -right-2 sm:-top-2 sm:-right-2 md:-top-3 md:-right-3 lg:-top-4 lg:-right-4 w-7 h-7 sm:w-7 sm:h-7 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-[var(--color-primary)] rounded-full flex items-center justify-center font-mono text-[10px] sm:text-[10px] md:text-xs lg:text-sm text-white font-bold shadow-lg sm:shadow-lg shadow-[var(--color-primary)]/30 z-20 group-hover:scale-105 transition-all duration-300">
                     {step.number}
                   </div>
 
-                  {/* Icon - responsive sizing */}
-                  <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-coral)]/10 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center text-[var(--color-primary)] mb-1 sm:mb-2 md:mb-4 lg:mb-6 group-hover:scale-105 transition-all duration-500 relative z-10 [&_svg]:w-4 [&_svg]:h-4 sm:[&_svg]:w-6 sm:[&_svg]:h-6 md:[&_svg]:w-8 md:[&_svg]:h-8 lg:[&_svg]:w-10 lg:[&_svg]:h-10">
+                  {/* Icon - responsive sizing - MOBILE: larger for visual impact */}
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-coral)]/10 rounded-xl sm:rounded-xl md:rounded-2xl flex items-center justify-center text-[var(--color-primary)] mb-2 sm:mb-2 md:mb-4 lg:mb-6 group-hover:scale-105 transition-all duration-500 relative z-10 [&_svg]:w-5 [&_svg]:h-5 sm:[&_svg]:w-6 sm:[&_svg]:h-6 md:[&_svg]:w-8 md:[&_svg]:h-8 lg:[&_svg]:w-10 lg:[&_svg]:h-10">
                     {step.icon}
                     {/* Subtle glow on icon hover */}
-                    <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl bg-[var(--color-primary)]/0 group-hover:bg-[var(--color-primary)]/10 transition-all duration-500 blur-xl hidden sm:block" />
+                    <div className="absolute inset-0 rounded-xl sm:rounded-xl md:rounded-2xl bg-[var(--color-primary)]/0 group-hover:bg-[var(--color-primary)]/10 transition-all duration-500 blur-xl hidden sm:block" />
                   </div>
 
-                  {/* Content */}
+                  {/* Content - MOBILE: larger text for readability */}
                   <div className="relative z-10">
-                    <h3 className="font-heading text-[9px] sm:text-xs md:text-base lg:text-xl text-[var(--color-charcoal)] mb-0.5 sm:mb-1 md:mb-2 lg:mb-3 group-hover:text-[var(--color-primary)] transition-colors duration-300 leading-tight">
+                    <h3 className="font-heading text-sm sm:text-xs md:text-base lg:text-xl text-[var(--color-charcoal)] mb-1 sm:mb-1 md:mb-2 lg:mb-3 group-hover:text-[var(--color-primary)] transition-colors duration-300 leading-tight">
                       {step.title}
                     </h3>
-                    <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-base text-[var(--color-charcoal-light)] leading-tight sm:leading-relaxed">
+                    <p className="font-body text-[10px] sm:text-[9px] md:text-xs lg:text-base text-[var(--color-charcoal-light)] leading-relaxed sm:leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -405,7 +401,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="text-center mt-8 sm:mt-12 md:mt-16 w-full max-w-full px-4 sm:px-2"
         >
-          <div className="inline-block w-[calc(100%-2rem)] sm:w-full max-w-2xl bg-[var(--color-primary)] rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-7 shadow-xl shadow-[var(--color-primary)]/20 relative overflow-hidden box-border mx-auto">
+          <div className="inline-block w-[calc(100%-1rem)] sm:w-full max-w-2xl bg-[var(--color-primary)] rounded-2xl sm:rounded-3xl p-5 sm:p-5 md:p-7 shadow-xl shadow-[var(--color-primary)]/20 relative overflow-hidden box-border mx-auto">
             {/* Emoji background decorations - similar to "Your Space" card */}
             <motion.div
               className="absolute -top-8 -right-8 text-7xl sm:text-8xl md:text-9xl opacity-20 select-none pointer-events-none"
@@ -524,17 +520,17 @@ export default function HowItWorks() {
             
             <div className="relative z-10">
               {/* Heading - One line, similar typography to "Where Flavor Meets Freedom" */}
-              <h3 className="font-heading text-[clamp(1.25rem,3.5vw,2.25rem)] sm:text-[clamp(1.5rem,4.5vw,2.75rem)] md:text-[clamp(1.75rem,5vw,3rem)] text-white leading-[0.9] tracking-tight mb-4 sm:mb-5 whitespace-nowrap overflow-hidden text-ellipsis pb-2 sm:pb-2.5">
+              <h3 className="font-heading text-xl sm:text-[clamp(1.5rem,4.5vw,2.75rem)] md:text-[clamp(1.75rem,5vw,3rem)] text-white leading-[1] tracking-tight mb-4 sm:mb-5 pb-1 sm:pb-2.5">
                 Ready to{' '}
                 <span className="font-display text-white/90">Taste</span>
                 {' '}The{' '}
                 <span className="font-display text-white/90">Difference?</span>
               </h3>
               
-              {/* Discount text and copy button */}
+              {/* Discount text and copy button - MOBILE: single line fit */}
               <div className="mb-4 sm:mb-5">
-                <p className="font-body text-sm sm:text-base text-white/90 mb-2.5 sm:mb-3">
-                  Use <span className="font-bold text-white">STJOHNS30</span> to get <span className="font-bold text-white text-lg sm:text-xl">30% off</span> your first order
+                <p className="font-body text-[13px] sm:text-base text-white/90 mb-3 sm:mb-3 whitespace-nowrap">
+                  Use <span className="font-bold text-white">STJOHNS30</span> to get <span className="font-bold text-white text-base sm:text-xl">30% off</span> your first order
                 </p>
                 <motion.button
                   onClick={async () => {
