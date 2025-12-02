@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import { motion, useInView } from 'motion/react'
+import { motion } from 'motion/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SmoothScroll from '../components/SmoothScroll'
@@ -14,7 +14,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 function CreateBlogPostPageContent() {
   const sectionRef = useRef<HTMLElement>(null)
-  const isInView = useInView(sectionRef, { once: true, margin: '0px' })
   const { isAdmin, isLoading } = useAuth()
 
   // Show loading state while checking auth
@@ -36,47 +35,61 @@ function CreateBlogPostPageContent() {
 
   useEffect(() => {
     // Wait for ref to be attached to DOM
-    if (!sectionRef.current) return
+    const sectionElement = sectionRef.current
+    if (!sectionElement) return
 
-    const ctx = gsap.context(() => {
-      // Animate sections on scroll
-      const isMobile = window.innerWidth < 768
-      // Use the sectionRef as the scope to ensure we only animate elements within it
-      const sections = gsap.utils.toArray<HTMLElement>('.animate-section', sectionRef.current)
-      
-      sections.forEach((section) => {
-        if (!section || !sectionRef.current?.contains(section)) return
-        
-        // Set initial visible state to ensure content is always visible
-        gsap.set(section, { opacity: 1, y: 0 })
-        
-        gsap.fromTo(
-          section,
-          {
-            opacity: 0,
-            y: isMobile ? 40 : 80,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: isMobile ? 0.8 : 1.2,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: section,
-              start: isMobile ? 'top 95%' : 'top 90%',
-              end: 'bottom 20%',
-              toggleActions: 'play none none reverse',
-              invalidateOnRefresh: true,
-              // Ensure the trigger is within the context scope
-              scroller: window,
-            },
-          }
-        )
-      })
-    }, sectionRef)
+    let ctx: gsap.Context | null = null
+
+    // Use a small delay to ensure DOM is fully ready and avoid scope issues
+    const timeoutId = setTimeout(() => {
+      const currentSection = sectionRef.current
+      if (!currentSection) return
+
+      try {
+        ctx = gsap.context(() => {
+          // Animate sections on scroll
+          const isMobile = window.innerWidth < 768
+          // Use the section element as the scope
+          const sections = gsap.utils.toArray<HTMLElement>('.animate-section', currentSection)
+          
+          sections.forEach((section) => {
+            if (!section || !currentSection.contains(section)) return
+            
+            // Set initial visible state to ensure content is always visible
+            gsap.set(section, { opacity: 1, y: 0 })
+            
+            gsap.fromTo(
+              section,
+              {
+                opacity: 0,
+                y: isMobile ? 40 : 80,
+              },
+              {
+                opacity: 1,
+                y: 0,
+                duration: isMobile ? 0.8 : 1.2,
+                ease: 'power3.out',
+                scrollTrigger: {
+                  trigger: section,
+                  start: isMobile ? 'top 95%' : 'top 90%',
+                  end: 'bottom 20%',
+                  toggleActions: 'play none none reverse',
+                  invalidateOnRefresh: true,
+                },
+              }
+            )
+          })
+        }, currentSection)
+      } catch (error) {
+        console.warn('GSAP animation setup error:', error)
+      }
+    }, 150)
 
     return () => {
-      ctx.revert()
+      clearTimeout(timeoutId)
+      if (ctx) {
+        ctx.revert()
+      }
     }
   }, [])
 
@@ -93,7 +106,7 @@ function CreateBlogPostPageContent() {
           {/* Back to Blog Link */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             className="mb-8"
           >
@@ -116,7 +129,7 @@ function CreateBlogPostPageContent() {
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
             className="text-center mb-16 animate-section"
             style={{ opacity: 1 }}

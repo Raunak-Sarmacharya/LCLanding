@@ -94,50 +94,27 @@ export default async function handler(req: Request | any) {
 
       // Try to filter at database level first (more efficient)
       // If published column doesn't exist or query fails, fall back to getting all posts
-      let queryPromise = supabase
+      let queryResult = await supabase
         .from('posts')
         .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
         .or('published.is.null,published.eq.true')
         .order('created_at', { ascending: false })
         .limit(100)
 
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
-      })
+      let allPosts = queryResult.data
+      let error = queryResult.error
 
-      let allPosts, error
-      try {
-        const result = await Promise.race([queryPromise, timeoutPromise]) as any
-        allPosts = result.data
-        error = result.error
-
-        // If the query failed because published column doesn't exist, try without filter
-        if (error && (error.code === '42703' || error.message?.includes('column') || error.message?.includes('published'))) {
-          console.log('[GET /api/blog] Published column filter failed, trying without filter')
-          queryPromise = supabase
-            .from('posts')
-            .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
-            .order('created_at', { ascending: false })
-            .limit(100)
-          
-          const fallbackResult = await Promise.race([queryPromise, timeoutPromise]) as any
-          allPosts = fallbackResult.data
-          error = fallbackResult.error
-        }
-      } catch (timeoutError) {
-        console.error('[GET /api/blog] Query timeout:', timeoutError)
-        // Return empty array on timeout instead of failing
-        return new Response(
-          JSON.stringify({ posts: [], error: 'Request timeout' }),
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              'Cache-Control': 'no-cache',
-            },
-          }
-        )
+      // If the query failed because published column doesn't exist, try without filter
+      if (error && (error.code === '42703' || error.message?.includes('column') || error.message?.includes('published'))) {
+        console.log('[GET /api/blog] Published column filter failed, trying without filter')
+        const fallbackResult = await supabase
+          .from('posts')
+          .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+          .order('created_at', { ascending: false })
+          .limit(100)
+        
+        allPosts = fallbackResult.data
+        error = fallbackResult.error
       }
 
       if (error) {

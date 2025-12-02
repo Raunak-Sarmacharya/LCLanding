@@ -27,6 +27,8 @@ export function useBlogPosts(): UseBlogPostsResult {
     const CACHE_KEY = 'blog_posts_cache'
     const CACHE_TIMESTAMP_KEY = 'blog_posts_cache_timestamp'
     const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+    
+    console.log('[useBlogPosts] Hook initialized')
 
     // Load cached data immediately
     try {
@@ -37,10 +39,17 @@ export function useBlogPosts(): UseBlogPostsResult {
         const age = Date.now() - parseInt(cachedTimestamp, 10)
         if (age < CACHE_DURATION) {
           const parsed = JSON.parse(cachedData)
+          console.log('[useBlogPosts] Loaded cached data:', parsed?.length || 0, 'posts')
           if (!cancelled) {
             setPosts(Array.isArray(parsed) ? parsed : [])
           }
+        } else {
+          console.log('[useBlogPosts] Cached data expired, clearing cache')
+          localStorage.removeItem(CACHE_KEY)
+          localStorage.removeItem(CACHE_TIMESTAMP_KEY)
         }
+      } else {
+        console.log('[useBlogPosts] No cached data found')
       }
     } catch (cacheError) {
       console.warn('Failed to load cached blog posts:', cacheError)
@@ -56,6 +65,8 @@ export function useBlogPosts(): UseBlogPostsResult {
 
         if (!cancelled) {
           const postsArray = Array.isArray(data) ? data : []
+          console.log('[useBlogPosts] Setting posts:', postsArray.length, 'posts')
+          console.log('[useBlogPosts] Posts data:', postsArray)
           setPosts(postsArray)
           setLoading(false)
 
@@ -63,9 +74,12 @@ export function useBlogPosts(): UseBlogPostsResult {
           try {
             localStorage.setItem(CACHE_KEY, JSON.stringify(postsArray))
             localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString())
+            console.log('[useBlogPosts] Cached', postsArray.length, 'posts')
           } catch (cacheError) {
             console.warn('Failed to cache blog posts:', cacheError)
           }
+        } else {
+          console.log('[useBlogPosts] Component cancelled, not setting posts')
         }
       } catch (err) {
         if (!cancelled) {

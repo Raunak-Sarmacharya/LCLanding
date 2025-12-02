@@ -17,9 +17,9 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     const url = `${API_BASE_URL}/blog`
     console.log('[getBlogPosts] Fetching from:', url)
 
-    // Add timeout to fetch (7s to stay under Vercel's 10s limit, with buffer for server processing)
+    // Add timeout to fetch (15s to ensure API has time to respond - API takes 350+ms, but we want plenty of buffer)
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 7000) // 7 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
 
     let response: Response
     try {
@@ -46,6 +46,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
     if (!response.ok) {
       // If 404 or other error, return empty array instead of throwing
+      console.error(`[getBlogPosts] Response not OK: ${response.status} ${response.statusText}`)
       if (response.status === 404 || response.status >= 500) {
         return []
       }
@@ -61,7 +62,12 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     let data: any
     try {
       data = JSON.parse(text)
+      console.log('[getBlogPosts] Parsed response data:', data)
+      console.log('[getBlogPosts] data.posts type:', typeof data.posts, 'isArray:', Array.isArray(data.posts))
+      console.log('[getBlogPosts] data.posts value:', data.posts)
     } catch (parseError) {
+      console.error('[getBlogPosts] JSON parse error:', parseError)
+      console.error('[getBlogPosts] Response text:', text)
       return []
     }
 
@@ -69,6 +75,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     const posts = Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : [])
     const totalTime = Date.now() - startTime
     console.log(`[getBlogPosts] Success in ${totalTime}ms, returned ${posts.length} posts`)
+    console.log('[getBlogPosts] Posts array:', posts)
     return posts
   } catch (error) {
     const totalTime = Date.now() - startTime
