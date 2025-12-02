@@ -12,7 +12,7 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseAnonKey)
 }
 
-export default async function handler(req: Request) {
+export default async function handler(req: any) {
   // Only allow GET requests
   if (req.method !== 'GET') {
     return new Response(
@@ -25,10 +25,23 @@ export default async function handler(req: Request) {
   }
 
   try {
-    // Extract slug from URL
-    const url = new URL(req.url)
-    const pathParts = url.pathname.split('/')
-    const slug = pathParts[pathParts.length - 1]
+    // Extract slug from URL - handle both Request object and Vercel format
+    let slug: string
+    if (req.url) {
+      const url = new URL(req.url)
+      const pathParts = url.pathname.split('/')
+      slug = pathParts[pathParts.length - 1]
+    } else if (req.query?.slug) {
+      slug = req.query.slug
+    } else {
+      return new Response(
+        JSON.stringify({ error: 'Slug is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
 
     if (!slug) {
       return new Response(

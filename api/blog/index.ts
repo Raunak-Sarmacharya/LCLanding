@@ -44,7 +44,7 @@ async function ensureUniqueSlug(baseSlug: string, supabaseClient: SupabaseClient
   }
 }
 
-export default async function handler(req: Request) {
+export default async function handler(req: any) {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
@@ -127,7 +127,27 @@ export default async function handler(req: Request) {
         )
       }
 
-      const body = await req.json()
+      // Parse request body - Vercel functions may have body already parsed
+      let body: any
+      if (req.body) {
+        // Body is already parsed by Vercel
+        body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+      } else if (typeof req.json === 'function') {
+        // Standard Request API
+        body = await req.json()
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'Unable to parse request body', details: 'Request body is missing' }),
+          {
+            status: 400,
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        )
+      }
+      
       const { title, content, excerpt, author_name, slug: providedSlug } = body
 
       // Validate required fields
