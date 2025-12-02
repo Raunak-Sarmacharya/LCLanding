@@ -88,15 +88,23 @@ export default function CreateBlogPostForm() {
 
       if (err instanceof Error) {
         if (err.message.includes('timeout') || err.message.includes('took too long')) {
-          errorMessage = 'Request timed out. Your post may have been saved. Please check the blog page or try again.'
+          errorMessage = 'Request timed out, but your post may have been saved successfully! Please check the blog page. If you don\'t see it, try submitting again.'
         } else if (err.message.includes('network') || err.message.includes('fetch')) {
           errorMessage = 'Network error. Please check your connection and try again.'
+        } else if (err.message.includes('may have been saved')) {
+          // If the error message already mentions the post may have been saved, use it as-is
+          errorMessage = err.message
         } else {
           errorMessage = err.message
         }
       }
 
       setError(errorMessage)
+      
+      // If timeout occurred, also log a helpful message
+      if (err instanceof Error && (err.message.includes('timeout') || err.message.includes('took too long'))) {
+        console.warn('[CreateBlogPostForm] Timeout occurred, but post may have been created. Check blog page.')
+      }
 
       // Scroll to error message
       window.scrollTo({ top: 0, behavior: 'smooth' })

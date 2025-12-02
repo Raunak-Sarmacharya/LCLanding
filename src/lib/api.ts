@@ -131,10 +131,13 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
  * Create a new blog post (admin only)
  */
 export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPost> {
+  const startTime = Date.now()
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout (same as GET)
 
   try {
+    console.log('[createBlogPost] Starting request')
+    
     // Get auth token from Supabase session
     // Supabase stores sessions in localStorage, so we can create a client and get the session
     let authToken: string | null = null
@@ -177,24 +180,59 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
       throw new Error('Authentication required. Please log in as an admin. If you just logged in, please wait a moment and try again.')
     }
 
-    const response = await fetch(`${API_BASE_URL}/blog`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`,
-      },
-      body: JSON.stringify(input),
-      signal: controller.signal,
-    })
-
-    clearTimeout(timeoutId)
+    console.log('[createBlogPost] Fetching to:', `${API_BASE_URL}/blog`)
+    
+    let response: Response
+    try {
+      response = await fetch(`${API_BASE_URL}/blog`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(input),
+        signal: controller.signal,
+        cache: 'no-store',
+      })
+      clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+      console.log(`[createBlogPost] Response received in ${fetchTime}ms, status: ${response.status}`)
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+      console.error(`[createBlogPost] Fetch error after ${fetchTime}ms:`, fetchError)
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error('Request timeout - the server took too long to respond. Your post may have been saved - please check the blog page.')
+      }
+      throw fetchError
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       throw new Error(errorData.error || errorData.details || `Failed to create blog post: ${response.statusText}`)
     }
 
-    const text = await response.text()
+    // Read response body with timeout protection
+    let text: string
+    try {
+      const textPromise = response.text()
+      let timeoutHandle: NodeJS.Timeout | null = null
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout')), 10000)
+      })
+      
+      try {
+        text = await Promise.race([textPromise, timeoutPromise])
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+      } catch (raceError) {
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+        throw raceError
+      }
+    } catch (readError) {
+      const readTime = Date.now() - startTime
+      console.error(`[createBlogPost] Error reading response body after ${readTime}ms:`, readError)
+      throw new Error('Failed to read server response')
+    }
 
     if (!text || text.trim() === '') {
       throw new Error('Empty response from server')
@@ -203,19 +241,26 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
     let data: any
     try {
       data = JSON.parse(text)
+      console.log('[createBlogPost] Parsed response data:', data)
     } catch (parseError) {
+      console.error('[createBlogPost] JSON parse error:', parseError)
       throw new Error('Invalid JSON response from server')
     }
 
     if (!data.post) {
+      console.error('[createBlogPost] Missing post in response:', data)
       throw new Error('Invalid response from server: post data missing')
     }
 
+    const totalTime = Date.now() - startTime
+    console.log(`[createBlogPost] Success in ${totalTime}ms`)
     return data.post
   } catch (error) {
     clearTimeout(timeoutId)
+    const totalTime = Date.now() - startTime
+    console.error(`[createBlogPost] Error after ${totalTime}ms:`, error)
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('Request timeout - the server took too long to respond')
+      throw new Error('Request timeout - the server took too long to respond. Your post may have been saved - please check the blog page.')
     }
     throw error
   }

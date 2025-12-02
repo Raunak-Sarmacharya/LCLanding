@@ -83,8 +83,8 @@ export default async function handler(req: Request | any) {
     })
   }
 
-  // Handle GET requests - list all published posts
-  // PUBLIC ACCESS: No authentication required - anyone can view published posts
+  // Handle GET requests - list ALL posts (no filtering)
+  // PUBLIC ACCESS: No authentication required - returns all posts including unpublished
   if (method === 'GET') {
     const startTime = Date.now()
     console.log('[GET /api/blog] Request received at', new Date().toISOString())
@@ -92,30 +92,15 @@ export default async function handler(req: Request | any) {
     try {
       const supabase = getSupabaseClient()
 
-      // Try to filter at database level first (more efficient)
-      // If published column doesn't exist or query fails, fall back to getting all posts
-      let queryResult = await supabase
+      // Get ALL posts - no filtering
+      const queryResult = await supabase
         .from('posts')
         .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
-        .or('published.is.null,published.eq.true')
         .order('created_at', { ascending: false })
         .limit(100)
 
-      let allPosts = queryResult.data
-      let error = queryResult.error
-
-      // If the query failed because published column doesn't exist, try without filter
-      if (error && (error.code === '42703' || error.message?.includes('column') || error.message?.includes('published'))) {
-        console.log('[GET /api/blog] Published column filter failed, trying without filter')
-        const fallbackResult = await supabase
-          .from('posts')
-          .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
-          .order('created_at', { ascending: false })
-          .limit(100)
-        
-        allPosts = fallbackResult.data
-        error = fallbackResult.error
-      }
+      const allPosts = queryResult.data || []
+      const error = queryResult.error
 
       if (error) {
         console.error('[GET /api/blog] Supabase query error:', error)
@@ -132,28 +117,11 @@ export default async function handler(req: Request | any) {
         )
       }
 
-      // Filter for published posts - show all posts unless explicitly marked as unpublished
-      // This handles cases where published column might be null, true, false, or not exist
-      const publishedPosts = (allPosts || []).filter(p => {
-        // If published field doesn't exist or is null, show the post (default to published)
-        if (p.published === null || p.published === undefined) {
-          return true
-        }
-        
-        // If explicitly false, don't show
-        if (p.published === false || p.published === 0 || p.published === '0' || p.published === 'false') {
-          return false
-        }
-        
-        // If true or any truthy value, show
-        return true
-      })
-
       const executionTime = Date.now() - startTime
-      console.log(`[GET /api/blog] Success in ${executionTime}ms, returned ${publishedPosts.length} posts`)
+      console.log(`[GET /api/blog] Success in ${executionTime}ms, returned ${allPosts.length} posts`)
 
       return new Response(
-        JSON.stringify({ posts: publishedPosts }),
+        JSON.stringify({ posts: allPosts }),
         {
           status: 200,
           headers: {
