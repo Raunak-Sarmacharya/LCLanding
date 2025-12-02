@@ -77,14 +77,39 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     
     // On mobile with syncTouch: false, we need to listen to native scroll events
     // to keep ScrollTrigger in sync (Lenis still tracks native scroll, but we need to update ScrollTrigger)
+    // Also, we need to ensure Lenis doesn't apply smoothing during active touch
     const isMobileDevice = window.innerWidth < 768
     let nativeScrollHandler: (() => void) | null = null
-    if (isMobileDevice) {
+    let touchStartHandler: (() => void) | null = null
+    let touchEndHandler: (() => void) | null = null
+    
+    if (isMobileDevice && lenis) {
+      // Update ScrollTrigger when native scrolling happens
       nativeScrollHandler = () => {
-        // Update ScrollTrigger when native scrolling happens
         ScrollTrigger.update()
       }
       window.addEventListener('scroll', nativeScrollHandler, { passive: true })
+      
+      // CRITICAL FIX: Disable Lenis smoothing during active touch for perfect 1:1 finger tracking
+      // When touch starts, ensure lerp is 1 (no smoothing)
+      // When touch ends, lerp can resume (though it's already 1 on mobile)
+      touchStartHandler = () => {
+        // Force instant scroll tracking during active touch (no smoothing)
+        if (lenis) {
+          lenis.options.lerp = 1
+        }
+      }
+      
+      touchEndHandler = () => {
+        // Keep lerp at 1 on mobile (native scrolling should never be smoothed)
+        if (lenis) {
+          lenis.options.lerp = 1
+        }
+      }
+      
+      // Listen to touch events to ensure no smoothing during active touch
+      document.addEventListener('touchstart', touchStartHandler, { passive: true })
+      document.addEventListener('touchend', touchEndHandler, { passive: true })
     }
     
     // Add resize listener for ScrollTrigger refresh
@@ -106,6 +131,12 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       }
       if (nativeScrollHandler) {
         window.removeEventListener('scroll', nativeScrollHandler)
+      }
+      if (touchStartHandler) {
+        document.removeEventListener('touchstart', touchStartHandler)
+      }
+      if (touchEndHandler) {
+        document.removeEventListener('touchend', touchEndHandler)
       }
       window.removeEventListener('resize', debouncedResize)
       clearTimeout(resizeTimeout)
@@ -134,8 +165,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         autoRaf: false,
         // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
         // Mobile-optimized for natural, smooth touch feel like prettypatty.ch
-        // Lower lerp for immediate response during active touch (finger follows immediately)
-        lerp: isMobile ? 0.1 : 0.08, // Balanced lerp - lower for immediate response, but not too low to avoid jitter
+        // CRITICAL: On mobile with syncTouch: false, set lerp to 1 (no smoothing) for perfect 1:1 finger tracking
+        // This eliminates jitter by ensuring native scrolling is completely unmodified
+        lerp: isMobile ? 1 : 0.08, // lerp: 1 = instant, no smoothing (perfect for native scrolling on mobile)
         // Duration for momentum scrolling after touch release
         duration: isMobile ? 1.2 : 1.5, // Slightly longer on mobile for smoother momentum
         smoothWheel: true,
