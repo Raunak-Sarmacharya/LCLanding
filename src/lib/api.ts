@@ -17,19 +17,22 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     const url = `${API_BASE_URL}/blog`
     console.log('[getBlogPosts] Fetching from:', url)
 
-    // Add timeout to fetch (15s to ensure API has time to respond - API takes 350+ms, but we want plenty of buffer)
+    // Add timeout to fetch (30s to ensure API has time to respond - increased from 15s)
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
     let response: Response
     try {
       response = await fetch(url, {
+        method: 'GET',
         cache: 'no-store',
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json',
         },
+        // Remove keepalive as it may cause issues in some browsers
+        // Add redirect: 'follow' to handle any redirects
+        redirect: 'follow',
       })
       clearTimeout(timeoutId)
       const fetchTime = Date.now() - startTime
@@ -40,6 +43,14 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       console.error(`[getBlogPosts] Fetch error after ${fetchTime}ms:`, fetchError)
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         throw new Error('Request timeout - the server took too long to respond')
+      }
+      // Log more details about the error
+      if (fetchError instanceof Error) {
+        console.error(`[getBlogPosts] Error details:`, {
+          name: fetchError.name,
+          message: fetchError.message,
+          stack: fetchError.stack,
+        })
       }
       throw fetchError
     }
@@ -53,21 +64,30 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       throw new Error(`Failed to fetch blog posts: ${response.statusText}`)
     }
 
-    const text = await response.text()
-
-    if (!text || text.trim() === '') {
-      return []
-    }
-
+    // Read response body with timeout protection
     let data: any
     try {
-      data = JSON.parse(text)
-      console.log('[getBlogPosts] Parsed response data:', data)
-      console.log('[getBlogPosts] data.posts type:', typeof data.posts, 'isArray:', Array.isArray(data.posts))
-      console.log('[getBlogPosts] data.posts value:', data.posts)
-    } catch (parseError) {
-      console.error('[getBlogPosts] JSON parse error:', parseError)
-      console.error('[getBlogPosts] Response text:', text)
+      // Use response.json() directly for better performance and error handling
+      const jsonPromise = response.json()
+      let timeoutHandle: NodeJS.Timeout | null = null
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout')), 10000)
+      })
+      
+      try {
+        data = await Promise.race([jsonPromise, timeoutPromise])
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+        console.log('[getBlogPosts] Parsed response data:', data)
+        console.log('[getBlogPosts] data.posts type:', typeof data.posts, 'isArray:', Array.isArray(data.posts))
+        console.log('[getBlogPosts] data.posts value:', data.posts)
+      } catch (raceError) {
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+        throw raceError
+      }
+    } catch (readError) {
+      const readTime = Date.now() - startTime
+      console.error(`[getBlogPosts] Error reading response body after ${readTime}ms:`, readError)
+      // If we got the response but can't read it, return empty array
       return []
     }
 
@@ -200,4 +220,5 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
     throw error
   }
 }
+
 

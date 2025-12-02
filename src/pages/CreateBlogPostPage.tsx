@@ -16,23 +16,8 @@ function CreateBlogPostPageContent() {
   const sectionRef = useRef<HTMLElement>(null)
   const { isAdmin, isLoading } = useAuth()
 
-  // Show loading state while checking auth
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="font-body text-[var(--color-charcoal)]/60">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Redirect non-admin users
-  if (!isAdmin) {
-    return <Navigate to="/blog" replace />
-  }
-
+  // IMPORTANT: All hooks must be called before any conditional returns
+  // This useEffect must be called unconditionally to follow Rules of Hooks
   useEffect(() => {
     // Wait for ref to be attached to DOM
     const sectionElement = sectionRef.current
@@ -92,6 +77,23 @@ function CreateBlogPostPageContent() {
       }
     }
   }, [])
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="font-body text-[var(--color-charcoal)]/60">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Redirect non-admin users
+  if (!isAdmin) {
+    return <Navigate to="/blog" replace />
+  }
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
