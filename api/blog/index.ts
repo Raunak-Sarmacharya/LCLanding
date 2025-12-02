@@ -1,5 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { VercelRequest, VercelResponse } from '@vercel/node'
+
+// Configure runtime
+export const config = {
+  runtime: 'nodejs'
+}
 
 // Types matching Supabase schema
 interface PostRow {
@@ -212,24 +218,19 @@ async function ensureUniqueSlug(baseSlug: string, supabaseClient: SupabaseClient
   return `${baseSlug}-${Date.now()}`
 }
 
-export default async function handler(req: Request | any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Handle CORS preflight
-  const method = req.method || (req as Request)?.method
-  if (method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
-        'Access-Control-Max-Age': '86400', // Cache preflight for 24 hours
-      },
-    })
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization')
+    res.setHeader('Access-Control-Max-Age', '86400')
+    return res.status(204).end()
   }
 
   // Handle GET requests - list ALL posts (no filtering)
   // PUBLIC ACCESS: No authentication required - returns all posts including unpublished
-  if (method === 'GET') {
+  if (req.method === 'GET') {
     const startTime = Date.now()
     const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     console.log(`[GET /api/blog] [${requestId}] Request received at`, new Date().toISOString())
@@ -242,23 +243,18 @@ export default async function handler(req: Request | any) {
       } catch (clientError) {
         const executionTime = Date.now() - startTime
         console.error(`[GET /api/blog] [${requestId}] Client initialization failed after ${executionTime}ms:`, clientError)
-        return new Response(
-          JSON.stringify({
-            posts: [],
-            error: 'Server configuration error',
-            requestId
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type, Accept',
-              'Cache-Control': 'no-cache',
-            },
-          }
-        )
+
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept')
+        res.setHeader('Cache-Control', 'no-cache')
+
+        return res.status(500).json({
+          posts: [],
+          error: 'Server configuration error',
+          requestId
+        })
       }
 
       // Execute query with retry logic
@@ -282,23 +278,17 @@ export default async function handler(req: Request | any) {
         console.error(`[GET /api/blog] [${requestId}] Query failed after ${executionTime}ms:`, queryError)
 
         // Return empty array on error (graceful degradation)
-        return new Response(
-          JSON.stringify({
-            posts: [],
-            error: 'Failed to fetch posts',
-            requestId
-          }),
-          {
-            status: 200, // Return 200 to show empty state, not error state
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type, Accept',
-              'Cache-Control': 'no-cache',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept')
+        res.setHeader('Cache-Control', 'no-cache')
+
+        return res.status(200).json({
+          posts: [],
+          error: 'Failed to fetch posts',
+          requestId
+        })
       }
 
       // Sanitize and validate all posts
@@ -323,75 +313,17 @@ export default async function handler(req: Request | any) {
       const executionTime = Date.now() - startTime
       console.log(`[GET /api/blog] [${requestId}] Success in ${executionTime}ms, returned ${sanitizedPosts.length} posts (${rawPosts.length} raw, ${invalidCount} invalid)`)
 
-      // Serialize response body - ensure it's fully serialized before creating Response
-      const responseData = { posts: sanitizedPosts }
-      let responseBody: string
+      // Set headers
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization')
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120')
 
-      try {
-        // Fully serialize the response body before creating Response object
-        responseBody = JSON.stringify(responseData)
-        const contentLength = new TextEncoder().encode(responseBody).length
-        console.log(`[GET /api/blog] [${requestId}] Response body size: ${contentLength} bytes`)
-
-        // Verify serialization is complete
-        if (!responseBody || responseBody.length === 0) {
-          throw new Error('Serialized response body is empty')
-        }
-      } catch (serializeError) {
-        const executionTime = Date.now() - startTime
-        console.error(`[GET /api/blog] [${requestId}] Serialization failed after ${executionTime}ms:`, serializeError)
-        const errorResponse = JSON.stringify({
-          posts: [],
-          error: 'Failed to serialize response',
-          requestId
-        })
-        return new Response(errorResponse, {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Accept',
-            'Cache-Control': 'no-cache',
-          },
-        })
-      }
-
-      // Create Response with properly serialized body
-      // Ensure response is properly formatted for Vercel serverless functions
-      const responseSize = new TextEncoder().encode(responseBody).length
-      const responseHeaders: Record<string, string> = {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Content-Length': String(responseSize), // Explicit length for Vercel streaming
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
-        'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
-      }
-
-      // Validate response before returning
-      console.log(`[GET /api/blog] [${requestId}] Response created:`, {
-        status: 200,
-        bodySize: `${responseSize} bytes`,
-        postsCount: sanitizedPosts.length,
-        headers: Object.keys(responseHeaders),
-      })
-
-      // Create response - ensure body is a proper string
-      // Vercel serverless functions work best with string responses
-      // Important: Response must be properly formatted for Vercel to stream it correctly
-      const response = new Response(responseBody, {
-        status: 200,
-        statusText: 'OK',
-        headers: responseHeaders,
-      })
-
-      // Ensure response is ready before returning
-      // This helps Vercel properly stream the response to the client
       console.log(`[GET /api/blog] [${requestId}] Returning response to client`)
 
-      // Return response immediately - Vercel will handle streaming
-      return response
+      // Return JSON response
+      return res.status(200).json({ posts: sanitizedPosts })
     } catch (error) {
       const executionTime = Date.now() - startTime
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -402,72 +334,50 @@ export default async function handler(req: Request | any) {
         stack: errorStack,
       })
 
-      return new Response(
-        JSON.stringify({
-          posts: [],
-          error: 'Internal server error',
-          requestId
-        }),
-        {
-          status: 200, // Return 200 to show empty state
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Accept',
-            'Cache-Control': 'no-cache',
-          },
-        }
-      )
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept')
+      res.setHeader('Cache-Control', 'no-cache')
+
+      return res.status(200).json({
+        posts: [],
+        error: 'Internal server error',
+        requestId
+      })
     }
   }
 
   // Handle POST requests - create new post
-  if (method === 'POST') {
+  if (req.method === 'POST') {
     const startTime = Date.now()
     console.log('[POST /api/blog] Request received at', new Date().toISOString())
 
     try {
       // Check environment variables first
       if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-        return new Response(
-          JSON.stringify({
-            error: 'Server configuration error',
-            details: 'Missing Supabase environment variables. Please set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel dashboard.'
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(500).json({
+          error: 'Server configuration error',
+          details: 'Missing Supabase environment variables. Please set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel dashboard.'
+        })
       }
 
       // Check for admin authentication
-      const authHeader = req.headers?.get?.('authorization') ||
-        (req as any).headers?.authorization ||
-        (req as any).headers?.['Authorization']
+      const authHeader = req.headers['authorization'] || req.headers['Authorization']
 
       if (!authHeader) {
-        return new Response(
-          JSON.stringify({
-            error: 'Unauthorized',
-            details: 'Authentication required. Please log in to create blog posts.'
-          }),
-          {
-            status: 401,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(401).json({
+          error: 'Unauthorized',
+          details: 'Authentication required. Please log in to create blog posts.'
+        })
       }
 
       // Verify the auth token and check if user is admin
-      const token = authHeader.replace('Bearer ', '').trim()
+      const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '').trim() : ''
 
       // Create a Supabase client with the user's token to verify it
       const supabaseUrl = process.env.SUPABASE_URL!
@@ -484,19 +394,12 @@ export default async function handler(req: Request | any) {
       const { data: { user }, error: authError } = await supabaseWithAuth.auth.getUser()
 
       if (authError || !user) {
-        return new Response(
-          JSON.stringify({
-            error: 'Unauthorized',
-            details: 'Authentication required. Please log in to create blog posts.'
-          }),
-          {
-            status: 401,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(401).json({
+          error: 'Unauthorized',
+          details: 'Authentication required. Please log in to create blog posts.'
+        })
       }
 
       // Any authenticated user can create posts (all logged-in users are admins)
@@ -504,27 +407,16 @@ export default async function handler(req: Request | any) {
       // Use the authenticated supabase client for database operations
       const supabase = supabaseWithAuth
 
-      // Parse request body
-      let body: any
-      try {
-        if (typeof req.json === 'function') {
-          body = await req.json()
-        } else if (req.body) {
-          body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-        } else {
-          throw new Error('No request body')
-        }
-      } catch (parseError) {
-        return new Response(
-          JSON.stringify({ error: 'Unable to parse request body', details: 'Invalid JSON' }),
-          {
-            status: 400,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+      // Parse request body - VercelRequest has body already parsed
+      const body = req.body
+
+      if (!body || typeof body !== 'object') {
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(400).json({
+          error: 'Unable to parse request body',
+          details: 'Invalid JSON'
+        })
       }
 
       // Extract and validate fields
@@ -571,19 +463,12 @@ export default async function handler(req: Request | any) {
       }
 
       if (validationErrors.length > 0) {
-        return new Response(
-          JSON.stringify({
-            error: 'Validation failed',
-            details: validationErrors
-          }),
-          {
-            status: 400,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: validationErrors
+        })
       }
 
       // Generate slug if not provided
@@ -596,19 +481,12 @@ export default async function handler(req: Request | any) {
         )
       } catch (slugError) {
         console.error('[POST /api/blog] Slug generation failed:', slugError)
-        return new Response(
-          JSON.stringify({
-            error: 'Failed to generate unique slug',
-            details: slugError instanceof Error ? slugError.message : 'Unknown error'
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(500).json({
+          error: 'Failed to generate unique slug',
+          details: slugError instanceof Error ? slugError.message : 'Unknown error'
+        })
       }
 
       // Insert new post with retry
@@ -636,76 +514,48 @@ export default async function handler(req: Request | any) {
         }, 3, 500)
       } catch (insertError) {
         console.error('[POST /api/blog] Insert failed:', insertError)
-        return new Response(
-          JSON.stringify({
-            error: 'Failed to create blog post',
-            details: insertError instanceof Error ? insertError.message : 'Unknown error'
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(500).json({
+          error: 'Failed to create blog post',
+          details: insertError instanceof Error ? insertError.message : 'Unknown error'
+        })
       }
 
       const { data, error } = insertResult
 
       if (error) {
         console.error('[POST /api/blog] Database error:', error)
-        return new Response(
-          JSON.stringify({
-            error: 'Failed to create blog post',
-            details: error.message || 'Database error',
-            code: error.code,
-            hint: error.hint
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(500).json({
+          error: 'Failed to create blog post',
+          details: error.message || 'Database error',
+          code: error.code,
+          hint: error.hint
+        })
       }
 
       if (!data) {
         console.error('[POST /api/blog] No data returned from insert')
-        return new Response(
-          JSON.stringify({
-            error: 'Failed to create blog post',
-            details: 'No data returned from database'
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(500).json({
+          error: 'Failed to create blog post',
+          details: 'No data returned from database'
+        })
       }
 
       // Sanitize the returned post
       const sanitizedPost = sanitizePost(data)
       if (!sanitizedPost) {
         console.error('[POST /api/blog] Failed to sanitize created post:', data)
-        return new Response(
-          JSON.stringify({
-            error: 'Failed to create blog post',
-            details: 'Invalid data returned from database'
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        )
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(500).json({
+          error: 'Failed to create blog post',
+          details: 'Invalid data returned from database'
+        })
       }
 
       const executionTime = Date.now() - startTime
@@ -717,61 +567,28 @@ export default async function handler(req: Request | any) {
         content: data.content || content, // Include full content
       }
 
-      // Fully serialize response body before creating Response
-      const responseBody = JSON.stringify({ post: responsePost })
-      const responseSize = new TextEncoder().encode(responseBody).length
+      // Set headers and return response
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization')
 
-      const responseHeaders = {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Content-Length': String(responseSize), // Explicit length for Vercel streaming
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
-      }
-
-      // Create Response with explicit Content-Length for proper streaming
-      const response = new Response(responseBody, {
-        status: 201,
-        headers: responseHeaders,
-      })
-
-      // Validate response before returning
-      console.log(`[POST /api/blog] Response created:`, {
-        status: 201,
-        bodySize: `${responseSize} bytes`,
-        postId: sanitizedPost.id,
-        headers: Object.keys(responseHeaders),
-      })
-
-      return response
+      console.log(`[POST /api/blog] Returning response to client`)
+      return res.status(201).json({ post: responsePost })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      return new Response(
-        JSON.stringify({
-          error: 'Internal server error',
-          details: errorMessage
-        }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      )
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      return res.status(500).json({
+        error: 'Internal server error',
+        details: errorMessage
+      })
     }
   }
 
   // Method not allowed
-  return new Response(
-    JSON.stringify({ error: 'Method not allowed' }),
-    {
-      status: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    }
-  )
+  res.setHeader('Content-Type', 'application/json')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  return res.status(405).json({ error: 'Method not allowed' })
 }
 
