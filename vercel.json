@@ -11,6 +11,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/blog/:slug",
+      "destination": "/api/blog/[slug]"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
