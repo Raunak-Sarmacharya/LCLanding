@@ -1,4 +1,4 @@
-# Local Cooks Landing Page 🍳
+# Local Cooks Landing Page 🍳  
 
 An award-worthy, visually stunning landing page for Local Cooks - connecting food lovers with passionate local home chefs.
 
