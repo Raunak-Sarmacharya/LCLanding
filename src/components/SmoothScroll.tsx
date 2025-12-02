@@ -75,6 +75,18 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       })
     }
     
+    // On mobile with syncTouch: false, we need to listen to native scroll events
+    // to keep ScrollTrigger in sync (Lenis still tracks native scroll, but we need to update ScrollTrigger)
+    const isMobileDevice = window.innerWidth < 768
+    let nativeScrollHandler: (() => void) | null = null
+    if (isMobileDevice) {
+      nativeScrollHandler = () => {
+        // Update ScrollTrigger when native scrolling happens
+        ScrollTrigger.update()
+      }
+      window.addEventListener('scroll', nativeScrollHandler, { passive: true })
+    }
+    
     // Add resize listener for ScrollTrigger refresh
     window.addEventListener('resize', debouncedResize)
 
@@ -91,6 +103,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       }
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current)
+      }
+      if (nativeScrollHandler) {
+        window.removeEventListener('scroll', nativeScrollHandler)
       }
       window.removeEventListener('resize', debouncedResize)
       clearTimeout(resizeTimeout)
@@ -128,12 +143,14 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         // Higher touchMultiplier for better scroll distance and natural feel
         touchMultiplier: isMobile ? 1.5 : 1.6, // Increased from 1.0 to 1.5 for better scroll distance
         infinite: false,
-        // Enable smooth touch scrolling with momentum
-        syncTouch: true,
-        // Lower syncTouchLerp for smooth momentum (per Lenis docs: ~0.075)
-        syncTouchLerp: isMobile ? 0.075 : 0.05, // Lower value for smooth touch inertia (was 0.2 - too high causing sluggishness)
-        // Balanced touchInertiaExponent for natural momentum
-        touchInertiaExponent: isMobile ? 1.5 : 1.7, // Lowered from 1.8 to 1.5 for more natural momentum
+        // CRITICAL FIX: Disable syncTouch on mobile to use native scrolling
+        // This allows fast, natural scrolling like prettypatty.ch
+        // Native scrolling is what makes top websites feel responsive on mobile
+        syncTouch: isMobile ? false : true, // false on mobile = native scrolling (fast & natural), true on desktop = smooth scrolling
+        // syncTouchLerp only applies when syncTouch is true (desktop only)
+        syncTouchLerp: isMobile ? 0.075 : 0.05, // Only used on desktop when syncTouch is true
+        // touchInertiaExponent only applies when syncTouch is true (desktop only)
+        touchInertiaExponent: isMobile ? 1.5 : 1.7, // Only used on desktop when syncTouch is true
         // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
           // Optimized easing: smooth acceleration and deceleration
