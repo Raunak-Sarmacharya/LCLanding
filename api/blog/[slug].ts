@@ -65,34 +65,36 @@ export default async function handler(req: Request | any) {
     }
 
     const supabase = getSupabaseClient()
-    // Fetch the post by slug (only published posts)
+    // Fetch the post by slug
     // This query is public and doesn't require authentication
-    const { data, error } = await supabase
+    // First try with published filter, if that fails, try without
+    let { data, error } = await supabase
       .from('posts')
       .select('*')
       .eq('slug', slug)
-      .eq('published', true)
       .single()
 
-      if (error) {
-        // If no rows returned, it's a 404
-        if (error.code === 'PGRST116') {
-          return new Response(
-            JSON.stringify({ error: 'Post not found' }),
-            {
-              status: 404,
-              headers: { 
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-              },
-            }
-          )
-        }
+    // If error is about published column, try without the filter
+    if (error && (error.message?.includes('published') || error.code === '42703')) {
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+      
+      if (!fallbackError) {
+        data = fallbackData
+        error = null
+      }
+    }
 
+    if (error) {
+      // If no rows returned, it's a 404
+      if (error.code === 'PGRST116') {
         return new Response(
-          JSON.stringify({ error: 'Failed to fetch blog post', details: error.message }),
+          JSON.stringify({ error: 'Post not found' }),
           {
-            status: 500,
+            status: 404,
             headers: { 
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
@@ -101,7 +103,34 @@ export default async function handler(req: Request | any) {
         )
       }
 
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch blog post', details: error.message }),
+        {
+          status: 500,
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      )
+    }
+
     if (!data) {
+      return new Response(
+        JSON.stringify({ error: 'Post not found' }),
+        {
+          status: 404,
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      )
+    }
+
+    // Filter out unpublished posts in JavaScript (if published is explicitly false)
+    // Show post if published is null/undefined/true, hide if explicitly false
+    if (data.published === false || data.published === 0 || data.published === '0' || data.published === 'false') {
       return new Response(
         JSON.stringify({ error: 'Post not found' }),
         {

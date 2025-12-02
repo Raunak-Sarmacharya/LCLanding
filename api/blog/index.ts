@@ -76,6 +76,7 @@ export default async function handler(req: Request | any) {
 
       // Optimized query: select only needed fields and limit results
       // This query is public and doesn't require authentication
+      // Fetch all posts first, then filter in JavaScript to handle various published formats
       const { data: allPosts, error } = await supabase
         .from('posts')
         .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
@@ -85,7 +86,7 @@ export default async function handler(req: Request | any) {
       if (error) {
         console.error('Supabase query error:', error)
         return new Response(
-          JSON.stringify({ posts: [] }),
+          JSON.stringify({ posts: [], error: error.message }),
           {
             status: 200,
             headers: {
@@ -97,11 +98,20 @@ export default async function handler(req: Request | any) {
         )
       }
 
-      // Filter for published posts - handle boolean, string, and number formats
+      // Filter for published posts - show all posts unless explicitly marked as unpublished
+      // This handles cases where published column might be null, true, false, or not exist
       const publishedPosts = (allPosts || []).filter(p => {
-        const pub = p.published
-        if (pub === true || pub === 1 || pub === '1' || pub === 'true') return true
-        if (pub === false || pub === 0 || pub === '0' || pub === 'false') return false
+        // If published field doesn't exist or is null, show the post (default to published)
+        if (p.published === null || p.published === undefined) {
+          return true
+        }
+        
+        // If explicitly false, don't show
+        if (p.published === false || p.published === 0 || p.published === '0' || p.published === 'false') {
+          return false
+        }
+        
+        // If true or any truthy value, show
         return true
       })
 
