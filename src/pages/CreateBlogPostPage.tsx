@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 function CreateBlogPostPageContent() {
   const sectionRef = useRef<HTMLElement>(null)
-  const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
+  const isInView = useInView(sectionRef, { once: true, margin: '0px' })
   const { isAdmin, isLoading } = useAuth()
 
   // Show loading state while checking auth
@@ -35,8 +35,8 @@ function CreateBlogPostPageContent() {
   }
 
   useEffect(() => {
-    // Wait for ref to be attached to DOM and content to be ready
-    if (!sectionRef.current || !isInView) return
+    // Wait for ref to be attached to DOM
+    if (!sectionRef.current) return
 
     const ctx = gsap.context(() => {
       // Animate sections on scroll
@@ -46,6 +46,9 @@ function CreateBlogPostPageContent() {
       
       sections.forEach((section) => {
         if (!section || !sectionRef.current?.contains(section)) return
+        
+        // Set initial visible state to ensure content is always visible
+        gsap.set(section, { opacity: 1, y: 0 })
         
         gsap.fromTo(
           section,
@@ -60,7 +63,7 @@ function CreateBlogPostPageContent() {
             ease: 'power3.out',
             scrollTrigger: {
               trigger: section,
-              start: isMobile ? 'top 90%' : 'top 85%',
+              start: isMobile ? 'top 95%' : 'top 90%',
               end: 'bottom 20%',
               toggleActions: 'play none none reverse',
               invalidateOnRefresh: true,
@@ -75,7 +78,7 @@ function CreateBlogPostPageContent() {
     return () => {
       ctx.revert()
     }
-  }, [isInView])
+  }, [])
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
@@ -90,7 +93,7 @@ function CreateBlogPostPageContent() {
           {/* Back to Blog Link */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             className="mb-8"
           >
@@ -113,9 +116,10 @@ function CreateBlogPostPageContent() {
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
             className="text-center mb-16 animate-section"
+            style={{ opacity: 1 }}
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-7xl text-[var(--color-primary)] mb-6 uppercase tracking-tight">
               Write a Post
@@ -126,7 +130,7 @@ function CreateBlogPostPageContent() {
           </motion.div>
 
           {/* Form */}
-          <div className="animate-section">
+          <div className="animate-section" style={{ opacity: 1 }}>
             <CreateBlogPostForm />
           </div>
         </div>

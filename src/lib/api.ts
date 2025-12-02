@@ -12,12 +12,14 @@ const API_BASE_URL = typeof window !== 'undefined'
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
  */
 export async function getBlogPosts(): Promise<BlogPost[]> {
+  const startTime = Date.now()
   try {
     const url = `${API_BASE_URL}/blog`
+    console.log('[getBlogPosts] Fetching from:', url)
 
-    // Add timeout to fetch (8s to stay under Vercel's 10s limit)
+    // Add timeout to fetch (7s to stay under Vercel's 10s limit, with buffer for server processing)
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 7000) // 7 second timeout
 
     let response: Response
     try {
@@ -30,8 +32,12 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
         },
       })
       clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+      console.log(`[getBlogPosts] Response received in ${fetchTime}ms, status: ${response.status}`)
     } catch (fetchError) {
       clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+      console.error(`[getBlogPosts] Fetch error after ${fetchTime}ms:`, fetchError)
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         throw new Error('Request timeout - the server took too long to respond')
       }
@@ -61,8 +67,12 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
     // Ensure we always return an array
     const posts = Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : [])
+    const totalTime = Date.now() - startTime
+    console.log(`[getBlogPosts] Success in ${totalTime}ms, returned ${posts.length} posts`)
     return posts
   } catch (error) {
+    const totalTime = Date.now() - startTime
+    console.error(`[getBlogPosts] Error after ${totalTime}ms:`, error)
     // Return empty array instead of throwing to show "No blogs yet"
     return []
   }

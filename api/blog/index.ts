@@ -10,7 +10,22 @@ function getSupabaseClient(): SupabaseClient {
     throw new Error('Missing Supabase environment variables. Please set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel dashboard.')
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey)
+  // Create client with timeout configuration
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    db: {
+      schema: 'public',
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: {
+        'x-client-info': 'localcooks-api',
+      },
+    },
+  })
 }
 
 // Helper function to generate slug from title
@@ -71,20 +86,62 @@ export default async function handler(req: Request | any) {
   // Handle GET requests - list all published posts
   // PUBLIC ACCESS: No authentication required - anyone can view published posts
   if (method === 'GET') {
+    const startTime = Date.now()
+    console.log('[GET /api/blog] Request received at', new Date().toISOString())
+
     try {
       const supabase = getSupabaseClient()
 
-      // Optimized query: select only needed fields and limit results
-      // This query is public and doesn't require authentication
-      // Fetch all posts first, then filter in JavaScript to handle various published formats
-      const { data: allPosts, error } = await supabase
+      // Try to filter at database level first (more efficient)
+      // If published column doesn't exist or query fails, fall back to getting all posts
+      let queryPromise = supabase
         .from('posts')
         .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+        .or('published.is.null,published.eq.true')
         .order('created_at', { ascending: false })
-        .limit(100) // Limit to 100 most recent posts
+        .limit(100)
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
+      })
+
+      let allPosts, error
+      try {
+        const result = await Promise.race([queryPromise, timeoutPromise]) as any
+        allPosts = result.data
+        error = result.error
+
+        // If the query failed because published column doesn't exist, try without filter
+        if (error && (error.code === '42703' || error.message?.includes('column') || error.message?.includes('published'))) {
+          console.log('[GET /api/blog] Published column filter failed, trying without filter')
+          queryPromise = supabase
+            .from('posts')
+            .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+            .order('created_at', { ascending: false })
+            .limit(100)
+          
+          const fallbackResult = await Promise.race([queryPromise, timeoutPromise]) as any
+          allPosts = fallbackResult.data
+          error = fallbackResult.error
+        }
+      } catch (timeoutError) {
+        console.error('[GET /api/blog] Query timeout:', timeoutError)
+        // Return empty array on timeout instead of failing
+        return new Response(
+          JSON.stringify({ posts: [], error: 'Request timeout' }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'no-cache',
+            },
+          }
+        )
+      }
 
       if (error) {
-        console.error('Supabase query error:', error)
+        console.error('[GET /api/blog] Supabase query error:', error)
         return new Response(
           JSON.stringify({ posts: [], error: error.message }),
           {
@@ -115,6 +172,9 @@ export default async function handler(req: Request | any) {
         return true
       })
 
+      const executionTime = Date.now() - startTime
+      console.log(`[GET /api/blog] Success in ${executionTime}ms, returned ${publishedPosts.length} posts`)
+
       return new Response(
         JSON.stringify({ posts: publishedPosts }),
         {
@@ -127,14 +187,16 @@ export default async function handler(req: Request | any) {
         }
       )
     } catch (error) {
-      console.error('GET /api/blog error:', error)
+      const executionTime = Date.now() - startTime
+      console.error(`[GET /api/blog] Error after ${executionTime}ms:`, error)
       return new Response(
-        JSON.stringify({ posts: [] }),
+        JSON.stringify({ posts: [], error: error instanceof Error ? error.message : 'Unknown error' }),
         {
           status: 200,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-cache',
           },
         }
       )
