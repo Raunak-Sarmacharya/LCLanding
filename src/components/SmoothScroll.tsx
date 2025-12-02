@@ -118,22 +118,22 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       options={{ 
         autoRaf: false,
         // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
-        // Mobile-optimized for smooth momentum continuation with longer inertia
-        // Increased lerp for responsive feel while maintaining smoothness
-        lerp: isMobile ? 0.18 : 0.08, // Balanced on mobile for smooth momentum continuation
+        // Mobile-optimized for natural, smooth touch feel like prettypatty.ch
+        // Lower lerp during active touch for smooth, natural finger-following movement
+        lerp: isMobile ? 0.1 : 0.08, // Lower on mobile for natural, non-jittery touch feel
         // Reduced duration for snappy feel
-        duration: isMobile ? 0.6 : 1.5, // Shorter on mobile for lighter feel
+        duration: isMobile ? 0.8 : 1.5, // Slightly longer on mobile for smoother feel
         smoothWheel: true,
         wheelMultiplier: isMobile ? 1.0 : 0.85,
-        // Increased touchMultiplier for responsive touch input
-        touchMultiplier: isMobile ? 2.0 : 1.6, // Higher on mobile for easier scrolling
+        // Balanced touchMultiplier for natural 1:1 feel with finger movement
+        touchMultiplier: isMobile ? 1.5 : 1.6, // Balanced on mobile for natural touch response
         infinite: false,
         // Enable smooth touch scrolling with momentum
         syncTouch: true,
-        // Lower syncTouchLerp for smoother, longer momentum continuation (less resistance during inertia)
-        syncTouchLerp: isMobile ? 0.04 : 0.05, // Lower on mobile for smoother, longer momentum continuation
-        // Increased touchInertiaExponent for stronger momentum that continues longer after release
-        touchInertiaExponent: isMobile ? 1.5 : 1.7, // Higher on mobile for longer momentum continuation
+        // Higher syncTouchLerp for more natural momentum continuation (matches finger movement better)
+        syncTouchLerp: isMobile ? 0.075 : 0.05, // Higher on mobile for natural momentum feel
+        // Balanced touchInertiaExponent for natural momentum continuation
+        touchInertiaExponent: isMobile ? 1.6 : 1.7, // Balanced on mobile for natural momentum
         // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
           // Optimized easing: smooth acceleration and deceleration
