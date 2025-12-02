@@ -19,6 +19,9 @@ import Preloader from './components/Preloader'
 import DiscountPopup from './components/DiscountPopup'
 import ContactPage from './components/ContactPage'
 import NewsletterSection from './components/NewsletterSection'
+import BlogPage from './pages/BlogPage'
+import BlogPostPage from './pages/BlogPostPage'
+import CreateBlogPostPage from './pages/CreateBlogPostPage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -295,6 +298,9 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/new" element={<CreateBlogPostPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
         </Routes>
       )}
     </>
