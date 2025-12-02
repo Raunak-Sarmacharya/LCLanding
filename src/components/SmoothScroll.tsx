@@ -172,8 +172,10 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         duration: isMobile ? 1.2 : 1.5, // Slightly longer on mobile for smoother momentum
         smoothWheel: true,
         wheelMultiplier: isMobile ? 1.0 : 0.85,
-        // Higher touchMultiplier for better scroll distance and natural feel
-        touchMultiplier: isMobile ? 1.5 : 1.6, // Increased from 1.0 to 1.5 for better scroll distance
+        // Premium mobile scroll sensitivity - matches effortel.com configuration
+        // Lenis default touchMultiplier is 1.0, which is what premium sites use for native scrolling
+        // With syncTouch: false, native scrolling is used, so this value aligns with standard behavior
+        touchMultiplier: isMobile ? 1.0 : 1.6, // 1.0 on mobile = Lenis default, matches effortel.com and other premium sites
         infinite: false,
         // CRITICAL FIX: Disable syncTouch on mobile to use native scrolling
         // This allows fast, natural scrolling like prettypatty.ch
