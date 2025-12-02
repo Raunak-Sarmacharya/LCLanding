@@ -1,17 +1,50 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client for client-side auth
-const getSupabaseClient = () => {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+let supabaseClient: SupabaseClient | null = null
+
+const getSupabaseClient = (): SupabaseClient | null => {
+  // Return cached client if already initialized
+  if (supabaseClient) {
+    return supabaseClient
+  }
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  
+  // Debug logging (only in development or if explicitly enabled)
+  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+    console.log('Supabase initialization check:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseAnonKey,
+      urlLength: supabaseUrl?.length || 0,
+      keyLength: supabaseAnonKey?.length || 0,
+    })
+  }
   
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase environment variables not set. Admin features will be disabled.')
+    const isProduction = import.meta.env.PROD
+    console.error('❌ Supabase environment variables not set.')
+    if (isProduction) {
+      console.error('🔧 For Vercel production:')
+      console.error('   1. Go to Vercel Dashboard > Settings > Environment Variables')
+      console.error('   2. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
+      console.error('   3. Redeploy your application')
+    } else {
+      console.error('🔧 Create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
+    }
     return null
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey)
+  if (!supabaseUrl.startsWith('http')) {
+    console.error('❌ Invalid Supabase URL. It should start with http:// or https://')
+    console.error('   Current value:', supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'undefined')
+    return null
+  }
+  
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+  return supabaseClient
 }
 
 const supabase = getSupabaseClient()
@@ -22,7 +55,9 @@ export function useAuth() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    if (!supabase) {
+    const client = getSupabaseClient()
+    
+    if (!client) {
       setIsLoading(false)
       return
     }
@@ -30,7 +65,7 @@ export function useAuth() {
     // Check current session
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
+        const { data: { session }, error } = await client.auth.getSession()
         
         if (error) {
           console.error('Error getting session:', error)
@@ -57,7 +92,7 @@ export function useAuth() {
     checkSession()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user)
         // Any logged-in user is an admin
@@ -75,11 +110,23 @@ export function useAuth() {
   }, [])
 
   const login = async (email: string, password: string) => {
-    if (!supabase) {
-      throw new Error('Supabase client not initialized')
+    // Try to get client, reinitialize if needed
+    const client = getSupabaseClient()
+    
+    if (!client) {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error(
+          'Supabase client not initialized. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables. ' +
+          'Create a .env file in the project root with these variables.'
+        )
+      }
+      throw new Error('Failed to initialize Supabase client. Please check your environment variables.')
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await client.auth.signInWithPassword({
       email,
       password,
     })
@@ -92,11 +139,12 @@ export function useAuth() {
   }
 
   const logout = async () => {
-    if (!supabase) {
+    const client = getSupabaseClient()
+    if (!client) {
       return
     }
 
-    await supabase.auth.signOut()
+    await client.auth.signOut()
   }
 
   return { isAdmin, isLoading, user, login, logout }
