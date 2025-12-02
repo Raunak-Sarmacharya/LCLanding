@@ -50,9 +50,9 @@ export default function CreateBlogPostForm() {
 
       const post = await createBlogPost({
         title: formData.title.trim(),
-        slug: formData.slug.trim() || undefined, // Will be auto-generated if empty
+        slug: formData.slug?.trim() || undefined, // Will be auto-generated if empty
         content: formData.content.trim(),
-        excerpt: formData.excerpt.trim() || undefined,
+        excerpt: formData.excerpt?.trim() || undefined,
         author_name: formData.author_name.trim(),
       })
 

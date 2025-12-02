@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { motion, useInView } from 'motion/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -14,7 +14,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 function BlogPostPageContent() {
   const { slug } = useParams<{ slug: string }>()
-  const navigate = useNavigate()
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
   const { post, loading, error } = useBlogPost(slug || '')

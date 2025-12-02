@@ -12,7 +12,7 @@ export interface BlogPost {
 
 export interface CreateBlogPostInput {
   title: string
-  slug: string
+  slug?: string
   content: string
   excerpt?: string
   author_name: string

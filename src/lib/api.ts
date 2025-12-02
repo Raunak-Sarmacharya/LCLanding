@@ -1,8 +1,6 @@
 import type { BlogPost, CreateBlogPostInput } from './types'
 
-const API_BASE_URL = import.meta.env.DEV 
-  ? '/api' 
-  : '/api'
+const API_BASE_URL = '/api'
 
 /**
  * Fetch all published blog posts
