@@ -3,6 +3,7 @@ import { motion, AnimatePresence, type Variants } from 'motion/react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useAuth } from '../hooks/useAuth'
+import { useLenis } from '../contexts/LenisContext'
 
 const navLinks = [
   { name: 'Home', href: '#home' },
@@ -136,18 +137,38 @@ export default function Navbar() {
     setIsMobileMenuOpen(false)
   }
 
+  const { lenisRef } = useLenis()
+
   useEffect(() => {
+    // Use Lenis scroll position instead of window.scrollY to avoid conflicts
+    const lenis = lenisRef?.current?.lenis
+    
+    if (!lenis) {
+      // Fallback to window.scrollY if Lenis is not available
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > SCROLL_THRESHOLD)
+      }
+      handleScroll()
+      window.addEventListener('scroll', handleScroll, { passive: true })
+      return () => window.removeEventListener('scroll', handleScroll)
+    }
+
     const handleScroll = () => {
-      // Simple scroll detection - no animations, just state change
-      setIsScrolled(window.scrollY > SCROLL_THRESHOLD)
+      // Use Lenis scroll position for accurate detection
+      const scrollPosition = lenis.actualScroll || lenis.scroll || 0
+      setIsScrolled(scrollPosition > SCROLL_THRESHOLD)
     }
     
     // Check initial scroll position
     handleScroll()
     
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    // Listen to Lenis scroll events instead of window scroll
+    lenis.on('scroll', handleScroll)
+    
+    return () => {
+      lenis.off('scroll', handleScroll)
+    }
+  }, [lenisRef])
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
