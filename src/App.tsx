@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Navbar from './components/Navbar'
+import { useSmoothScroll } from './hooks/useSmoothScroll'
 import Hero from './components/Hero'
 import PillMarquee from './components/PillMarquee'
 import About from './components/About'
@@ -32,6 +33,22 @@ const PRELOADER_SHOWN_KEY = 'localcooks_preloader_shown'
 // Home Page Component
 function HomePage() {
   const appRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+  const { scrollTo } = useSmoothScroll()
+
+  // Handle hash navigation - scroll to section when page loads with a hash
+  useEffect(() => {
+    if (location.hash) {
+      // Small delay to ensure page is fully rendered and smooth scroll is initialized
+      const timer = setTimeout(() => {
+        scrollTo(location.hash, {
+          duration: 1.5,
+          offset: -80,
+        })
+      }, 500) // Increased delay to ensure Lenis is ready
+      return () => clearTimeout(timer)
+    }
+  }, [location.hash, scrollTo])
 
   useEffect(() => {
     const ctx = gsap.context(() => {

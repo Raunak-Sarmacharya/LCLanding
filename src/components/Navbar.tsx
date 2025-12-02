@@ -119,13 +119,15 @@ export default function Navbar() {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
     
-    // If we're not on the homepage and clicking Home, navigate to homepage first
-    if (href === '#home' && location.pathname !== '/') {
-      navigate('/')
+    // If we're not on the homepage and clicking an anchor link, navigate to homepage with hash
+    if (href.startsWith('#') && location.pathname !== '/') {
+      // Navigate to homepage with the hash, which will trigger scroll after page loads
+      navigate(`/${href}`)
       setIsMobileMenuOpen(false)
       return
     }
     
+    // If already on homepage, just scroll
     scrollTo(href, {
       duration: 1.5,
       offset: -80,
@@ -433,10 +435,10 @@ export default function Navbar() {
                         <a
                           href={link.href}
                           onClick={(e) => {
-                            // If Home link and not on homepage, navigate instead of scrolling
-                            if (link.href === '#home' && location.pathname !== '/') {
+                            // If anchor link and not on homepage, navigate to homepage with hash
+                            if (link.href.startsWith('#') && location.pathname !== '/') {
                               e.preventDefault()
-                              navigate('/')
+                              navigate(`/${link.href}`)
                               setIsMobileMenuOpen(false)
                             } else {
                               handleNavClick(e, link.href)

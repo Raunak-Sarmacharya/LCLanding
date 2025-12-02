@@ -163,9 +163,12 @@ function sanitizePost(post: any): PostRow | null {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CRITICAL: Always set JSON headers first to ensure we never return HTML
+  res.setHeader('Content-Type', 'application/json')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
     return res.status(204).end()
@@ -174,8 +177,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow GET requests
   // PUBLIC ACCESS: No authentication required - anyone can view published posts
   if (req.method !== 'GET') {
-    res.setHeader('Content-Type', 'application/json')
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
@@ -216,8 +218,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Validate slug
     if (!slug || slug.trim().length === 0 || slug === 'blog' || slug === 'api' || slug === 'index') {
       console.error(`[GET /api/blog/[slug]] [${requestId}] Invalid or missing slug`)
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(400).json({ error: 'Slug is required', requestId })
     }
 
@@ -231,8 +232,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (clientError) {
       const executionTime = Date.now() - startTime
       console.error(`[GET /api/blog/[slug]] [${requestId}] Client initialization failed after ${executionTime}ms:`, clientError)
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(500).json({ 
         error: 'Server configuration error',
         requestId 
@@ -259,9 +259,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (queryError) {
       const executionTime = Date.now() - startTime
       console.error(`[GET /api/blog/[slug]] [${requestId}] Query failed after ${executionTime}ms:`, queryError)
-      
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(500).json({ 
         error: 'Failed to fetch blog post',
         details: queryError instanceof Error ? queryError.message : 'Unknown error',
@@ -273,16 +271,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Handle "not found" error
     if (error && error.code === 'PGRST116') {
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(404).json({ error: 'Post not found', requestId })
     }
 
     // Handle other errors
     if (error) {
       console.error(`[GET /api/blog/[slug]] [${requestId}] Database error:`, error)
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(500).json({ 
         error: 'Failed to fetch blog post', 
         details: error.message || 'Database error',
@@ -292,8 +288,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Check if data exists
     if (!data) {
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(404).json({ error: 'Post not found', requestId })
     }
 
@@ -301,8 +296,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sanitizedPost = sanitizePost(data)
     if (!sanitizedPost) {
       console.error(`[GET /api/blog/[slug]] [${requestId}] Failed to sanitize post:`, data)
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(500).json({ 
         error: 'Invalid post data',
         requestId 
@@ -311,16 +305,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Filter out unpublished posts (if published is explicitly false)
     if (sanitizedPost.published === false) {
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      // Headers already set at top of handler
       return res.status(404).json({ error: 'Post not found', requestId })
     }
 
     const executionTime = Date.now() - startTime
     console.log(`[GET /api/blog/[slug]] [${requestId}] Success in ${executionTime}ms, slug: ${slug}`)
 
-    res.setHeader('Content-Type', 'application/json')
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    // Add cache header for successful responses
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600') // Cache for 5-10 minutes
 
     return res.status(200).json({ post: sanitizedPost })
@@ -334,8 +326,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       stack: errorStack,
     })
     
-    res.setHeader('Content-Type', 'application/json')
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    // Headers already set at top of handler
     return res.status(500).json({ 
       error: 'Internal server error',
       requestId 
