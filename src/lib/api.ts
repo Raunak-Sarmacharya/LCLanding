@@ -32,7 +32,7 @@ async function fetchBlogPostsWithRetry(
 
     let response: Response
     try {
-      console.log(`[getBlogPosts] Starting fetch request...`)
+      console.log(`[getBlogPosts] Starting fetch request to: ${url}`)
       response = await fetch(url, {
         method: 'GET',
         cache: 'no-store',

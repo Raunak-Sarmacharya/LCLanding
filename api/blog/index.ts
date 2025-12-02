@@ -358,20 +358,14 @@ export default async function handler(req: Request | any) {
       }
 
       // Create Response with properly serialized body
-      // Note: Removed Content-Length header - let Vercel handle it automatically
-      // This ensures proper streaming and prevents response hanging issues
-      const responseHeaders = {
+      // Ensure response is properly formatted for Vercel serverless functions
+      const responseHeaders: Record<string, string> = {
         'Content-Type': 'application/json; charset=utf-8',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
         'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
       }
-      
-      const response = new Response(responseBody, {
-        status: 200,
-        headers: responseHeaders,
-      })
       
       // Validate response before returning
       const responseSize = new TextEncoder().encode(responseBody).length
@@ -382,6 +376,20 @@ export default async function handler(req: Request | any) {
         headers: Object.keys(responseHeaders),
       })
       
+      // Create response - ensure body is a proper string
+      // Vercel serverless functions work best with string responses
+      // Important: Response must be properly formatted for Vercel to stream it correctly
+      const response = new Response(responseBody, {
+        status: 200,
+        statusText: 'OK',
+        headers: responseHeaders,
+      })
+      
+      // Ensure response is ready before returning
+      // This helps Vercel properly stream the response to the client
+      console.log(`[GET /api/blog] [${requestId}] Returning response to client`)
+      
+      // Return response immediately - Vercel will handle streaming
       return response
     } catch (error) {
       const executionTime = Date.now() - startTime
