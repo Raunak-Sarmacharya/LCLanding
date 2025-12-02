@@ -17,7 +17,7 @@ async function fetchBlogPostsWithRetry(
   maxRetries = 2
 ): Promise<BlogPost[]> {
   const attemptStartTime = Date.now()
-  const FETCH_TIMEOUT = 15000 // 15 seconds (API responds in <400ms, so this is sufficient)
+  const FETCH_TIMEOUT = 10000 // 10 seconds (API responds in <400ms, so this is sufficient)
   const BODY_READ_TIMEOUT = 5000 // 5 seconds for reading response body
 
   try {
@@ -43,31 +43,37 @@ async function fetchBlogPostsWithRetry(
         redirect: 'follow',
       })
       clearTimeout(timeoutId)
-      
+
       const fetchTime = Date.now() - attemptStartTime
       console.log(`[getBlogPosts] Response received in ${fetchTime}ms, status: ${response.status}`)
-      
+
       // Validate response headers
       const responseHeaders = Object.fromEntries(response.headers.entries())
       const contentType = responseHeaders['content-type'] || ''
+      const contentLength = responseHeaders['content-length']
       const corsOrigin = responseHeaders['access-control-allow-origin']
-      
+
       console.log(`[getBlogPosts] Response headers:`, {
         'content-type': contentType,
-        'content-length': responseHeaders['content-length'] || 'not set',
+        'content-length': contentLength || 'not set',
         'access-control-allow-origin': corsOrigin || 'not set',
       })
-      
+
+      // Warn if Content-Length is missing (may indicate streaming issues)
+      if (!contentLength) {
+        console.warn(`[getBlogPosts] Missing Content-Length header - may cause streaming issues`)
+      }
+
       // Validate Content-Type
       if (!contentType.includes('application/json')) {
         console.warn(`[getBlogPosts] Unexpected Content-Type: ${contentType}, expected application/json`)
       }
-      
+
       // Validate CORS header
       if (!corsOrigin) {
         console.warn(`[getBlogPosts] Missing CORS header - may cause issues`)
       }
-      
+
       // Check if response body is readable
       if (!response.body) {
         console.error('[getBlogPosts] Response body is null or undefined')
@@ -76,12 +82,12 @@ async function fetchBlogPostsWithRetry(
     } catch (fetchError) {
       clearTimeout(timeoutId)
       const fetchTime = Date.now() - attemptStartTime
-      
+
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         console.error(`[getBlogPosts] Fetch timeout after ${fetchTime}ms`)
         throw new Error('Request timeout - the server took too long to respond')
       }
-      
+
       console.error(`[getBlogPosts] Fetch error after ${fetchTime}ms:`, {
         name: fetchError instanceof Error ? fetchError.name : 'Unknown',
         message: fetchError instanceof Error ? fetchError.message : String(fetchError),
@@ -93,7 +99,7 @@ async function fetchBlogPostsWithRetry(
     if (!response.ok) {
       const statusTime = Date.now() - attemptStartTime
       console.error(`[getBlogPosts] Response not OK after ${statusTime}ms: ${response.status} ${response.statusText}`)
-      
+
       // For 404 or 500+, return empty array (graceful degradation)
       if (response.status === 404 || response.status >= 500) {
         return []
@@ -106,7 +112,7 @@ async function fetchBlogPostsWithRetry(
     try {
       console.log('[getBlogPosts] Starting to read response body...')
       const bodyStartTime = Date.now()
-      
+
       // Read response as JSON with timeout
       const jsonPromise = response.json()
       let bodyTimeoutHandle: ReturnType<typeof setTimeout> | null = null
@@ -116,11 +122,11 @@ async function fetchBlogPostsWithRetry(
           reject(new Error('Response body read timeout'))
         }, BODY_READ_TIMEOUT)
       })
-      
+
       try {
         data = await Promise.race([jsonPromise, timeoutPromise])
         if (bodyTimeoutHandle) clearTimeout(bodyTimeoutHandle)
-        
+
         const bodyReadTime = Date.now() - bodyStartTime
         console.log(`[getBlogPosts] Response body read in ${bodyReadTime}ms`)
         console.log('[getBlogPosts] Parsed response data structure:', {
@@ -148,9 +154,9 @@ async function fetchBlogPostsWithRetry(
       console.error('[getBlogPosts] Invalid response data structure:', typeof data)
       throw new Error('Invalid response data structure')
     }
-    
+
     const posts = Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : [])
-    
+
     // Validate posts array structure
     if (posts.length > 0) {
       const firstPost = posts[0]
@@ -160,24 +166,24 @@ async function fetchBlogPostsWithRetry(
         console.warn(`[getBlogPosts] Posts missing required fields: ${missingFields.join(', ')}`)
       }
     }
-    
+
     const totalTime = Date.now() - attemptStartTime
     console.log(`[getBlogPosts] Success in ${totalTime}ms, returned ${posts.length} posts`)
     return posts
   } catch (error) {
     const attemptTime = Date.now() - attemptStartTime
     const errorMessage = error instanceof Error ? error.message : String(error)
-    
+
     // Retry logic with exponential backoff
     if (retryCount < maxRetries) {
       const delay = Math.pow(2, retryCount) * 1000 // 1s, 2s, 4s
       console.warn(`[getBlogPosts] Attempt ${retryCount + 1} failed after ${attemptTime}ms: ${errorMessage}`)
       console.log(`[getBlogPosts] Retrying in ${delay}ms...`)
-      
+
       await new Promise(resolve => setTimeout(resolve, delay))
       return fetchBlogPostsWithRetry(url, retryCount + 1, maxRetries)
     }
-    
+
     // All retries exhausted
     console.error(`[getBlogPosts] All ${maxRetries + 1} attempts failed. Last error after ${attemptTime}ms:`, errorMessage)
     return [] // Return empty array for graceful degradation
@@ -191,7 +197,7 @@ async function fetchBlogPostsWithRetry(
 export async function getBlogPosts(): Promise<BlogPost[]> {
   const startTime = Date.now()
   const url = `${API_BASE_URL}/blog`
-  
+
   try {
     console.log('[getBlogPosts] Starting fetch operation')
     const posts = await fetchBlogPostsWithRetry(url)
@@ -238,7 +244,7 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
 
   try {
     console.log('[createBlogPost] Starting request')
-    
+
     // Get auth token from Supabase session
     // Supabase stores sessions in localStorage, so we can create a client and get the session
     let authToken: string | null = null
@@ -246,7 +252,7 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
       const { createClient } = await import('@supabase/supabase-js')
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
-      
+
       if (supabaseUrl && supabaseAnonKey) {
         // Create client with session persistence enabled
         const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -256,16 +262,16 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
             detectSessionInUrl: false
           }
         })
-        
+
         // Get the current session - Supabase reads from localStorage automatically
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
+
         if (sessionError) {
           console.warn('Session error:', sessionError)
         }
-        
+
         authToken = session?.access_token || null
-        
+
         // If no token, wait a brief moment and retry (session might be setting up after login)
         if (!authToken) {
           await new Promise(resolve => setTimeout(resolve, 200))
@@ -282,7 +288,7 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
     }
 
     console.log('[createBlogPost] Fetching to:', `${API_BASE_URL}/blog`)
-    
+
     let response: Response
     try {
       response = await fetch(`${API_BASE_URL}/blog`, {
@@ -321,7 +327,7 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
       const timeoutPromise = new Promise<never>((_, reject) => {
         timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout')), 10000)
       })
-      
+
       try {
         text = await Promise.race([textPromise, timeoutPromise])
         if (timeoutHandle) clearTimeout(timeoutHandle)

@@ -6,7 +6,7 @@ interface PostRow {
   id: string
   title: string
   slug: string
-  content: string
+  content?: string // Optional - not returned in list view
   excerpt: string | null
   author_name: string
   published: boolean
@@ -59,7 +59,7 @@ function getSupabaseClient(): SupabaseClient {
         // Add timeout to fetch requests
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout for Supabase requests
-        
+
         return fetch(url, {
           ...options,
           signal: controller.signal,
@@ -78,13 +78,13 @@ async function withRetry<T>(
   delay = 1000
 ): Promise<T> {
   let lastError: Error | null = null
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       return await operation()
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
-      
+
       // Don't retry on certain errors
       if (error instanceof Error) {
         // Don't retry on authentication errors
@@ -96,7 +96,7 @@ async function withRetry<T>(
           throw error
         }
       }
-      
+
       if (attempt < maxRetries) {
         const waitTime = delay * attempt
         console.log(`[Retry] Attempt ${attempt}/${maxRetries} failed, retrying in ${waitTime}ms...`)
@@ -104,7 +104,7 @@ async function withRetry<T>(
       }
     }
   }
-  
+
   throw lastError || new Error('Operation failed after retries')
 }
 
@@ -243,10 +243,10 @@ export default async function handler(req: Request | any) {
         const executionTime = Date.now() - startTime
         console.error(`[GET /api/blog] [${requestId}] Client initialization failed after ${executionTime}ms:`, clientError)
         return new Response(
-          JSON.stringify({ 
-            posts: [], 
+          JSON.stringify({
+            posts: [],
             error: 'Server configuration error',
-            requestId 
+            requestId
           }),
           {
             status: 500,
@@ -270,23 +270,23 @@ export default async function handler(req: Request | any) {
             .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
             .order('created_at', { ascending: false })
             .limit(100)
-          
+
           if (result.error) {
             throw new Error(result.error.message || 'Supabase query error')
           }
-          
+
           return result
         }, 3, 500)
       } catch (queryError) {
         const executionTime = Date.now() - startTime
         console.error(`[GET /api/blog] [${requestId}] Query failed after ${executionTime}ms:`, queryError)
-        
+
         // Return empty array on error (graceful degradation)
         return new Response(
-          JSON.stringify({ 
-            posts: [], 
+          JSON.stringify({
+            posts: [],
             error: 'Failed to fetch posts',
-            requestId 
+            requestId
           }),
           {
             status: 200, // Return 200 to show empty state, not error state
@@ -326,13 +326,13 @@ export default async function handler(req: Request | any) {
       // Serialize response body - ensure it's fully serialized before creating Response
       const responseData = { posts: sanitizedPosts }
       let responseBody: string
-      
+
       try {
         // Fully serialize the response body before creating Response object
         responseBody = JSON.stringify(responseData)
         const contentLength = new TextEncoder().encode(responseBody).length
         console.log(`[GET /api/blog] [${requestId}] Response body size: ${contentLength} bytes`)
-        
+
         // Verify serialization is complete
         if (!responseBody || responseBody.length === 0) {
           throw new Error('Serialized response body is empty')
@@ -340,10 +340,10 @@ export default async function handler(req: Request | any) {
       } catch (serializeError) {
         const executionTime = Date.now() - startTime
         console.error(`[GET /api/blog] [${requestId}] Serialization failed after ${executionTime}ms:`, serializeError)
-        const errorResponse = JSON.stringify({ 
-          posts: [], 
+        const errorResponse = JSON.stringify({
+          posts: [],
           error: 'Failed to serialize response',
-          requestId 
+          requestId
         })
         return new Response(errorResponse, {
           status: 500,
@@ -359,23 +359,24 @@ export default async function handler(req: Request | any) {
 
       // Create Response with properly serialized body
       // Ensure response is properly formatted for Vercel serverless functions
+      const responseSize = new TextEncoder().encode(responseBody).length
       const responseHeaders: Record<string, string> = {
         'Content-Type': 'application/json; charset=utf-8',
+        'Content-Length': String(responseSize), // Explicit length for Vercel streaming
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
         'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
       }
-      
+
       // Validate response before returning
-      const responseSize = new TextEncoder().encode(responseBody).length
       console.log(`[GET /api/blog] [${requestId}] Response created:`, {
         status: 200,
         bodySize: `${responseSize} bytes`,
         postsCount: sanitizedPosts.length,
         headers: Object.keys(responseHeaders),
       })
-      
+
       // Create response - ensure body is a proper string
       // Vercel serverless functions work best with string responses
       // Important: Response must be properly formatted for Vercel to stream it correctly
@@ -384,28 +385,28 @@ export default async function handler(req: Request | any) {
         statusText: 'OK',
         headers: responseHeaders,
       })
-      
+
       // Ensure response is ready before returning
       // This helps Vercel properly stream the response to the client
       console.log(`[GET /api/blog] [${requestId}] Returning response to client`)
-      
+
       // Return response immediately - Vercel will handle streaming
       return response
     } catch (error) {
       const executionTime = Date.now() - startTime
       const errorMessage = error instanceof Error ? error.message : String(error)
       const errorStack = error instanceof Error ? error.stack : undefined
-      
+
       console.error(`[GET /api/blog] [${requestId}] Unexpected error after ${executionTime}ms:`, {
         message: errorMessage,
         stack: errorStack,
       })
-      
+
       return new Response(
-        JSON.stringify({ 
-          posts: [], 
+        JSON.stringify({
+          posts: [],
           error: 'Internal server error',
-          requestId 
+          requestId
         }),
         {
           status: 200, // Return 200 to show empty state
@@ -445,13 +446,13 @@ export default async function handler(req: Request | any) {
       }
 
       // Check for admin authentication
-      const authHeader = req.headers?.get?.('authorization') || 
-                        (req as any).headers?.authorization ||
-                        (req as any).headers?.['Authorization']
-      
+      const authHeader = req.headers?.get?.('authorization') ||
+        (req as any).headers?.authorization ||
+        (req as any).headers?.['Authorization']
+
       if (!authHeader) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Unauthorized',
             details: 'Authentication required. Please log in to create blog posts.'
           }),
@@ -467,7 +468,7 @@ export default async function handler(req: Request | any) {
 
       // Verify the auth token and check if user is admin
       const token = authHeader.replace('Bearer ', '').trim()
-      
+
       // Create a Supabase client with the user's token to verify it
       const supabaseUrl = process.env.SUPABASE_URL!
       const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
@@ -478,13 +479,13 @@ export default async function handler(req: Request | any) {
           },
         },
       })
-      
+
       // Verify the session by getting the user
       const { data: { user }, error: authError } = await supabaseWithAuth.auth.getUser()
-      
+
       if (authError || !user) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Unauthorized',
             details: 'Authentication required. Please log in to create blog posts.'
           }),
@@ -535,29 +536,29 @@ export default async function handler(req: Request | any) {
 
       // Validate required fields with detailed error messages
       const validationErrors: string[] = []
-      
+
       if (!title || title.length === 0) {
         validationErrors.push('Title is required and cannot be empty')
       } else if (title.length > 500) {
         validationErrors.push('Title must be 500 characters or less')
       }
-      
+
       if (!content || content.length === 0) {
         validationErrors.push('Content is required and cannot be empty')
       } else if (content.length > 100000) {
         validationErrors.push('Content must be 100,000 characters or less')
       }
-      
+
       if (!author_name || author_name.length === 0) {
         validationErrors.push('Author name is required and cannot be empty')
       } else if (author_name.length > 200) {
         validationErrors.push('Author name must be 200 characters or less')
       }
-      
+
       if (excerpt && excerpt.length > 1000) {
         validationErrors.push('Excerpt must be 1,000 characters or less')
       }
-      
+
       if (providedSlug) {
         // Validate slug format
         const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -571,9 +572,9 @@ export default async function handler(req: Request | any) {
 
       if (validationErrors.length > 0) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Validation failed',
-            details: validationErrors 
+            details: validationErrors
           }),
           {
             status: 400,
@@ -596,7 +597,7 @@ export default async function handler(req: Request | any) {
       } catch (slugError) {
         console.error('[POST /api/blog] Slug generation failed:', slugError)
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Failed to generate unique slug',
             details: slugError instanceof Error ? slugError.message : 'Unknown error'
           }),
@@ -626,11 +627,11 @@ export default async function handler(req: Request | any) {
             })
             .select()
             .single()
-          
+
           if (result.error) {
             throw new Error(result.error.message || 'Database insert error')
           }
-          
+
           return result
         }, 3, 500)
       } catch (insertError) {
@@ -719,20 +720,21 @@ export default async function handler(req: Request | any) {
       // Fully serialize response body before creating Response
       const responseBody = JSON.stringify({ post: responsePost })
       const responseSize = new TextEncoder().encode(responseBody).length
-      
+
       const responseHeaders = {
         'Content-Type': 'application/json; charset=utf-8',
+        'Content-Length': String(responseSize), // Explicit length for Vercel streaming
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
       }
 
-      // Create Response - removed Content-Length header to let Vercel handle it
+      // Create Response with explicit Content-Length for proper streaming
       const response = new Response(responseBody, {
         status: 201,
         headers: responseHeaders,
       })
-      
+
       // Validate response before returning
       console.log(`[POST /api/blog] Response created:`, {
         status: 201,
@@ -740,7 +742,7 @@ export default async function handler(req: Request | any) {
         postId: sanitizedPost.id,
         headers: Object.keys(responseHeaders),
       })
-      
+
       return response
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
