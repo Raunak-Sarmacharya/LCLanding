@@ -75,6 +75,20 @@ export default async function handler(req: Request) {
   // Handle POST requests - create new post
   if (req.method === 'POST') {
     try {
+      // Check environment variables first
+      if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Server configuration error',
+            details: 'Missing Supabase environment variables. Please set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel dashboard.'
+          }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+      }
+
       const body = await req.json()
       const { title, content, excerpt, author_name, slug: providedSlug } = body
 
@@ -109,7 +123,12 @@ export default async function handler(req: Request) {
       if (error) {
         console.error('Supabase error:', error)
         return new Response(
-          JSON.stringify({ error: 'Failed to create blog post', details: error.message }),
+          JSON.stringify({ 
+            error: 'Failed to create blog post', 
+            details: error.message,
+            code: error.code,
+            hint: error.hint
+          }),
           {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
@@ -126,8 +145,12 @@ export default async function handler(req: Request) {
       )
     } catch (error) {
       console.error('Unexpected error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       return new Response(
-        JSON.stringify({ error: 'Internal server error' }),
+        JSON.stringify({ 
+          error: 'Internal server error',
+          details: errorMessage
+        }),
         {
           status: 500,
           headers: { 'Content-Type': 'application/json' },
