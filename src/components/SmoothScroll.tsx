@@ -119,21 +119,21 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         autoRaf: false,
         // Optimized smooth scroll settings for Lenis + ScrollTrigger integration
         // Mobile-optimized for natural, smooth touch feel like prettypatty.ch
-        // Significantly higher lerp for 1:1 finger tracking during active touch (finger follows immediately)
-        lerp: isMobile ? 0.25 : 0.08, // Much higher on mobile for immediate 1:1 finger tracking during active touch
-        // Shorter duration for immediate response during active touch
-        duration: isMobile ? 0.6 : 1.5, // Shorter on mobile for immediate response during active touch
+        // Lower lerp for immediate response during active touch (finger follows immediately)
+        lerp: isMobile ? 0.1 : 0.08, // Balanced lerp - lower for immediate response, but not too low to avoid jitter
+        // Duration for momentum scrolling after touch release
+        duration: isMobile ? 1.2 : 1.5, // Slightly longer on mobile for smoother momentum
         smoothWheel: true,
         wheelMultiplier: isMobile ? 1.0 : 0.85,
-        // Set touchMultiplier to 1.0 for true 1:1 finger tracking during active touch
-        touchMultiplier: isMobile ? 1.0 : 1.6, // 1.0 on mobile for true 1:1 finger tracking
+        // Higher touchMultiplier for better scroll distance and natural feel
+        touchMultiplier: isMobile ? 1.5 : 1.6, // Increased from 1.0 to 1.5 for better scroll distance
         infinite: false,
         // Enable smooth touch scrolling with momentum
         syncTouch: true,
-        // Significantly higher syncTouchLerp for immediate 1:1 response during active touch
-        syncTouchLerp: isMobile ? 0.2 : 0.05, // Much higher on mobile for immediate 1:1 active touch response
-        // Higher touchInertiaExponent for stronger momentum that continues longer after release
-        touchInertiaExponent: isMobile ? 1.8 : 1.7, // Higher on mobile for stronger momentum continuation
+        // Lower syncTouchLerp for smooth momentum (per Lenis docs: ~0.075)
+        syncTouchLerp: isMobile ? 0.075 : 0.05, // Lower value for smooth touch inertia (was 0.2 - too high causing sluggishness)
+        // Balanced touchInertiaExponent for natural momentum
+        touchInertiaExponent: isMobile ? 1.5 : 1.7, // Lowered from 1.8 to 1.5 for more natural momentum
         // Custom easing curve for smooth deceleration (optimized)
         easing: (t: number) => {
           // Optimized easing: smooth acceleration and deceleration

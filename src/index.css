@@ -105,6 +105,20 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* Mobile touch optimization - ensure smooth scrolling */
+html.lenis,
+html.lenis body {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent pull-to-refresh on mobile while allowing smooth scroll */
+@media (max-width: 768px) {
+  html.lenis {
+    overscroll-behavior-y: contain;
+  }
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--color-cream);

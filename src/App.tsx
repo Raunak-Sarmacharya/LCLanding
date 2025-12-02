@@ -57,6 +57,7 @@ function HomePage() {
       // ========================================
       
       // Normalize scroll for mobile devices (prevents address bar issues)
+      // This works well with Lenis and helps handle mobile browser quirks
       ScrollTrigger.normalizeScroll(true)
 
       // Animate sections on scroll with various effects
