@@ -47,8 +47,6 @@ const getSupabaseClient = (): SupabaseClient | null => {
   return supabaseClient
 }
 
-const supabase = getSupabaseClient()
-
 export function useAuth() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
