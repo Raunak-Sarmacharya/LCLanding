@@ -219,19 +219,117 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
  */
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  const startTime = Date.now()
+  const FETCH_TIMEOUT = 10000 // 10 seconds
+  
   try {
-    const response = await fetch(`${API_BASE_URL}/blog/${slug}`)
+    console.log(`[getBlogPost] Fetching post with slug: ${slug}`)
+    
+    // Create abort controller for fetch timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      console.warn(`[getBlogPost] Fetch timeout after ${FETCH_TIMEOUT}ms, aborting...`)
+      controller.abort()
+    }, FETCH_TIMEOUT)
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null
+    let response: Response
+    try {
+      response = await fetch(`${API_BASE_URL}/blog/${slug}`, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
+        redirect: 'follow',
+      })
+      clearTimeout(timeoutId)
+
+      const fetchTime = Date.now() - startTime
+      console.log(`[getBlogPost] Response received in ${fetchTime}ms, status: ${response.status}`)
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error(`[getBlogPost] Fetch timeout after ${fetchTime}ms`)
+        throw new Error('Request timeout - the server took too long to respond')
       }
-      throw new Error(`Failed to fetch blog post: ${response.statusText}`)
+
+      console.error(`[getBlogPost] Fetch error after ${fetchTime}ms:`, {
+        name: fetchError instanceof Error ? fetchError.name : 'Unknown',
+        message: fetchError instanceof Error ? fetchError.message : String(fetchError),
+      })
+      throw new Error('Failed to fetch blog post: Network error')
     }
 
-    const data = await response.json()
+    // Check response status
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log(`[getBlogPost] Post not found (404)`)
+        return null
+      }
+      throw new Error(`Failed to fetch blog post: ${response.status} ${response.statusText}`)
+    }
+
+    // Check Content-Type to ensure we're getting JSON, not HTML
+    const contentType = response.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      console.error(`[getBlogPost] Unexpected Content-Type: ${contentType}, expected application/json`)
+      
+      // Try to read as text to see what we got
+      const text = await response.text()
+      console.error(`[getBlogPost] Received non-JSON response (first 200 chars):`, text.substring(0, 200))
+      
+      // If it's HTML (likely a 404 page or error page), return null
+      if (contentType.includes('text/html') || text.trim().startsWith('<!DOCTYPE')) {
+        throw new Error('Server returned HTML instead of JSON. The blog post may not exist or the API route is misconfigured.')
+      }
+      
+      throw new Error(`Server returned unexpected content type: ${contentType}`)
+    }
+
+    // Read response body
+    let data: any
+    try {
+      console.log('[getBlogPost] Starting to read response body...')
+      const bodyStartTime = Date.now()
+      
+      data = await response.json()
+      
+      const bodyReadTime = Date.now() - bodyStartTime
+      console.log(`[getBlogPost] Response body read in ${bodyReadTime}ms`)
+      console.log('[getBlogPost] Parsed response data structure:', {
+        hasPost: !!data.post,
+        postKeys: data.post ? Object.keys(data.post) : [],
+      })
+    } catch (parseError) {
+      const readTime = Date.now() - startTime
+      console.error(`[getBlogPost] Error parsing JSON after ${readTime}ms:`, parseError)
+      
+      // If it's a JSON parse error, try to read as text to see what we got
+      try {
+        const text = await response.text()
+        console.error(`[getBlogPost] Response text (first 500 chars):`, text.substring(0, 500))
+        
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+          throw new Error('Server returned HTML instead of JSON. The blog post may not exist or the API route is misconfigured.')
+        }
+      } catch (textError) {
+        // Ignore text read errors
+      }
+      
+      throw new Error('Failed to parse server response as JSON')
+    }
+
+    const totalTime = Date.now() - startTime
+    console.log(`[getBlogPost] Success in ${totalTime}ms`)
+    
     return data.post || null
   } catch (error) {
+    const totalTime = Date.now() - startTime
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`[getBlogPost] Error after ${totalTime}ms:`, errorMessage)
     throw error
   }
 }
