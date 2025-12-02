@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { motion, useInView } from 'motion/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -8,12 +8,31 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import CreateBlogPostForm from '../components/Blog/CreateBlogPostForm'
 import BlogMetaTags from '../components/Blog/BlogMetaTags'
+import { useAuth } from '../hooks/useAuth'
 
 gsap.registerPlugin(ScrollTrigger)
 
 function CreateBlogPostPageContent() {
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
+  const { isAdmin, isLoading } = useAuth()
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="font-body text-[var(--color-charcoal)]/60">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Redirect non-admin users
+  if (!isAdmin) {
+    return <Navigate to="/blog" replace />
+  }
 
   useEffect(() => {
     const ctx = gsap.context(() => {

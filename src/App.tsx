@@ -22,6 +22,7 @@ import NewsletterSection from './components/NewsletterSection'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import CreateBlogPostPage from './pages/CreateBlogPostPage'
+import AdminLoginPage from './pages/AdminLoginPage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -301,6 +302,7 @@ function App() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/new" element={<CreateBlogPostPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
         </Routes>
       )}
     </>

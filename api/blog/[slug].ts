@@ -14,6 +14,7 @@ function getSupabaseClient() {
 
 export default async function handler(req: Request | any) {
   // Only allow GET requests
+  // PUBLIC ACCESS: No authentication required - anyone can view published posts
   const method = req.method || (req as Request)?.method
   if (method !== 'GET') {
     return new Response(
@@ -65,6 +66,7 @@ export default async function handler(req: Request | any) {
 
     const supabase = getSupabaseClient()
     // Fetch the post by slug (only published posts)
+    // This query is public and doesn't require authentication
     const { data, error } = await supabase
       .from('posts')
       .select('*')

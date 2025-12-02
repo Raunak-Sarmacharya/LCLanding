@@ -69,11 +69,13 @@ export default async function handler(req: Request | any) {
   }
 
   // Handle GET requests - list all published posts
+  // PUBLIC ACCESS: No authentication required - anyone can view published posts
   if (method === 'GET') {
     try {
       const supabase = getSupabaseClient()
 
       // Optimized query: select only needed fields and limit results
+      // This query is public and doesn't require authentication
       const { data: allPosts, error } = await supabase
         .from('posts')
         .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
@@ -152,6 +154,65 @@ export default async function handler(req: Request | any) {
         )
       }
 
+      // Check for admin authentication
+      const authHeader = req.headers?.get?.('authorization') || 
+                        (req as any).headers?.authorization ||
+                        (req as any).headers?.['Authorization']
+      
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Unauthorized',
+            details: 'Authentication required. Please log in to create blog posts.'
+          }),
+          {
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        )
+      }
+
+      // Verify the auth token and check if user is admin
+      const token = authHeader.replace('Bearer ', '').trim()
+      
+      // Create a Supabase client with the user's token to verify it
+      const supabaseUrl = process.env.SUPABASE_URL!
+      const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
+      const supabaseWithAuth = createClient(supabaseUrl, supabaseAnonKey, {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      })
+      
+      // Verify the session by getting the user
+      const { data: { user }, error: authError } = await supabaseWithAuth.auth.getUser()
+      
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Unauthorized',
+            details: 'Authentication required. Please log in to create blog posts.'
+          }),
+          {
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        )
+      }
+
+      // Any authenticated user can create posts (all logged-in users are admins)
+
+      // Use the authenticated supabase client for database operations
+      const supabase = supabaseWithAuth
+
       // Parse request body
       let body: any
       try {
@@ -190,8 +251,6 @@ export default async function handler(req: Request | any) {
           }
         )
       }
-
-      const supabase = getSupabaseClient()
 
       // Generate slug if not provided
       const slug = providedSlug || await ensureUniqueSlug(generateSlug(title), supabase)

@@ -9,6 +9,7 @@ const API_BASE_URL = typeof window !== 'undefined'
 
 /**
  * Fetch all published blog posts
+ * PUBLIC ACCESS: No authentication required - anyone can view published posts
  */
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
@@ -69,6 +70,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
 /**
  * Fetch a single blog post by slug
+ * PUBLIC ACCESS: No authentication required - anyone can view published posts
  */
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   try {
@@ -89,17 +91,38 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
 }
 
 /**
- * Create a new blog post (guest posting)
+ * Create a new blog post (admin only)
  */
 export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPost> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
 
   try {
+    // Get auth token from Supabase session
+    let authToken: string | null = null
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+      
+      if (supabaseUrl && supabaseAnonKey) {
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+        const { data: { session } } = await supabase.auth.getSession()
+        authToken = session?.access_token || null
+      }
+    } catch (authError) {
+      console.warn('Failed to get auth token:', authError)
+    }
+
+    if (!authToken) {
+      throw new Error('Authentication required. Please log in as an admin.')
+    }
+
     const response = await fetch(`${API_BASE_URL}/blog`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
       },
       body: JSON.stringify(input),
       signal: controller.signal,

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, type Variants } from 'motion/react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
+import { useAuth } from '../hooks/useAuth'
 
 const navLinks = [
   { name: 'Home', href: '#home' },
@@ -105,6 +106,14 @@ export default function Navbar() {
   const navRef = useRef<HTMLElement>(null)
   const { scrollTo } = useSmoothScroll()
   const location = useLocation()
+  const { isAdmin, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    setIsMobileMenuOpen(false)
+    navigate('/blog')
+  }
 
   // Handle smooth scroll for anchor links
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -232,6 +241,14 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-4">
+            {isAdmin && (
+              <button
+                onClick={handleLogout}
+                className="font-body text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300"
+              >
+                Logout
+              </button>
+            )}
             <a
               href="https://local-cooks-community.vercel.app/"
               target="_blank"
@@ -419,6 +436,14 @@ export default function Navbar() {
 
                 {/* Secondary links row */}
                 <div className="flex items-center justify-between">
+                  {isAdmin && (
+                    <button
+                      onClick={handleLogout}
+                      className="font-body text-sm text-white/60 hover:text-white transition-colors duration-300"
+                    >
+                      Logout →
+                    </button>
+                  )}
                   <a
                     href="https://local-cooks-community.vercel.app/"
                     target="_blank"
