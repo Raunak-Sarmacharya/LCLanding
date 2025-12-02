@@ -99,6 +99,7 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
 
   try {
     // Get auth token from Supabase session
+    // Supabase stores sessions in localStorage, so we can create a client and get the session
     let authToken: string | null = null
     try {
       const { createClient } = await import('@supabase/supabase-js')
@@ -106,16 +107,37 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
       
       if (supabaseUrl && supabaseAnonKey) {
-        const supabase = createClient(supabaseUrl, supabaseAnonKey)
-        const { data: { session } } = await supabase.auth.getSession()
+        // Create client with session persistence enabled
+        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: false
+          }
+        })
+        
+        // Get the current session - Supabase reads from localStorage automatically
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.warn('Session error:', sessionError)
+        }
+        
         authToken = session?.access_token || null
+        
+        // If no token, wait a brief moment and retry (session might be setting up after login)
+        if (!authToken) {
+          await new Promise(resolve => setTimeout(resolve, 200))
+          const { data: { session: retrySession } } = await supabase.auth.getSession()
+          authToken = retrySession?.access_token || null
+        }
       }
     } catch (authError) {
       console.warn('Failed to get auth token:', authError)
     }
 
     if (!authToken) {
-      throw new Error('Authentication required. Please log in as an admin.')
+      throw new Error('Authentication required. Please log in as an admin. If you just logged in, please wait a moment and try again.')
     }
 
     const response = await fetch(`${API_BASE_URL}/blog`, {

@@ -35,10 +35,18 @@ function CreateBlogPostPageContent() {
   }
 
   useEffect(() => {
+    // Wait for ref to be attached to DOM and content to be ready
+    if (!sectionRef.current || !isInView) return
+
     const ctx = gsap.context(() => {
       // Animate sections on scroll
       const isMobile = window.innerWidth < 768
-      gsap.utils.toArray<HTMLElement>('.animate-section').forEach((section) => {
+      // Use the sectionRef as the scope to ensure we only animate elements within it
+      const sections = gsap.utils.toArray<HTMLElement>('.animate-section', sectionRef.current)
+      
+      sections.forEach((section) => {
+        if (!section || !sectionRef.current?.contains(section)) return
+        
         gsap.fromTo(
           section,
           {
@@ -56,6 +64,8 @@ function CreateBlogPostPageContent() {
               end: 'bottom 20%',
               toggleActions: 'play none none reverse',
               invalidateOnRefresh: true,
+              // Ensure the trigger is within the context scope
+              scroller: window,
             },
           }
         )
@@ -65,7 +75,7 @@ function CreateBlogPostPageContent() {
     return () => {
       ctx.revert()
     }
-  }, [])
+  }, [isInView])
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
