@@ -52,12 +52,12 @@ function BlogPageContent() {
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
-      <BlogMetaTags 
-        title="Blog - LocalCooks" 
+      <BlogMetaTags
+        title="Blog - LocalCooks"
         description="Discover stories, recipes, and insights from our community of home chefs."
       />
       <Navbar />
-      
+
       <section ref={sectionRef} className="pt-32 pb-24 px-3 sm:px-4 md:px-6 overflow-x-clip">
         <div className="max-w-7xl mx-auto w-full box-border">
           {/* Page Header */}
@@ -101,12 +101,25 @@ function BlogPageContent() {
 
             {error && (
               <div className="text-center py-20">
-                <p className="font-body text-[var(--color-primary)] mb-4">
-                  Error loading blog posts. Please try again later.
-                </p>
-                <p className="font-body text-sm text-[var(--color-charcoal)]/60">
-                  {error.message}
-                </p>
+                <div className="max-w-md mx-auto">
+                  <p className="font-body text-[var(--color-primary)] mb-2">
+                    {error.message.includes('cached')
+                      ? '⚠️ Showing Cached Posts'
+                      : '❌ Error Loading Posts'}
+                  </p>
+                  <p className="font-body text-sm text-[var(--color-charcoal)]/60 mb-6">
+                    {error.message}
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="inline-flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-6 py-3 rounded-full font-body font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Retry
+                  </button>
+                </div>
               </div>
             )}
 

@@ -63,13 +63,13 @@ export default function CreateBlogPostForm() {
 
       // Store the created post
       setCreatedPost(post)
-      
+
       // Reset submitting state first
       setIsSubmitting(false)
-      
+
       // Then set submitted state to show success message
       setIsSubmitted(true)
-      
+
       // Redirect to the new post after showing success message
       setTimeout(() => {
         if (post?.slug) {
@@ -82,7 +82,24 @@ export default function CreateBlogPostForm() {
       // Always reset submitting state on error
       setIsSubmitting(false)
       setIsSubmitted(false)
-      setError(err instanceof Error ? err.message : 'Failed to create blog post. Please try again.')
+
+      // Provide more specific error messages
+      let errorMessage = 'Failed to create blog post. Please try again.'
+
+      if (err instanceof Error) {
+        if (err.message.includes('timeout') || err.message.includes('took too long')) {
+          errorMessage = 'Request timed out. Your post may have been saved. Please check the blog page or try again.'
+        } else if (err.message.includes('network') || err.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.'
+        } else {
+          errorMessage = err.message
+        }
+      }
+
+      setError(errorMessage)
+
+      // Scroll to error message
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
@@ -104,7 +121,7 @@ export default function CreateBlogPostForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </motion.div>
-        
+
         <h2 className="font-heading text-3xl sm:text-4xl text-[var(--color-charcoal)] mb-4">
           Post Published! 🎉
         </h2>
