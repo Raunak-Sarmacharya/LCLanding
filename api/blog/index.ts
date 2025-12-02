@@ -62,48 +62,23 @@ export default async function handler(req: any) {
     try {
       const supabase = getSupabaseClient()
       
-      // First, let's check all posts (for debugging)
-      const { data: allData, error: allError } = await supabase
-        .from('posts')
-        .select('*')
-      
-      console.log('All posts in database:', allData?.length || 0)
-      if (allData && allData.length > 0) {
-        console.log('Sample post:', {
-          id: allData[0].id,
-          title: allData[0].title,
-          published: allData[0].published,
-          author_name: allData[0].author_name
-        })
-      }
-      
       // Fetch all published posts, ordered by created_at DESC
-      // Try both boolean true and string 'true' to handle potential type issues
       const { data, error } = await supabase
         .from('posts')
         .select('*')
         .eq('published', true)
         .order('created_at', { ascending: false })
       
-      // If no results with boolean true, try without filter to see all posts
+      // If no results with boolean true, try without filter and filter manually
       if (!data || data.length === 0) {
-        console.log('No posts found with published=true, checking all posts...')
         const { data: allPosts } = await supabase
           .from('posts')
           .select('*')
           .order('created_at', { ascending: false })
         
         if (allPosts && allPosts.length > 0) {
-          console.log('Found posts but published filter returned none:', allPosts.map(p => ({
-            id: p.id,
-            title: p.title,
-            published: p.published,
-            publishedType: typeof p.published
-          })))
-          
           // Filter manually in case published is stored as string
           const publishedPosts = allPosts.filter(p => p.published === true || p.published === 'true' || p.published === 1)
-          console.log('Manually filtered published posts:', publishedPosts.length)
           
           return new Response(
             JSON.stringify({ posts: publishedPosts }),
@@ -118,14 +93,7 @@ export default async function handler(req: any) {
         }
       }
 
-      console.log('Published posts query result:', {
-        count: data?.length || 0,
-        error: error?.message,
-        data: data ? data.map(p => ({ id: p.id, title: p.title, published: p.published })) : null
-      })
-
       if (error) {
-        console.error('Supabase error:', error)
         // Return empty array instead of error to allow UI to show "No blogs yet"
         return new Response(
           JSON.stringify({ posts: [] }),
@@ -140,7 +108,6 @@ export default async function handler(req: any) {
       }
 
       const posts = data || []
-      console.log('Returning posts:', posts.length)
 
       return new Response(
         JSON.stringify({ posts }),
@@ -153,7 +120,6 @@ export default async function handler(req: any) {
         }
       )
     } catch (error) {
-      console.error('Unexpected error:', error)
       // Return empty array instead of error to allow UI to show "No blogs yet"
       return new Response(
         JSON.stringify({ posts: [] }),
@@ -245,7 +211,6 @@ export default async function handler(req: any) {
         .single()
 
       if (error) {
-        console.error('Supabase error:', error)
         return new Response(
           JSON.stringify({ 
             error: 'Failed to create blog post', 
@@ -264,7 +229,6 @@ export default async function handler(req: any) {
       }
 
       if (!data) {
-        console.error('No data returned from Supabase insert')
         return new Response(
           JSON.stringify({ 
             error: 'Failed to create blog post',
@@ -280,8 +244,6 @@ export default async function handler(req: any) {
         )
       }
 
-      console.log('Blog post created successfully:', data)
-
       return new Response(
         JSON.stringify({ post: data }),
         {
@@ -295,7 +257,6 @@ export default async function handler(req: any) {
         }
       )
     } catch (error) {
-      console.error('Unexpected error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       return new Response(
         JSON.stringify({ 

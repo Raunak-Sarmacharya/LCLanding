@@ -62,27 +62,26 @@ export default async function handler(req: any) {
       .eq('published', true)
       .single()
 
-    if (error) {
-      // If no rows returned, it's a 404
-      if (error.code === 'PGRST116') {
+      if (error) {
+        // If no rows returned, it's a 404
+        if (error.code === 'PGRST116') {
+          return new Response(
+            JSON.stringify({ error: 'Post not found' }),
+            {
+              status: 404,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          )
+        }
+
         return new Response(
-          JSON.stringify({ error: 'Post not found' }),
+          JSON.stringify({ error: 'Failed to fetch blog post', details: error.message }),
           {
-            status: 404,
+            status: 500,
             headers: { 'Content-Type': 'application/json' },
           }
         )
       }
-
-      console.error('Supabase error:', error)
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch blog post', details: error.message }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
 
     if (!data) {
       return new Response(
@@ -101,15 +100,14 @@ export default async function handler(req: any) {
         headers: { 'Content-Type': 'application/json' },
       }
     )
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
-  }
+    } catch (error) {
+      return new Response(
+        JSON.stringify({ error: 'Internal server error' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
 }
 

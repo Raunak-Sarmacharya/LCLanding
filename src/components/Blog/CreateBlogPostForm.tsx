@@ -28,6 +28,7 @@ export default function CreateBlogPostForm() {
     e.preventDefault()
     setIsSubmitting(true)
     setError(null)
+    setIsSubmitted(false)
 
     try {
       // Validate form
@@ -49,35 +50,39 @@ export default function CreateBlogPostForm() {
 
       const post = await createBlogPost({
         title: formData.title.trim(),
-        slug: formData.slug?.trim() || undefined, // Will be auto-generated if empty
+        slug: formData.slug?.trim() || undefined,
         content: formData.content.trim(),
         excerpt: formData.excerpt?.trim() || undefined,
         author_name: formData.author_name.trim(),
       })
 
-      console.log('Post created successfully:', post)
+      // Ensure we have a valid post response
+      if (!post || !post.id) {
+        throw new Error('Invalid response from server: post data is missing')
+      }
 
       // Store the created post
       setCreatedPost(post)
       
-      // Set submitted state first to show success message
-      setIsSubmitted(true)
+      // Reset submitting state first
       setIsSubmitting(false)
+      
+      // Then set submitted state to show success message
+      setIsSubmitted(true)
       
       // Redirect to the new post after showing success message
       setTimeout(() => {
         if (post?.slug) {
-          // Navigate to the new post - this will trigger a page refresh
           window.location.href = `/blog/${post.slug}`
         } else {
-          // If slug is missing, redirect to blog list
-          console.error('Post created but slug is missing:', post)
           window.location.href = '/blog'
         }
-      }, 2500) // Show success message for 2.5 seconds
+      }, 2500)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create blog post. Please try again.')
+      // Always reset submitting state on error
       setIsSubmitting(false)
+      setIsSubmitted(false)
+      setError(err instanceof Error ? err.message : 'Failed to create blog post. Please try again.')
     }
   }
 

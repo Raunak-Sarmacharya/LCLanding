@@ -29,23 +29,18 @@ export function useBlogPosts(): UseBlogPostsResult {
       try {
         setLoading(true)
         setError(null)
-        console.log('useBlogPosts: Fetching posts...')
         const data = await getBlogPosts()
-        console.log('useBlogPosts: Received data:', data, 'Length:', data.length)
         
         if (!cancelled) {
-          console.log('useBlogPosts: Setting posts:', data)
-          setPosts(data)
+          setPosts(Array.isArray(data) ? data : [])
           setLoading(false)
-          console.log('useBlogPosts: Loading set to false, posts set to:', data.length)
         }
       } catch (err) {
-        console.error('useBlogPosts: Error fetching posts:', err)
         if (!cancelled) {
           // Even on error, set posts to empty array and stop loading
           // This allows UI to show "No blogs yet" instead of error state
           setPosts([])
-          setError(null) // Don't show error, just show empty state
+          setError(null)
           setLoading(false)
         }
       }

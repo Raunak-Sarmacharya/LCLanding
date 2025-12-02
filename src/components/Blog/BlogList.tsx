@@ -7,8 +7,6 @@ interface BlogListProps {
 }
 
 export default function BlogList({ posts }: BlogListProps) {
-  console.log('BlogList: Rendering with posts:', posts.length, posts)
-  
   if (posts.length === 0) {
     return (
       <div className="text-center py-20">
@@ -21,9 +19,7 @@ export default function BlogList({ posts }: BlogListProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-      {posts.map((post, index) => {
-        console.log('BlogList: Rendering post:', post.id, post.title)
-        return (
+      {posts.map((post, index) => (
         <motion.div
           key={post.id}
           initial={{ opacity: 0, y: 20 }}
@@ -33,8 +29,7 @@ export default function BlogList({ posts }: BlogListProps) {
         >
           <BlogCard post={post} />
         </motion.div>
-        )
-      })}
+      ))}
     </div>
   )
 }

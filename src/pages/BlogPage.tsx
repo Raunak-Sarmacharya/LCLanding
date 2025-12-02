@@ -17,16 +17,6 @@ function BlogPageContent() {
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
   const { posts, loading, error } = useBlogPosts()
 
-  // Debug logging
-  useEffect(() => {
-    console.log('BlogPage: State update -', {
-      postsCount: posts.length,
-      loading,
-      error: error?.message,
-      posts: posts.map(p => ({ id: p.id, title: p.title }))
-    })
-  }, [posts, loading, error])
-
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Animate sections on scroll
@@ -102,16 +92,6 @@ function BlogPageContent() {
 
           {/* Blog Content */}
           <div className="animate-section">
-            {/* Debug panel - shows current state */}
-            <div className="mb-4 p-3 bg-blue-50 rounded text-xs font-mono">
-              <div>Loading: {loading ? 'true' : 'false'}</div>
-              <div>Error: {error ? error.message : 'none'}</div>
-              <div>Posts Count: {posts.length}</div>
-              {posts.length > 0 && (
-                <div>First Post: {posts[0].title} (ID: {posts[0].id})</div>
-              )}
-            </div>
-
             {loading && (
               <div className="text-center py-20">
                 <div className="inline-block w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -138,8 +118,7 @@ function BlogPageContent() {
               </div>
             )}
 
-            {/* Always try to render if we have posts, regardless of loading/error state */}
-            {posts.length > 0 && (
+            {!loading && !error && posts.length > 0 && (
               <BlogList posts={posts} />
             )}
           </div>

@@ -1,72 +1,67 @@
 import type { BlogPost, CreateBlogPostInput } from './types'
 
-const API_BASE_URL = '/api'
+// Use absolute URL in production, relative in development
+const API_BASE_URL = typeof window !== 'undefined' 
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? '/api'
+      : `${window.location.origin}/api`)
+  : '/api'
 
 /**
  * Fetch all published blog posts
  */
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    console.log('Fetching blog posts from:', `${API_BASE_URL}/blog`)
-    const response = await fetch(`${API_BASE_URL}/blog`, {
-      cache: 'no-store', // Prevent caching
-    })
+    const url = `${API_BASE_URL}/blog`
     
-    console.log('Blog posts response status:', response.status, response.statusText)
+    // Add timeout to fetch
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+    
+    let response: Response
+    try {
+      response = await fetch(url, {
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+      clearTimeout(timeoutId)
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error('Request timeout - the server took too long to respond')
+      }
+      throw fetchError
+    }
     
     if (!response.ok) {
       // If 404 or other error, return empty array instead of throwing
-      // This allows the UI to show "No blogs yet" instead of an error
       if (response.status === 404 || response.status >= 500) {
-        console.warn('Blog API returned error, returning empty array:', response.status, response.statusText)
         return []
       }
       throw new Error(`Failed to fetch blog posts: ${response.statusText}`)
     }
     
     const text = await response.text()
-    console.log('Blog posts raw response:', text.substring(0, 500))
+    
+    if (!text || text.trim() === '') {
+      return []
+    }
     
     let data: any
     try {
       data = JSON.parse(text)
     } catch (parseError) {
-      console.error('Failed to parse blog posts response:', parseError, 'Raw text:', text)
       return []
     }
     
-    console.log('Blog posts data received:', {
-      hasPosts: !!data.posts,
-      postsCount: Array.isArray(data.posts) ? data.posts.length : 0,
-      dataKeys: Object.keys(data),
-      fullData: data
-    })
-    
     // Ensure we always return an array
     const posts = Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : [])
-    console.log('Returning posts:', posts.length, 'Posts:', posts)
-    
-    if (posts.length > 0) {
-      console.log('First post sample:', {
-        id: posts[0].id,
-        title: posts[0].title,
-        published: posts[0].published,
-        author_name: posts[0].author_name,
-        hasAllFields: !!(posts[0].id && posts[0].title && posts[0].content),
-        allKeys: Object.keys(posts[0])
-      })
-      
-      // Validate post structure matches BlogPost interface
-      const requiredFields = ['id', 'title', 'slug', 'content', 'author_name', 'published', 'created_at', 'updated_at']
-      const missingFields = requiredFields.filter(field => !(field in posts[0]))
-      if (missingFields.length > 0) {
-        console.warn('Post missing required fields:', missingFields)
-      }
-    }
-    
     return posts
   } catch (error) {
-    console.error('Error fetching blog posts:', error)
     // Return empty array instead of throwing to show "No blogs yet"
     return []
   }
@@ -89,7 +84,6 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
     const data = await response.json()
     return data.post || null
   } catch (error) {
-    console.error('Error fetching blog post:', error)
     throw error
   }
 }
@@ -98,6 +92,9 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
  * Create a new blog post (guest posting)
  */
 export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPost> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
   try {
     const response = await fetch(`${API_BASE_URL}/blog`, {
       method: 'POST',
@@ -105,27 +102,39 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(input),
+      signal: controller.signal,
     })
+    
+    clearTimeout(timeoutId)
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('Failed to create blog post:', response.status, errorData)
       throw new Error(errorData.error || errorData.details || `Failed to create blog post: ${response.statusText}`)
     }
     
-    const data = await response.json()
+    const text = await response.text()
     
-    // Log the response for debugging
-    console.log('Blog post created successfully:', data)
+    if (!text || text.trim() === '') {
+      throw new Error('Empty response from server')
+    }
+    
+    let data: any
+    try {
+      data = JSON.parse(text)
+    } catch (parseError) {
+      throw new Error('Invalid JSON response from server')
+    }
     
     if (!data.post) {
-      console.error('API response missing post data:', data)
       throw new Error('Invalid response from server: post data missing')
     }
     
     return data.post
   } catch (error) {
-    console.error('Error creating blog post:', error)
+    clearTimeout(timeoutId)
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timeout - the server took too long to respond')
+    }
     throw error
   }
 }
