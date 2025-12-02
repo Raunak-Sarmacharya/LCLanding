@@ -33,6 +33,18 @@ async function ensureUniqueSlug(baseSlug: string, supabaseClient: SupabaseClient
 }
 
 export default async function handler(req: Request) {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    })
+  }
+
   // Handle GET requests - list all published posts
   if (req.method === 'GET') {
     try {
@@ -50,7 +62,10 @@ export default async function handler(req: Request) {
           JSON.stringify({ error: 'Failed to fetch blog posts', details: error.message }),
           {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
           }
         )
       }
@@ -59,18 +74,24 @@ export default async function handler(req: Request) {
         JSON.stringify({ posts: data || [] }),
         {
           status: 200,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         }
       )
     } catch (error) {
       console.error('Unexpected error:', error)
-      return new Response(
-        JSON.stringify({ error: 'Internal server error' }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
+        return new Response(
+          JSON.stringify({ error: 'Internal server error' }),
+          {
+            status: 500,
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        )
     }
   }
 
@@ -86,7 +107,10 @@ export default async function handler(req: Request) {
           }),
           {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
           }
         )
       }
@@ -100,7 +124,10 @@ export default async function handler(req: Request) {
           JSON.stringify({ error: 'Title, content, and author name are required' }),
           {
             status: 400,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
           }
         )
       }
@@ -135,7 +162,10 @@ export default async function handler(req: Request) {
           }),
           {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
           }
         )
       }
@@ -144,7 +174,12 @@ export default async function handler(req: Request) {
         JSON.stringify({ post: data }),
         {
           status: 201,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          },
         }
       )
     } catch (error) {
@@ -157,7 +192,10 @@ export default async function handler(req: Request) {
         }),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         }
       )
     }
@@ -168,7 +206,10 @@ export default async function handler(req: Request) {
     JSON.stringify({ error: 'Method not allowed' }),
     {
       status: 405,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
     }
   )
 }
