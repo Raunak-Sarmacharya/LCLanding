@@ -77,7 +77,7 @@ export default function CreateBlogPostForm() {
         } else {
           window.location.href = '/blog'
         }
-      }, 2500)
+      }, 3000)
     } catch (err) {
       // Always reset submitting state on error
       setIsSubmitting(false)

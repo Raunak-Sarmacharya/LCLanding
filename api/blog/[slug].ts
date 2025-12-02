@@ -12,14 +12,18 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseAnonKey)
 }
 
-export default async function handler(req: any) {
+export default async function handler(req: Request | any) {
   // Only allow GET requests
-  if (req.method !== 'GET') {
+  const method = req.method || (req as Request)?.method
+  if (method !== 'GET') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
       {
         status: 405,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       }
     )
   }
@@ -38,17 +42,23 @@ export default async function handler(req: any) {
         JSON.stringify({ error: 'Slug is required' }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         }
       )
     }
 
-    if (!slug) {
+    if (!slug || slug === 'blog' || slug === 'api') {
       return new Response(
         JSON.stringify({ error: 'Slug is required' }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         }
       )
     }
@@ -69,7 +79,10 @@ export default async function handler(req: any) {
             JSON.stringify({ error: 'Post not found' }),
             {
               status: 404,
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              },
             }
           )
         }
@@ -78,7 +91,10 @@ export default async function handler(req: any) {
           JSON.stringify({ error: 'Failed to fetch blog post', details: error.message }),
           {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
           }
         )
       }
@@ -88,7 +104,10 @@ export default async function handler(req: any) {
         JSON.stringify({ error: 'Post not found' }),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         }
       )
     }
@@ -97,7 +116,10 @@ export default async function handler(req: any) {
       JSON.stringify({ post: data }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       }
     )
     } catch (error) {
@@ -105,7 +127,10 @@ export default async function handler(req: any) {
         JSON.stringify({ error: 'Internal server error' }),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         }
       )
     }

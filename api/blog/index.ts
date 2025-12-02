@@ -27,13 +27,20 @@ function generateSlug(title: string): string {
 async function ensureUniqueSlug(baseSlug: string, supabaseClient: SupabaseClient): Promise<string> {
   let slug = baseSlug
   let counter = 1
+  const maxAttempts = 100 // Prevent infinite loops
   
-  while (true) {
-    const { data } = await supabaseClient
+  while (counter <= maxAttempts) {
+    const { data, error } = await supabaseClient
       .from('posts')
       .select('id')
       .eq('slug', slug)
-      .single()
+      .maybeSingle()
+    
+    // If no data found, slug is unique
+    if (!data && error?.code !== 'PGRST116') {
+      // If there's an error other than "not found", log it but continue
+      console.warn('Error checking slug uniqueness:', error?.message)
+    }
     
     if (!data) {
       return slug
@@ -42,11 +49,15 @@ async function ensureUniqueSlug(baseSlug: string, supabaseClient: SupabaseClient
     slug = `${baseSlug}-${counter}`
     counter++
   }
+  
+  // Fallback: append timestamp if we hit max attempts
+  return `${baseSlug}-${Date.now()}`
 }
 
-export default async function handler(req: any) {
+export default async function handler(req: Request | any) {
   // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
+  const method = req.method || (req as Request)?.method
+  if (method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
       headers: {
@@ -58,43 +69,17 @@ export default async function handler(req: any) {
   }
 
   // Handle GET requests - list all published posts
-  if (req.method === 'GET') {
+  if (method === 'GET') {
     try {
       const supabase = getSupabaseClient()
       
-      // Fetch all published posts, ordered by created_at DESC
-      const { data, error } = await supabase
+      // Fetch all posts first, then filter manually to handle different published formats
+      const { data: allPosts, error } = await supabase
         .from('posts')
         .select('*')
-        .eq('published', true)
         .order('created_at', { ascending: false })
       
-      // If no results with boolean true, try without filter and filter manually
-      if (!data || data.length === 0) {
-        const { data: allPosts } = await supabase
-          .from('posts')
-          .select('*')
-          .order('created_at', { ascending: false })
-        
-        if (allPosts && allPosts.length > 0) {
-          // Filter manually in case published is stored as string
-          const publishedPosts = allPosts.filter(p => p.published === true || p.published === 'true' || p.published === 1)
-          
-          return new Response(
-            JSON.stringify({ posts: publishedPosts }),
-            {
-              status: 200,
-              headers: { 
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-              },
-            }
-          )
-        }
-      }
-
       if (error) {
-        // Return empty array instead of error to allow UI to show "No blogs yet"
         return new Response(
           JSON.stringify({ posts: [] }),
           {
@@ -107,10 +92,16 @@ export default async function handler(req: any) {
         )
       }
 
-      const posts = data || []
+      // Filter for published posts - handle boolean, string, and number formats
+      const publishedPosts = (allPosts || []).filter(p => {
+        const pub = p.published
+        if (pub === true || pub === 1 || pub === '1' || pub === 'true') return true
+        if (pub === false || pub === 0 || pub === '0' || pub === 'false') return false
+        return true
+      })
 
       return new Response(
-        JSON.stringify({ posts }),
+        JSON.stringify({ posts: publishedPosts }),
         {
           status: 200,
           headers: { 
@@ -120,7 +111,6 @@ export default async function handler(req: any) {
         }
       )
     } catch (error) {
-      // Return empty array instead of error to allow UI to show "No blogs yet"
       return new Response(
         JSON.stringify({ posts: [] }),
         {
@@ -135,7 +125,7 @@ export default async function handler(req: any) {
   }
 
   // Handle POST requests - create new post
-  if (req.method === 'POST') {
+  if (method === 'POST') {
     try {
       // Check environment variables first
       if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
@@ -154,17 +144,19 @@ export default async function handler(req: any) {
         )
       }
 
-      // Parse request body - Vercel functions may have body already parsed
+      // Parse request body
       let body: any
-      if (req.body) {
-        // Body is already parsed by Vercel
-        body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-      } else if (typeof req.json === 'function') {
-        // Standard Request API
-        body = await req.json()
-      } else {
+      try {
+        if (typeof req.json === 'function') {
+          body = await req.json()
+        } else if (req.body) {
+          body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+        } else {
+          throw new Error('No request body')
+        }
+      } catch (parseError) {
         return new Response(
-          JSON.stringify({ error: 'Unable to parse request body', details: 'Request body is missing' }),
+          JSON.stringify({ error: 'Unable to parse request body', details: 'Invalid JSON' }),
           {
             status: 400,
             headers: { 
