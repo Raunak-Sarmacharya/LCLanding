@@ -1,4 +1,5 @@
-import { supabase } from '../middleware/supabase'
+import { getSupabaseClient } from '../middleware/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Helper function to generate slug from title
 function generateSlug(title: string): string {
@@ -11,12 +12,12 @@ function generateSlug(title: string): string {
 }
 
 // Helper function to ensure unique slug
-async function ensureUniqueSlug(baseSlug: string): Promise<string> {
+async function ensureUniqueSlug(baseSlug: string, supabaseClient: SupabaseClient): Promise<string> {
   let slug = baseSlug
   let counter = 1
   
   while (true) {
-    const { data } = await supabase
+    const { data } = await supabaseClient
       .from('posts')
       .select('id')
       .eq('slug', slug)
@@ -35,6 +36,7 @@ export default async function handler(req: Request) {
   // Handle GET requests - list all published posts
   if (req.method === 'GET') {
     try {
+      const supabase = getSupabaseClient()
       // Fetch all published posts, ordered by created_at DESC
       const { data, error } = await supabase
         .from('posts')
@@ -103,8 +105,10 @@ export default async function handler(req: Request) {
         )
       }
 
+      const supabase = getSupabaseClient()
+      
       // Generate slug if not provided
-      const slug = providedSlug || await ensureUniqueSlug(generateSlug(title))
+      const slug = providedSlug || await ensureUniqueSlug(generateSlug(title), supabase)
 
       // Insert new post
       const { data, error } = await supabase

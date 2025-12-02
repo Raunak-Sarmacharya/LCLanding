@@ -1,4 +1,4 @@
-import { supabase } from '../middleware/supabase'
+import { getSupabaseClient } from '../middleware/supabase'
 
 export default async function handler(req: Request) {
   // Only allow GET requests
@@ -28,6 +28,7 @@ export default async function handler(req: Request) {
       )
     }
 
+    const supabase = getSupabaseClient()
     // Fetch the post by slug (only published posts)
     const { data, error } = await supabase
       .from('posts')

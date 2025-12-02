@@ -113,7 +113,7 @@ function BlogPageContent() {
             {!loading && !error && posts.length === 0 && (
               <div className="text-center py-20">
                 <p className="font-body text-lg text-[var(--color-charcoal)]/60">
-                  No blog posts available yet. Check back soon!
+                  No blogs yet
                 </p>
               </div>
             )}
