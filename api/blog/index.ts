@@ -120,17 +120,23 @@ export default async function handler(req: Request | any) {
       const executionTime = Date.now() - startTime
       console.log(`[GET /api/blog] Success in ${executionTime}ms, returned ${allPosts.length} posts`)
 
-      return new Response(
-        JSON.stringify({ posts: allPosts }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
-          },
-        }
-      )
+      // Serialize response body
+      const responseBody = JSON.stringify({ posts: allPosts })
+      const contentLength = new TextEncoder().encode(responseBody).length
+      
+      console.log(`[GET /api/blog] Response body size: ${contentLength} bytes`)
+
+      return new Response(responseBody, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Length': contentLength.toString(),
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Accept',
+          'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
+        },
+      })
     } catch (error) {
       const executionTime = Date.now() - startTime
       console.error(`[GET /api/blog] Error after ${executionTime}ms:`, error)

@@ -23,6 +23,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
     let response: Response
     try {
+      console.log(`[getBlogPosts] Starting fetch to ${url}`)
       response = await fetch(url, {
         method: 'GET',
         cache: 'no-store',
@@ -30,13 +31,18 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
         headers: {
           'Accept': 'application/json',
         },
-        // Remove keepalive as it may cause issues in some browsers
-        // Add redirect: 'follow' to handle any redirects
         redirect: 'follow',
       })
       clearTimeout(timeoutId)
       const fetchTime = Date.now() - startTime
       console.log(`[getBlogPosts] Response received in ${fetchTime}ms, status: ${response.status}`)
+      console.log(`[getBlogPosts] Response headers:`, Object.fromEntries(response.headers.entries()))
+      
+      // Check if response body is readable
+      if (!response.body) {
+        console.error('[getBlogPosts] Response body is null or undefined')
+        return []
+      }
     } catch (fetchError) {
       clearTimeout(timeoutId)
       const fetchTime = Date.now() - startTime
@@ -67,26 +73,38 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     // Read response body with timeout protection
     let data: any
     try {
+      console.log('[getBlogPosts] Starting to read response body...')
       // Use response.json() directly for better performance and error handling
       const jsonPromise = response.json()
       let timeoutHandle: NodeJS.Timeout | null = null
       const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout')), 10000)
+        timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout after 10s')), 10000)
       })
       
       try {
+        const bodyStartTime = Date.now()
         data = await Promise.race([jsonPromise, timeoutPromise])
         if (timeoutHandle) clearTimeout(timeoutHandle)
+        const bodyReadTime = Date.now() - bodyStartTime
+        console.log(`[getBlogPosts] Response body read in ${bodyReadTime}ms`)
         console.log('[getBlogPosts] Parsed response data:', data)
         console.log('[getBlogPosts] data.posts type:', typeof data.posts, 'isArray:', Array.isArray(data.posts))
         console.log('[getBlogPosts] data.posts value:', data.posts)
       } catch (raceError) {
         if (timeoutHandle) clearTimeout(timeoutHandle)
+        console.error('[getBlogPosts] Error in Promise.race:', raceError)
         throw raceError
       }
     } catch (readError) {
       const readTime = Date.now() - startTime
       console.error(`[getBlogPosts] Error reading response body after ${readTime}ms:`, readError)
+      if (readError instanceof Error) {
+        console.error('[getBlogPosts] Read error details:', {
+          name: readError.name,
+          message: readError.message,
+          stack: readError.stack,
+        })
+      }
       // If we got the response but can't read it, return empty array
       return []
     }
