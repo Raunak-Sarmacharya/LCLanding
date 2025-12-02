@@ -221,7 +221,8 @@ export default async function handler(req: Request | any) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
+        'Access-Control-Max-Age': '86400', // Cache preflight for 24 hours
       },
     })
   }
@@ -322,46 +323,66 @@ export default async function handler(req: Request | any) {
       const executionTime = Date.now() - startTime
       console.log(`[GET /api/blog] [${requestId}] Success in ${executionTime}ms, returned ${sanitizedPosts.length} posts (${rawPosts.length} raw, ${invalidCount} invalid)`)
 
-      // Serialize response body
+      // Serialize response body - ensure it's fully serialized before creating Response
       const responseData = { posts: sanitizedPosts }
       let responseBody: string
-      let contentLength: number
       
       try {
+        // Fully serialize the response body before creating Response object
         responseBody = JSON.stringify(responseData)
-        contentLength = new TextEncoder().encode(responseBody).length
+        const contentLength = new TextEncoder().encode(responseBody).length
         console.log(`[GET /api/blog] [${requestId}] Response body size: ${contentLength} bytes`)
+        
+        // Verify serialization is complete
+        if (!responseBody || responseBody.length === 0) {
+          throw new Error('Serialized response body is empty')
+        }
       } catch (serializeError) {
         const executionTime = Date.now() - startTime
         console.error(`[GET /api/blog] [${requestId}] Serialization failed after ${executionTime}ms:`, serializeError)
-        return new Response(
-          JSON.stringify({ 
-            posts: [], 
-            error: 'Failed to serialize response',
-            requestId 
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-              'Cache-Control': 'no-cache',
-            },
-          }
-        )
+        const errorResponse = JSON.stringify({ 
+          posts: [], 
+          error: 'Failed to serialize response',
+          requestId 
+        })
+        return new Response(errorResponse, {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Accept',
+            'Cache-Control': 'no-cache',
+          },
+        })
       }
 
-      return new Response(responseBody, {
+      // Create Response with properly serialized body
+      // Note: Removed Content-Length header - let Vercel handle it automatically
+      // This ensures proper streaming and prevents response hanging issues
+      const responseHeaders = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
+        'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
+      }
+      
+      const response = new Response(responseBody, {
         status: 200,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Content-Length': contentLength.toString(),
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Accept',
-          'Cache-Control': 'public, max-age=60, s-maxage=120', // Cache for 1-2 minutes
-        },
+        headers: responseHeaders,
       })
+      
+      // Validate response before returning
+      const responseSize = new TextEncoder().encode(responseBody).length
+      console.log(`[GET /api/blog] [${requestId}] Response created:`, {
+        status: 200,
+        bodySize: `${responseSize} bytes`,
+        postsCount: sanitizedPosts.length,
+        headers: Object.keys(responseHeaders),
+      })
+      
+      return response
     } catch (error) {
       const executionTime = Date.now() - startTime
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -687,19 +708,32 @@ export default async function handler(req: Request | any) {
         content: data.content || content, // Include full content
       }
 
+      // Fully serialize response body before creating Response
       const responseBody = JSON.stringify({ post: responsePost })
-      const contentLength = new TextEncoder().encode(responseBody).length
+      const responseSize = new TextEncoder().encode(responseBody).length
+      
+      const responseHeaders = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
+      }
 
-      return new Response(responseBody, {
+      // Create Response - removed Content-Length header to let Vercel handle it
+      const response = new Response(responseBody, {
         status: 201,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Content-Length': contentLength.toString(),
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
+        headers: responseHeaders,
       })
+      
+      // Validate response before returning
+      console.log(`[POST /api/blog] Response created:`, {
+        status: 201,
+        bodySize: `${responseSize} bytes`,
+        postId: sanitizedPost.id,
+        headers: Object.keys(responseHeaders),
+      })
+      
+      return response
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       return new Response(

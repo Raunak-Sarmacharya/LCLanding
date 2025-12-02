@@ -8,22 +8,31 @@ const API_BASE_URL = typeof window !== 'undefined'
   : '/api'
 
 /**
- * Fetch all published blog posts
+ * Fetch all published blog posts with retry logic
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
  */
-export async function getBlogPosts(): Promise<BlogPost[]> {
-  const startTime = Date.now()
-  try {
-    const url = `${API_BASE_URL}/blog`
-    console.log('[getBlogPosts] Fetching from:', url)
+async function fetchBlogPostsWithRetry(
+  url: string,
+  retryCount = 0,
+  maxRetries = 2
+): Promise<BlogPost[]> {
+  const attemptStartTime = Date.now()
+  const FETCH_TIMEOUT = 15000 // 15 seconds (API responds in <400ms, so this is sufficient)
+  const BODY_READ_TIMEOUT = 5000 // 5 seconds for reading response body
 
-    // Add timeout to fetch (30s to ensure API has time to respond - increased from 15s)
+  try {
+    console.log(`[getBlogPosts] Attempt ${retryCount + 1}/${maxRetries + 1} - Fetching from: ${url}`)
+
+    // Create abort controller for fetch timeout
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+    const timeoutId = setTimeout(() => {
+      console.warn(`[getBlogPosts] Fetch timeout after ${FETCH_TIMEOUT}ms, aborting...`)
+      controller.abort()
+    }, FETCH_TIMEOUT)
 
     let response: Response
     try {
-      console.log(`[getBlogPosts] Starting fetch to ${url}`)
+      console.log(`[getBlogPosts] Starting fetch request...`)
       response = await fetch(url, {
         method: 'GET',
         cache: 'no-store',
@@ -34,90 +43,164 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
         redirect: 'follow',
       })
       clearTimeout(timeoutId)
-      const fetchTime = Date.now() - startTime
+      
+      const fetchTime = Date.now() - attemptStartTime
       console.log(`[getBlogPosts] Response received in ${fetchTime}ms, status: ${response.status}`)
-      console.log(`[getBlogPosts] Response headers:`, Object.fromEntries(response.headers.entries()))
+      
+      // Validate response headers
+      const responseHeaders = Object.fromEntries(response.headers.entries())
+      const contentType = responseHeaders['content-type'] || ''
+      const corsOrigin = responseHeaders['access-control-allow-origin']
+      
+      console.log(`[getBlogPosts] Response headers:`, {
+        'content-type': contentType,
+        'content-length': responseHeaders['content-length'] || 'not set',
+        'access-control-allow-origin': corsOrigin || 'not set',
+      })
+      
+      // Validate Content-Type
+      if (!contentType.includes('application/json')) {
+        console.warn(`[getBlogPosts] Unexpected Content-Type: ${contentType}, expected application/json`)
+      }
+      
+      // Validate CORS header
+      if (!corsOrigin) {
+        console.warn(`[getBlogPosts] Missing CORS header - may cause issues`)
+      }
       
       // Check if response body is readable
       if (!response.body) {
         console.error('[getBlogPosts] Response body is null or undefined')
-        return []
+        throw new Error('Response body is not readable')
       }
     } catch (fetchError) {
       clearTimeout(timeoutId)
-      const fetchTime = Date.now() - startTime
-      console.error(`[getBlogPosts] Fetch error after ${fetchTime}ms:`, fetchError)
+      const fetchTime = Date.now() - attemptStartTime
+      
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error(`[getBlogPosts] Fetch timeout after ${fetchTime}ms`)
         throw new Error('Request timeout - the server took too long to respond')
       }
-      // Log more details about the error
-      if (fetchError instanceof Error) {
-        console.error(`[getBlogPosts] Error details:`, {
-          name: fetchError.name,
-          message: fetchError.message,
-          stack: fetchError.stack,
-        })
-      }
+      
+      console.error(`[getBlogPosts] Fetch error after ${fetchTime}ms:`, {
+        name: fetchError instanceof Error ? fetchError.name : 'Unknown',
+        message: fetchError instanceof Error ? fetchError.message : String(fetchError),
+      })
       throw fetchError
     }
 
+    // Check response status
     if (!response.ok) {
-      // If 404 or other error, return empty array instead of throwing
-      console.error(`[getBlogPosts] Response not OK: ${response.status} ${response.statusText}`)
+      const statusTime = Date.now() - attemptStartTime
+      console.error(`[getBlogPosts] Response not OK after ${statusTime}ms: ${response.status} ${response.statusText}`)
+      
+      // For 404 or 500+, return empty array (graceful degradation)
       if (response.status === 404 || response.status >= 500) {
         return []
       }
-      throw new Error(`Failed to fetch blog posts: ${response.statusText}`)
+      throw new Error(`Failed to fetch blog posts: ${response.status} ${response.statusText}`)
     }
 
     // Read response body with timeout protection
     let data: any
     try {
       console.log('[getBlogPosts] Starting to read response body...')
-      // Use response.json() directly for better performance and error handling
+      const bodyStartTime = Date.now()
+      
+      // Read response as JSON with timeout
       const jsonPromise = response.json()
-      let timeoutHandle: NodeJS.Timeout | null = null
+      let bodyTimeoutHandle: ReturnType<typeof setTimeout> | null = null
       const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout after 10s')), 10000)
+        bodyTimeoutHandle = setTimeout(() => {
+          console.warn(`[getBlogPosts] Body read timeout after ${BODY_READ_TIMEOUT}ms`)
+          reject(new Error('Response body read timeout'))
+        }, BODY_READ_TIMEOUT)
       })
       
       try {
-        const bodyStartTime = Date.now()
         data = await Promise.race([jsonPromise, timeoutPromise])
-        if (timeoutHandle) clearTimeout(timeoutHandle)
+        if (bodyTimeoutHandle) clearTimeout(bodyTimeoutHandle)
+        
         const bodyReadTime = Date.now() - bodyStartTime
         console.log(`[getBlogPosts] Response body read in ${bodyReadTime}ms`)
-        console.log('[getBlogPosts] Parsed response data:', data)
-        console.log('[getBlogPosts] data.posts type:', typeof data.posts, 'isArray:', Array.isArray(data.posts))
-        console.log('[getBlogPosts] data.posts value:', data.posts)
+        console.log('[getBlogPosts] Parsed response data structure:', {
+          hasPosts: !!data.posts,
+          postsIsArray: Array.isArray(data.posts),
+          postsLength: Array.isArray(data.posts) ? data.posts.length : 'N/A',
+        })
       } catch (raceError) {
-        if (timeoutHandle) clearTimeout(timeoutHandle)
-        console.error('[getBlogPosts] Error in Promise.race:', raceError)
+        if (bodyTimeoutHandle) clearTimeout(bodyTimeoutHandle)
+        const bodyReadTime = Date.now() - bodyStartTime
+        console.error(`[getBlogPosts] Error reading body after ${bodyReadTime}ms:`, raceError)
         throw raceError
       }
     } catch (readError) {
-      const readTime = Date.now() - startTime
-      console.error(`[getBlogPosts] Error reading response body after ${readTime}ms:`, readError)
-      if (readError instanceof Error) {
-        console.error('[getBlogPosts] Read error details:', {
-          name: readError.name,
-          message: readError.message,
-          stack: readError.stack,
-        })
-      }
-      // If we got the response but can't read it, return empty array
-      return []
+      const readTime = Date.now() - attemptStartTime
+      console.error(`[getBlogPosts] Error reading response body after ${readTime}ms:`, {
+        name: readError instanceof Error ? readError.name : 'Unknown',
+        message: readError instanceof Error ? readError.message : String(readError),
+      })
+      throw new Error('Failed to read response body')
     }
 
-    // Ensure we always return an array
+    // Validate and extract posts
+    if (!data || typeof data !== 'object') {
+      console.error('[getBlogPosts] Invalid response data structure:', typeof data)
+      throw new Error('Invalid response data structure')
+    }
+    
     const posts = Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : [])
-    const totalTime = Date.now() - startTime
+    
+    // Validate posts array structure
+    if (posts.length > 0) {
+      const firstPost = posts[0]
+      const requiredFields = ['id', 'title', 'slug']
+      const missingFields = requiredFields.filter(field => !(field in firstPost))
+      if (missingFields.length > 0) {
+        console.warn(`[getBlogPosts] Posts missing required fields: ${missingFields.join(', ')}`)
+      }
+    }
+    
+    const totalTime = Date.now() - attemptStartTime
     console.log(`[getBlogPosts] Success in ${totalTime}ms, returned ${posts.length} posts`)
-    console.log('[getBlogPosts] Posts array:', posts)
+    return posts
+  } catch (error) {
+    const attemptTime = Date.now() - attemptStartTime
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    
+    // Retry logic with exponential backoff
+    if (retryCount < maxRetries) {
+      const delay = Math.pow(2, retryCount) * 1000 // 1s, 2s, 4s
+      console.warn(`[getBlogPosts] Attempt ${retryCount + 1} failed after ${attemptTime}ms: ${errorMessage}`)
+      console.log(`[getBlogPosts] Retrying in ${delay}ms...`)
+      
+      await new Promise(resolve => setTimeout(resolve, delay))
+      return fetchBlogPostsWithRetry(url, retryCount + 1, maxRetries)
+    }
+    
+    // All retries exhausted
+    console.error(`[getBlogPosts] All ${maxRetries + 1} attempts failed. Last error after ${attemptTime}ms:`, errorMessage)
+    return [] // Return empty array for graceful degradation
+  }
+}
+
+/**
+ * Fetch all published blog posts
+ * PUBLIC ACCESS: No authentication required - anyone can view published posts
+ */
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  const startTime = Date.now()
+  const url = `${API_BASE_URL}/blog`
+  
+  try {
+    console.log('[getBlogPosts] Starting fetch operation')
+    const posts = await fetchBlogPostsWithRetry(url)
+    const totalTime = Date.now() - startTime
+    console.log(`[getBlogPosts] Operation completed in ${totalTime}ms, returning ${posts.length} posts`)
     return posts
   } catch (error) {
     const totalTime = Date.now() - startTime
-    console.error(`[getBlogPosts] Error after ${totalTime}ms:`, error)
+    console.error(`[getBlogPosts] Unexpected error after ${totalTime}ms:`, error)
     // Return empty array instead of throwing to show "No blogs yet"
     return []
   }
