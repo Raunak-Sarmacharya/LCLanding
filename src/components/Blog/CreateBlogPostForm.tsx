@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { createBlogPost } from '../../lib/api'
 import type { CreateBlogPostInput } from '../../lib/types'
 
 export default function CreateBlogPostForm() {
-  const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
