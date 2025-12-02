@@ -3,7 +3,7 @@ export interface BlogPost {
   title: string
   slug: string
   content: string
-  excerpt: string
+  excerpt: string | null
   author_name: string
   published: boolean
   created_at: string

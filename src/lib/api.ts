@@ -24,21 +24,45 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       throw new Error(`Failed to fetch blog posts: ${response.statusText}`)
     }
     
-    const data = await response.json().catch((parseError) => {
-      // If JSON parsing fails, return empty array
-      console.warn('Failed to parse blog posts response:', parseError)
-      return { posts: [] }
-    })
+    const text = await response.text()
+    console.log('Blog posts raw response:', text.substring(0, 500))
+    
+    let data: any
+    try {
+      data = JSON.parse(text)
+    } catch (parseError) {
+      console.error('Failed to parse blog posts response:', parseError, 'Raw text:', text)
+      return []
+    }
     
     console.log('Blog posts data received:', {
       hasPosts: !!data.posts,
       postsCount: Array.isArray(data.posts) ? data.posts.length : 0,
-      dataKeys: Object.keys(data)
+      dataKeys: Object.keys(data),
+      fullData: data
     })
     
     // Ensure we always return an array
-    const posts = Array.isArray(data.posts) ? data.posts : []
-    console.log('Returning posts:', posts.length)
+    const posts = Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : [])
+    console.log('Returning posts:', posts.length, 'Posts:', posts)
+    
+    if (posts.length > 0) {
+      console.log('First post sample:', {
+        id: posts[0].id,
+        title: posts[0].title,
+        published: posts[0].published,
+        author_name: posts[0].author_name,
+        hasAllFields: !!(posts[0].id && posts[0].title && posts[0].content),
+        allKeys: Object.keys(posts[0])
+      })
+      
+      // Validate post structure matches BlogPost interface
+      const requiredFields = ['id', 'title', 'slug', 'content', 'author_name', 'published', 'created_at', 'updated_at']
+      const missingFields = requiredFields.filter(field => !(field in posts[0]))
+      if (missingFields.length > 0) {
+        console.warn('Post missing required fields:', missingFields)
+      }
+    }
     
     return posts
   } catch (error) {
