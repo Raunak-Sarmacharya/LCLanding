@@ -32,8 +32,10 @@ async function fetchBlogPostsWithRetry(
 
     let response: Response
     try {
-      console.log(`[getBlogPosts] Starting fetch request to: ${url}`)
-      response = await fetch(url, {
+      // Add cache-busting query parameter to ensure fresh data
+      const cacheBustUrl = `${url}?t=${Date.now()}`
+      console.log(`[getBlogPosts] Starting fetch request to: ${cacheBustUrl}`)
+      response = await fetch(cacheBustUrl, {
         method: 'GET',
         cache: 'no-store',
         signal: controller.signal,

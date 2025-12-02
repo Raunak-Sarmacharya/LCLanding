@@ -15,6 +15,20 @@ interface UseBlogPostResult {
 }
 
 /**
+ * Utility function to clear the blog posts cache
+ * Useful after creating/updating posts to ensure fresh data
+ */
+export function clearBlogPostsCache(): void {
+  try {
+    localStorage.removeItem('blog_posts_cache')
+    localStorage.removeItem('blog_posts_cache_timestamp')
+    console.log('[clearBlogPostsCache] Cache cleared')
+  } catch (error) {
+    console.warn('[clearBlogPostsCache] Failed to clear cache:', error)
+  }
+}
+
+/**
  * Hook to fetch all published blog posts with retry logic and caching
  */
 export function useBlogPosts(): UseBlogPostsResult {
@@ -26,7 +40,7 @@ export function useBlogPosts(): UseBlogPostsResult {
     let cancelled = false
     const CACHE_KEY = 'blog_posts_cache'
     const CACHE_TIMESTAMP_KEY = 'blog_posts_cache_timestamp'
-    const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+    const CACHE_DURATION = 1 * 60 * 1000 // 1 minute (reduced from 5 minutes for faster updates)
     
     console.log('[useBlogPosts] Hook initialized')
 

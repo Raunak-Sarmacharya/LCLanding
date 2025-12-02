@@ -318,7 +318,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Access-Control-Allow-Origin', '*')
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization')
-      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120')
+      // Reduced cache duration: 10s client, 30s CDN - allows new posts to appear faster
+      res.setHeader('Cache-Control', 'public, max-age=10, s-maxage=30')
 
       console.log(`[GET /api/blog] [${requestId}] Returning response to client`)
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { createBlogPost } from '../../lib/api'
+import { clearBlogPostsCache } from '../../hooks/useBlog'
 import type { CreateBlogPostInput } from '../../lib/types'
 
 export default function CreateBlogPostForm() {
@@ -63,6 +64,9 @@ export default function CreateBlogPostForm() {
 
       // Store the created post
       setCreatedPost(post)
+
+      // Clear blog posts cache so new post appears immediately
+      clearBlogPostsCache()
 
       // Reset submitting state first
       setIsSubmitting(false)

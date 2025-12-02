@@ -182,17 +182,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const startTime = Date.now()
   const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   console.log(`[GET /api/blog/[slug]] [${requestId}] Request received at`, new Date().toISOString())
+  console.log(`[GET /api/blog/[slug]] [${requestId}] req.query:`, JSON.stringify(req.query))
+  console.log(`[GET /api/blog/[slug]] [${requestId}] req.url:`, req.url)
 
   try {
     // Extract slug from query parameters (Vercel dynamic route)
+    // In Vercel, dynamic route params are available in req.query
     let slug: string | null = null
     
+    // Try multiple ways to get the slug
     if (req.query?.slug) {
-      slug = String(req.query.slug)
+      slug = Array.isArray(req.query.slug) ? req.query.slug[0] : String(req.query.slug)
+    } else if (req.url) {
+      // Fallback: extract from URL path
+      try {
+        const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
+        const pathParts = url.pathname.split('/').filter(Boolean)
+        // Find slug after 'blog' in path like /api/blog/slug-name
+        const blogIndex = pathParts.indexOf('blog')
+        if (blogIndex >= 0 && pathParts.length > blogIndex + 1) {
+          slug = pathParts[blogIndex + 1]
+        } else if (pathParts.length > 0) {
+          // Last part might be the slug
+          slug = pathParts[pathParts.length - 1]
+        }
+      } catch (urlError) {
+        console.error(`[GET /api/blog/[slug]] [${requestId}] URL parsing error:`, urlError)
+      }
     }
+
+    console.log(`[GET /api/blog/[slug]] [${requestId}] Extracted slug:`, slug)
 
     // Validate slug
     if (!slug || slug.trim().length === 0 || slug === 'blog' || slug === 'api' || slug === 'index') {
+      console.error(`[GET /api/blog/[slug]] [${requestId}] Invalid or missing slug`)
       res.setHeader('Content-Type', 'application/json')
       res.setHeader('Access-Control-Allow-Origin', '*')
       return res.status(400).json({ error: 'Slug is required', requestId })

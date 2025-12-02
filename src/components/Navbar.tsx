@@ -118,6 +118,14 @@ export default function Navbar() {
   // Handle smooth scroll for anchor links
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
+    
+    // If we're not on the homepage and clicking Home, navigate to homepage first
+    if (href === '#home' && location.pathname !== '/') {
+      navigate('/')
+      setIsMobileMenuOpen(false)
+      return
+    }
+    
     scrollTo(href, {
       duration: 1.5,
       offset: -80,
@@ -185,8 +193,16 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between w-full box-border">
           {/* Logo - Using actual LocalCooks logo - HIDDEN when mobile menu is open */}
           <a 
-            href="#home" 
-            onClick={(e) => handleNavClick(e, '#home')}
+            href={location.pathname === '/' ? '#home' : '/'}
+            onClick={(e) => {
+              if (location.pathname === '/') {
+                handleNavClick(e, '#home')
+              } else {
+                e.preventDefault()
+                navigate('/')
+                setIsMobileMenuOpen(false)
+              }
+            }}
             className={`flex items-center gap-3 group transition-opacity duration-300 ${
               isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
@@ -229,7 +245,15 @@ export default function Navbar() {
                 <a
                   key={link.name}
                   href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
+                  onClick={(e) => {
+                    // If Home link and not on homepage, navigate instead of scrolling
+                    if (link.href === '#home' && location.pathname !== '/') {
+                      e.preventDefault()
+                      navigate('/')
+                    } else {
+                      handleNavClick(e, link.href)
+                    }
+                  }}
                   className="font-body text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 relative group"
                 >
                   {link.name}
@@ -409,8 +433,15 @@ export default function Navbar() {
                         <a
                           href={link.href}
                           onClick={(e) => {
-                            handleNavClick(e, link.href)
-                            setIsMobileMenuOpen(false)
+                            // If Home link and not on homepage, navigate instead of scrolling
+                            if (link.href === '#home' && location.pathname !== '/') {
+                              e.preventDefault()
+                              navigate('/')
+                              setIsMobileMenuOpen(false)
+                            } else {
+                              handleNavClick(e, link.href)
+                              setIsMobileMenuOpen(false)
+                            }
                           }}
                           className="group relative block py-2 font-heading text-4xl sm:text-5xl text-white/70 hover:text-white transition-all duration-300"
                         >
