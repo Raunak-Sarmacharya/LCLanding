@@ -9,6 +9,7 @@ export default function CreateBlogPostForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [createdPost, setCreatedPost] = useState<any>(null)
   const [formData, setFormData] = useState<CreateBlogPostInput>({
     title: '',
     slug: '',
@@ -56,12 +57,26 @@ export default function CreateBlogPostForm() {
         author_name: formData.author_name.trim(),
       })
 
-      setIsSubmitted(true)
+      console.log('Post created successfully:', post)
+
+      // Store the created post
+      setCreatedPost(post)
       
-      // Redirect to the new post after a short delay
+      // Set submitted state first to show success message
+      setIsSubmitted(true)
+      setIsSubmitting(false)
+      
+      // Redirect to the new post after showing success message
       setTimeout(() => {
-        navigate(`/blog/${post.slug}`)
-      }, 2000)
+        if (post?.slug) {
+          // Navigate to the new post - this will trigger a page refresh
+          window.location.href = `/blog/${post.slug}`
+        } else {
+          // If slug is missing, redirect to blog list
+          console.error('Post created but slug is missing:', post)
+          window.location.href = '/blog'
+        }
+      }, 2500) // Show success message for 2.5 seconds
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create blog post. Please try again.')
       setIsSubmitting(false)
@@ -91,8 +106,13 @@ export default function CreateBlogPostForm() {
           Post Published! 🎉
         </h2>
         <p className="font-body text-lg text-[var(--color-charcoal)]/60 max-w-md mx-auto mb-8">
-          Your blog post has been published successfully. Redirecting you to your post...
+          Your blog post has been published successfully!
         </p>
+        {createdPost?.slug && (
+          <p className="font-body text-sm text-[var(--color-charcoal)]/50">
+            Redirecting to your post...
+          </p>
+        )}
       </motion.div>
     )
   }

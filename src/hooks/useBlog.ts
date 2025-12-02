@@ -37,7 +37,10 @@ export function useBlogPosts(): UseBlogPostsResult {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err : new Error('Failed to fetch posts'))
+          // Even on error, set posts to empty array and stop loading
+          // This allows UI to show "No blogs yet" instead of error state
+          setPosts([])
+          setError(null) // Don't show error, just show empty state
           setLoading(false)
         }
       }
