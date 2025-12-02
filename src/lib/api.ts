@@ -8,6 +8,138 @@ const API_BASE_URL = typeof window !== 'undefined'
   : '/api'
 
 /**
+ * Get Supabase client for direct database access (used in development)
+ */
+async function getSupabaseClient() {
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file.')
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    db: {
+      schema: 'public',
+    },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+    },
+  })
+}
+
+/**
+ * Fetch blog posts directly from Supabase (for local development)
+ */
+async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
+  const startTime = Date.now()
+  console.log('[getBlogPosts] Using direct Supabase connection (development mode)')
+  
+  try {
+    const supabase = await getSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('posts')
+      .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+      .order('created_at', { ascending: false })
+      .limit(100)
+
+    if (error) {
+      console.error('[getBlogPosts] Supabase query error:', error)
+      throw new Error(error.message || 'Failed to fetch posts from database')
+    }
+
+    // Sanitize and validate posts (matching API route logic)
+    // Note: List view doesn't include content (matching API behavior)
+    const posts: BlogPost[] = []
+    for (const post of (data || [])) {
+      if (post && post.id && post.title && post.slug && post.author_name) {
+        posts.push({
+          id: String(post.id).trim(),
+          title: String(post.title).trim(),
+          slug: String(post.slug).trim(),
+          content: '', // List view doesn't include content (matching API behavior)
+          excerpt: post.excerpt ? String(post.excerpt).trim() : null,
+          author_name: String(post.author_name).trim(),
+          created_at: post.created_at ? new Date(post.created_at).toISOString() : new Date().toISOString(),
+          updated_at: post.updated_at ? new Date(post.updated_at).toISOString() : new Date().toISOString(),
+          published: post.published !== undefined ? Boolean(post.published) : true,
+        })
+      }
+    }
+
+    const totalTime = Date.now() - startTime
+    console.log(`[getBlogPosts] Successfully fetched ${posts.length} posts from Supabase in ${totalTime}ms`)
+    return posts
+  } catch (error) {
+    const totalTime = Date.now() - startTime
+    console.error(`[getBlogPosts] Error fetching from Supabase after ${totalTime}ms:`, error)
+    throw error
+  }
+}
+
+/**
+ * Fetch a single blog post directly from Supabase (for local development)
+ */
+async function fetchBlogPostFromSupabase(slug: string): Promise<BlogPost | null> {
+  const startTime = Date.now()
+  console.log(`[getBlogPost] Using direct Supabase connection (development mode) for slug: ${slug}`)
+  
+  try {
+    const supabase = await getSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // Not found
+        console.log(`[getBlogPost] Post not found with slug: ${slug}`)
+        return null
+      }
+      console.error('[getBlogPost] Supabase query error:', error)
+      throw new Error(error.message || 'Failed to fetch post from database')
+    }
+
+    if (!data) {
+      return null
+    }
+
+    // Sanitize and validate post
+    if (!data.id || !data.title || !data.slug || !data.author_name) {
+      console.error('[getBlogPost] Invalid post data:', data)
+      return null
+    }
+
+    const post: BlogPost = {
+      id: String(data.id).trim(),
+      title: String(data.title).trim(),
+      slug: String(data.slug).trim(),
+      content: data.content ? String(data.content).trim() : '',
+      excerpt: data.excerpt ? String(data.excerpt).trim() : null,
+      author_name: String(data.author_name).trim(),
+      created_at: data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString(),
+      updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
+      published: data.published !== undefined ? Boolean(data.published) : true,
+    }
+
+    const totalTime = Date.now() - startTime
+    console.log(`[getBlogPost] Successfully fetched post from Supabase in ${totalTime}ms`)
+    return post
+  } catch (error) {
+    const totalTime = Date.now() - startTime
+    console.error(`[getBlogPost] Error fetching from Supabase after ${totalTime}ms:`, error)
+    throw error
+  }
+}
+
+/**
  * Fetch all published blog posts with retry logic
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
  */
@@ -195,13 +327,33 @@ async function fetchBlogPostsWithRetry(
 /**
  * Fetch all published blog posts
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
+ * 
+ * In development mode, calls Supabase directly to bypass API routes.
+ * In production, uses API routes for better security and server-side processing.
  */
 export async function getBlogPosts(): Promise<BlogPost[]> {
   const startTime = Date.now()
-  const url = `${API_BASE_URL}/blog`
+  
+  // In development, call Supabase directly to avoid API route issues
+  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+    try {
+      console.log('[getBlogPosts] Development mode: Using direct Supabase connection')
+      const posts = await fetchBlogPostsFromSupabase()
+      const totalTime = Date.now() - startTime
+      console.log(`[getBlogPosts] Operation completed in ${totalTime}ms, returning ${posts.length} posts`)
+      return posts
+    } catch (error) {
+      const totalTime = Date.now() - startTime
+      console.error(`[getBlogPosts] Error in development mode after ${totalTime}ms:`, error)
+      // Fallback to API route if direct connection fails
+      console.log('[getBlogPosts] Falling back to API route...')
+    }
+  }
 
+  // Production mode or fallback: use API routes
+  const url = `${API_BASE_URL}/blog`
   try {
-    console.log('[getBlogPosts] Starting fetch operation')
+    console.log('[getBlogPosts] Using API route')
     const posts = await fetchBlogPostsWithRetry(url)
     const totalTime = Date.now() - startTime
     console.log(`[getBlogPosts] Operation completed in ${totalTime}ms, returning ${posts.length} posts`)
@@ -217,13 +369,34 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 /**
  * Fetch a single blog post by slug
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
+ * 
+ * In development mode, calls Supabase directly to bypass API routes.
+ * In production, uses API routes for better security and server-side processing.
  */
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   const startTime = Date.now()
+  
+  // In development, call Supabase directly to avoid API route issues
+  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+    try {
+      console.log(`[getBlogPost] Development mode: Using direct Supabase connection for slug: ${slug}`)
+      const post = await fetchBlogPostFromSupabase(slug)
+      const totalTime = Date.now() - startTime
+      console.log(`[getBlogPost] Operation completed in ${totalTime}ms`)
+      return post
+    } catch (error) {
+      const totalTime = Date.now() - startTime
+      console.error(`[getBlogPost] Error in development mode after ${totalTime}ms:`, error)
+      // Fallback to API route if direct connection fails
+      console.log('[getBlogPost] Falling back to API route...')
+    }
+  }
+
+  // Production mode or fallback: use API routes
   const FETCH_TIMEOUT = 10000 // 10 seconds
   
   try {
-    console.log(`[getBlogPost] Fetching post with slug: ${slug}`)
+    console.log(`[getBlogPost] Using API route for slug: ${slug}`)
     
     // Create abort controller for fetch timeout
     const controller = new AbortController()
