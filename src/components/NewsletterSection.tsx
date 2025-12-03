@@ -52,12 +52,34 @@ export default function NewsletterSection() {
     <section 
       ref={sectionRef}
       className="relative z-20"
+      style={{ 
+        marginTop: 0,
+        paddingTop: 0,
+        borderTop: 'none',
+        outline: 'none'
+      }}
     >
-      {/* Top half background - matches AppPromo's brand color */}
-      <div className="absolute top-0 left-0 right-0 h-1/2 bg-[var(--color-primary-dark)]" />
+      {/* Top half background - matches BlogInsightsSection's primary-dark, extends upward to overlap seamlessly */}
+      <div 
+        className="absolute left-0 right-0" 
+        style={{ 
+          top: '-20px',
+          height: 'calc(50% + 20px)',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          zIndex: 0,
+          margin: 0,
+          padding: 0,
+          backgroundColor: 'var(--color-primary-dark)',
+          background: 'var(--color-primary-dark)',
+          transform: 'translateZ(0)', // Force GPU rendering
+          backfaceVisibility: 'hidden'
+        }}
+      />
       
       {/* Bottom half background - matches Footer's white */}
-      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-white" />
+      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-white" style={{ zIndex: 0 }} />
 
       {/* Content Container - properly contained */}
       <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-clip">

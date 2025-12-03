@@ -20,6 +20,7 @@ import Preloader from './components/Preloader'
 import DiscountPopup from './components/DiscountPopup'
 import ContactPage from './components/ContactPage'
 import NewsletterSection from './components/NewsletterSection'
+import BlogInsightsSection from './components/BlogInsightsSection'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import CreateBlogPostPage from './pages/CreateBlogPostPage'
@@ -247,6 +248,9 @@ function HomePage() {
         <CanadaMap />
         <div className="animate-section">
           <AppPromo />
+        </div>
+        <div className="animate-section">
+          <BlogInsightsSection />
         </div>
         <NewsletterSection />
         <Footer />

@@ -25,6 +25,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@supabase/supabase-js": "^2.47.10",
+    "@tabler/icons-react": "^3.35.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "gsap": "^3.13.0",
