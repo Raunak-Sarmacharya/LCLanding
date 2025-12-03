@@ -308,7 +308,13 @@ export default function AppPromo() {
     <section
       ref={sectionRef}
       className="relative bg-gradient-to-b from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-primary-dark)] overflow-hidden"
-      style={{ willChange: 'scroll-position' }}
+      style={{ 
+        willChange: 'scroll-position',
+        marginBottom: 0,
+        paddingBottom: 0,
+        borderBottom: 'none',
+        outline: 'none'
+      }}
     >
       {/* Premium Background - Matching FeaturedChefs style */}
       <div className="absolute inset-0 pointer-events-none">
@@ -995,6 +1001,18 @@ export default function AppPromo() {
           </div>
         </div>
       </div>
+      {/* Bottom overlay to ensure seamless transition to BlogInsightsSection */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: '40px',
+          backgroundColor: 'var(--color-primary-dark)',
+          background: 'var(--color-primary-dark)',
+          zIndex: 1,
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
+        }}
+      />
     </section>
   )
 }

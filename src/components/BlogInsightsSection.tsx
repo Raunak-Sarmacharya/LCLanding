@@ -238,18 +238,23 @@ export default function BlogInsightsSection() {
       className="relative overflow-visible"
       style={{ 
         willChange: 'scroll-position', 
+        marginTop: 0,
         marginBottom: 0,
+        paddingTop: 0,
         border: 'none',
         outline: 'none',
-        background: 'var(--color-primary-dark)'
+        backgroundColor: 'var(--color-primary-dark)',
+        background: 'var(--color-primary-dark)',
+        position: 'relative',
+        zIndex: 0
       }}
     >
-      {/* Main background - extends beyond section to ensure seamless transition */}
+      {/* Main background - part of section, extends beyond to ensure seamless transition */}
       <div 
         className="absolute left-0 right-0 pointer-events-none"
         style={{
-          top: 0,
-          bottom: '-20px',
+          top: '-40px', // Overlap with AppPromo's bottom overlay
+          bottom: '-21px', // Overlap with NewsletterSection's top
           zIndex: 0,
           margin: 0,
           padding: 0,
@@ -258,22 +263,47 @@ export default function BlogInsightsSection() {
           backgroundColor: 'var(--color-primary-dark)',
           background: 'var(--color-primary-dark)',
           transform: 'translateZ(0)', // Force GPU rendering
-          backfaceVisibility: 'hidden'
+          backfaceVisibility: 'hidden',
+          willChange: 'auto' // Prevent separation on scroll
         }}
       />
       
-      {/* Premium Background - Matching AppPromo style */}
-      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
-        <div className="absolute top-[20%] -right-40 w-[800px] h-[800px] rounded-full bg-white/5 blur-[100px] will-change-transform" />
-        <div className="absolute bottom-0 -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px] will-change-transform" />
+      {/* Premium Background - Constrained to upper portion only, not affecting bottom transition */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1, overflow: 'hidden' }}>
+        {/* Remove white blur that causes lightening - only keep subtle left-side effect */}
+        {/* White blur removed to prevent lightening in bottom-right area */}
+        <div 
+          className="absolute top-[10%] -left-40 w-[600px] h-[600px] rounded-full bg-[var(--color-primary-dark)]/30 blur-[80px] will-change-transform" 
+          style={{ 
+            maxHeight: '60%', // Limit to upper portion
+            clipPath: 'inset(0 0 40% 0)' // Clip bottom 40% to avoid transition area
+          }} 
+        />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
             backgroundSize: '32px 32px',
+            // Clip bottom 200px to ensure pure primary-dark in transition zone
+            clipPath: 'inset(0 0 200px 0)',
           }}
         />
       </div>
+      
+      {/* Bottom transition zone - Pure primary-dark overlay covering any decorative effects */}
+      {/* This ensures seamless connection with NewsletterSection */}
+      <div 
+        className="absolute left-0 right-0 pointer-events-none"
+        style={{
+          bottom: '-21px',
+          height: '200px', // Covers bottom transition area and any decorative bleed
+          zIndex: 2, // Above decorative elements
+          backgroundColor: 'var(--color-primary-dark)',
+          background: 'var(--color-primary-dark)',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
+        }}
+      />
 
       {/* Content Container */}
       <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-clip pt-8 sm:pt-10 md:pt-12 pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>

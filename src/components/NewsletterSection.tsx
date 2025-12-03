@@ -63,8 +63,8 @@ export default function NewsletterSection() {
       <div 
         className="absolute left-0 right-0" 
         style={{ 
-          top: '-20px',
-          height: 'calc(50% + 20px)',
+          top: '-21px', // Slight overlap to prevent any gap
+          height: 'calc(50% + 21px)',
           border: 'none',
           outline: 'none',
           boxShadow: 'none',
@@ -74,7 +74,8 @@ export default function NewsletterSection() {
           backgroundColor: 'var(--color-primary-dark)',
           background: 'var(--color-primary-dark)',
           transform: 'translateZ(0)', // Force GPU rendering
-          backfaceVisibility: 'hidden'
+          backfaceVisibility: 'hidden',
+          willChange: 'auto' // Prevent separation on scroll
         }}
       />
       
