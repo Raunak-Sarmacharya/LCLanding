@@ -307,16 +307,34 @@ export default function BlogInsightsSection() {
 
       {/* Content Container */}
       <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-clip pt-8 sm:pt-10 md:pt-12 pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>
-        {/* Section Header */}
+        {/* Premium Section Header - Matching AppPromo style */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="mb-8 sm:mb-10 md:mb-12"
         >
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl text-white leading-tight tracking-tight">
-            Food <span className="font-display text-[var(--color-butter)]">Stories</span>
-          </h2>
+          {/* Label - Matching AppPromo pattern */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-4 sm:mb-6"
+          >
+            <span className="inline-block font-mono text-xs sm:text-sm text-white/60 uppercase tracking-[0.3em]">
+              From Our Kitchen
+            </span>
+          </motion.div>
+
+          {/* Main Title - Elegant and Premium */}
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="font-heading text-[clamp(2rem,6vw,4.5rem)] sm:text-[clamp(2.5rem,7vw,5rem)] text-white leading-[0.9] tracking-tight"
+          >
+            Food <span className="font-display text-[var(--color-butter)] italic">Stories</span>
+          </motion.h2>
         </motion.div>
 
         {/* Carousel Container with 3D Perspective - Matching Figma Design */}
