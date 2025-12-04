@@ -155,7 +155,7 @@ function sanitizePost(post: any): PostRow | null {
   let tags: string[] | null = null
   if (post.tags !== null && post.tags !== undefined) {
     if (Array.isArray(post.tags)) {
-      tags = post.tags.map(t => String(t).trim()).filter(Boolean)
+      tags = post.tags.map((t: any) => String(t).trim()).filter(Boolean)
     } else if (typeof post.tags === 'string') {
       // Handle JSON string format
       try {
@@ -339,7 +339,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : undefined
       const tags = body.tags !== undefined
         ? (body.tags && Array.isArray(body.tags) 
-          ? body.tags.map(t => typeof t === 'string' ? t.trim() : String(t).trim()).filter(Boolean)
+          ? body.tags.map((t: any) => typeof t === 'string' ? t.trim() : String(t).trim()).filter(Boolean)
           : null)
         : undefined
       const published = body.published !== undefined
@@ -425,12 +425,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let updateResult: { data: PostRow | null; error: any }
       try {
         updateResult = await withRetry(async () => {
-          // Try to update with tags first
+          // Try to update with tags first - select all columns explicitly
           let result = await supabase
             .from('posts')
             .update(updateData)
             .eq('id', existingPost.id)
-            .select()
+            .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
             .single()
 
           // If error is about missing tags column, retry without tags
@@ -441,8 +441,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .from('posts')
               .update(dataWithoutTags)
               .eq('id', existingPost.id)
-              .select()
+              .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, image_url')
               .single()
+          }
+
+          // If error is about "Cannot coerce the result to a single JSON object", try without .single()
+          if (result.error && (result.error.message?.includes('coerce') || result.error.message?.includes('single'))) {
+            console.warn('[PUT/PATCH /api/blog/[slug]] Single result error, trying without .single()')
+            const retryResult = await supabase
+              .from('posts')
+              .update(updateData)
+              .eq('id', existingPost.id)
+              .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
+              .limit(1)
+            
+            if (retryResult.error) {
+              throw new Error(retryResult.error.message || 'Database update error')
+            }
+            
+            if (!retryResult.data || retryResult.data.length === 0) {
+              throw new Error('No rows returned from update')
+            }
+            
+            return { data: retryResult.data[0], error: null }
           }
 
           if (result.error) {

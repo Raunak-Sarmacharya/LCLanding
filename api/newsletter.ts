@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createHash, createSign } from 'crypto'
+import { createSign } from 'crypto'
 
 // Configure runtime
 export const config = {

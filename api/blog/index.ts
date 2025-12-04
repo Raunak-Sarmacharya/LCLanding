@@ -295,7 +295,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.warn('[GET /api/blog] Tags column not found, fetching without tags')
             result = await supabase
               .from('posts')
-              .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+              .select('id, title, slug, excerpt, author_name, created_at, updated_at, published, tags')
               .order('created_at', { ascending: false })
               .limit(100)
           }
@@ -461,7 +461,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const image_url = body.image_url && typeof body.image_url === 'string' ? body.image_url.trim() : null
       const providedSlug = body.slug && typeof body.slug === 'string' ? body.slug.trim() : null
       const tags = body.tags && Array.isArray(body.tags) 
-        ? body.tags.map(t => typeof t === 'string' ? t.trim() : String(t).trim()).filter(Boolean)
+        ? body.tags.map((t: any) => typeof t === 'string' ? t.trim() : String(t).trim()).filter(Boolean)
         : null
 
       // Validate required fields with detailed error messages
