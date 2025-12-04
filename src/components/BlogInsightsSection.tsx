@@ -401,26 +401,26 @@ export default function BlogInsightsSection() {
         {/* Premium Section Header - Matching AppPromo and FeaturedChefs elegant style */}
         <div 
           ref={headerRef}
-          className="pt-12 sm:pt-16 pb-8 sm:pb-10 md:pt-20 md:pb-12" 
+          className="pt-8 xs:pt-10 sm:pt-12 md:pt-16 lg:pt-20 pb-10 xs:pb-12 sm:pb-14 md:pb-16 lg:pb-12" 
           style={{ position: 'relative', zIndex: 10, visibility: 'visible', opacity: 1 }}
         >
-          <div className="grid lg:grid-cols-12 gap-6 items-end">
+          <div className="grid lg:grid-cols-12 gap-4 xs:gap-5 sm:gap-6 items-start lg:items-end">
             {/* Left side - Main headline */}
-            <div className="lg:col-span-7" style={{ position: 'relative', zIndex: 10 }}>
+            <div className="lg:col-span-7 w-full" style={{ position: 'relative', zIndex: 10 }}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-                className="mb-6 sm:mb-8"
+                className="mb-4 xs:mb-5 sm:mb-6 md:mb-8"
               >
-                <div className="inline-block relative pb-2 sm:pb-3">
-                  <span className="font-display text-[clamp(1.5rem,4vw,2.5rem)] sm:text-[clamp(1.75rem,4.5vw,3rem)] text-white leading-tight tracking-tight">
+                <div className="inline-block relative pb-1.5 xs:pb-2 sm:pb-2.5 md:pb-3">
+                  <span className="font-display text-[clamp(1.25rem,5vw,1.75rem)] xs:text-[clamp(1.5rem,5vw,2rem)] sm:text-[clamp(1.75rem,4.5vw,2.5rem)] md:text-[clamp(2rem,4vw,2.75rem)] lg:text-[clamp(2.25rem,3.5vw,3rem)] text-white leading-tight tracking-tight">
                     Blog{' '}
-                    <span className="font-heading text-[clamp(1.5rem,4vw,2.5rem)] sm:text-[clamp(1.75rem,4.5vw,3rem)] text-white/90">
+                    <span className="font-heading text-[clamp(1.25rem,5vw,1.75rem)] xs:text-[clamp(1.5rem,5vw,2rem)] sm:text-[clamp(1.75rem,4.5vw,2.5rem)] md:text-[clamp(2rem,4vw,2.75rem)] lg:text-[clamp(2.25rem,3.5vw,3rem)] text-white/90">
                       Insights
                     </span>
                   </span>
-                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] sm:h-[2px] bg-gradient-to-r from-transparent via-white/50 via-white/70 via-white/50 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[1px] xs:h-[1.5px] sm:h-[2px] bg-gradient-to-r from-transparent via-white/50 via-white/70 via-white/50 to-transparent" />
                 </div>
               </motion.div>
 
@@ -428,9 +428,9 @@ export default function BlogInsightsSection() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="mb-4"
+                className="mb-3 xs:mb-4 sm:mb-5"
               >
-                <span className="inline-block font-mono text-xs text-white/60 uppercase tracking-[0.3em]">
+                <span className="inline-block font-mono text-[10px] xs:text-xs text-white/60 uppercase tracking-[0.2em] xs:tracking-[0.3em]">
                   From Our Kitchen
                 </span>
               </motion.div>
@@ -439,12 +439,12 @@ export default function BlogInsightsSection() {
                 initial={{ opacity: 0, y: 60 }}
                 animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="font-heading text-[clamp(2rem,6vw,5.5rem)] sm:text-[clamp(2.5rem,7vw,5.5rem)] text-white leading-[0.85] tracking-tight"
-                style={{ visibility: 'visible' }}
+                className="font-heading text-[clamp(1.75rem,8vw,2.5rem)] xs:text-[clamp(2rem,8vw,3rem)] sm:text-[clamp(2.5rem,7vw,4rem)] md:text-[clamp(3rem,6.5vw,4.5rem)] lg:text-[clamp(4rem,6vw,5.5rem)] text-white leading-[0.9] xs:leading-[0.88] sm:leading-[0.86] md:leading-[0.85] tracking-tight mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-4"
+                style={{ visibility: 'visible', wordBreak: 'break-word', overflowWrap: 'break-word' }}
               >
                 Food <span className="font-display text-[var(--color-butter)] italic">Stories</span>
-                <br />
-                <span className="font-display text-white/90">From Local Chefs</span>
+                <br className="hidden xs:block" />
+                <span className="font-display text-white/90 block xs:inline">From Local Chefs</span>
               </motion.h2>
             </div>
 
@@ -463,7 +463,7 @@ export default function BlogInsightsSection() {
         </div>
 
         {/* Carousel Container with 3D Perspective - Matching Figma Design */}
-        <div className="relative overflow-visible">
+        <div className="relative overflow-visible mt-8 xs:mt-10 sm:mt-12 md:mt-14 lg:mt-10">
           <div 
             className="relative w-full flex items-center justify-center" 
             style={{ 
@@ -472,6 +472,7 @@ export default function BlogInsightsSection() {
               transformStyle: 'preserve-3d', 
               minHeight: 'clamp(400px, 95vw, 500px)', // Increased for taller cards on mobile
               paddingBottom: 'clamp(20px, 5vw, 40px)', // Extra space at bottom for taller cards
+              paddingTop: 'clamp(10px, 2vw, 20px)', // Extra space at top to prevent overlap
               position: 'relative',
             }}
           >

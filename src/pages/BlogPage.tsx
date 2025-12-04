@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'motion/react'
 import gsap from 'gsap'
@@ -9,7 +9,9 @@ import Footer from '../components/Footer'
 import { useBlogPosts } from '../hooks/useBlog'
 import BlogList from '../components/Blog/BlogList'
 import BlogMetaTags from '../components/Blog/BlogMetaTags'
+import BlogFilters from '../components/Blog/BlogFilters'
 import { useAuth } from '../hooks/useAuth'
+import type { BlogPost } from '../lib/types'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,6 +20,14 @@ function BlogPageContent() {
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
   const { posts, loading, error } = useBlogPosts()
   const { isAdmin } = useAuth()
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([])
+
+  // Update filtered posts when posts change
+  useEffect(() => {
+    if (posts.length > 0) {
+      setFilteredPosts(posts)
+    }
+  }, [posts])
 
   useEffect(() => {
     // Wait for ref to be attached to DOM and content to be ready
@@ -70,39 +80,48 @@ function BlogPageContent() {
       />
       <Navbar />
 
-      <section ref={sectionRef} className="pt-32 pb-24 px-3 sm:px-4 md:px-6 overflow-x-clip">
+      <section ref={sectionRef} className="pt-32 pb-24 px-3 sm:px-4 md:px-6 overflow-x-clip bg-[var(--color-cream)]">
         <div className="max-w-7xl mx-auto w-full box-border">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-            className="text-center mb-16 animate-section"
+            className="mb-12 animate-section"
           >
-            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-[var(--color-primary)] mb-6 uppercase tracking-tight">
-              Our Blog
-            </h1>
-            <p className="font-body text-lg sm:text-xl text-[var(--color-charcoal)]/60 max-w-2xl mx-auto mb-8">
-              Stories, recipes, and insights from our community of talented home chefs
-            </p>
-            {isAdmin && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              >
-                <Link
-                  to="/blog/new"
-                  className="inline-flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-6 py-3 rounded-full font-body font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20"
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
+              <div>
+                <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[var(--color-charcoal)] mb-4 leading-tight">
+                  Stay Ahead of <br />
+                  Competition with LocalCooks
+                </h1>
+              </div>
+              {isAdmin && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Write a Post
-                </Link>
-              </motion.div>
-            )}
+                  <Link
+                    to="/blog/new"
+                    className="inline-flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-6 py-3 rounded-full font-body font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Write a Post
+                  </Link>
+                </motion.div>
+              )}
+            </div>
           </motion.div>
+
+          {/* Filters */}
+          {!loading && !error && posts.length > 0 && (
+            <div className="mb-8 animate-section">
+              <BlogFilters posts={posts} onFilterChange={setFilteredPosts} />
+            </div>
+          )}
 
           {/* Blog Content */}
           <div className="animate-section">
@@ -137,16 +156,21 @@ function BlogPageContent() {
               </div>
             )}
 
-            {!loading && !error && posts.length === 0 && (
+            {!loading && !error && filteredPosts.length === 0 && (
               <div className="text-center py-20">
-                <p className="font-body text-lg text-[var(--color-charcoal)]/60">
-                  No blogs yet
-                </p>
+                <div className="max-w-md mx-auto">
+                  <h3 className="font-heading text-2xl text-[var(--color-charcoal)] mb-4">
+                    No results found
+                  </h3>
+                  <p className="font-body text-lg text-[var(--color-charcoal)]/60 mb-6">
+                    Try adjusting your filters or search query
+                  </p>
+                </div>
               </div>
             )}
 
-            {!loading && !error && posts.length > 0 && (
-              <BlogList posts={posts} />
+            {!loading && !error && filteredPosts.length > 0 && (
+              <BlogList posts={filteredPosts} />
             )}
           </div>
         </div>
