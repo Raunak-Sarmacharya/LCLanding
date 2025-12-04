@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'already_verified' | 'expired'>('loading')
   const [errorMessage, setErrorMessage] = useState<string>('')
 
