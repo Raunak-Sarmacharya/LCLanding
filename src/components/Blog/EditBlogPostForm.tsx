@@ -24,7 +24,6 @@ export default function EditBlogPostForm() {
   })
   const [tagsInput, setTagsInput] = useState('')
   const [editorTags, setEditorTags] = useState<string[]>([])
-  const [originalPublished, setOriginalPublished] = useState<boolean>(true) // Track original published status
 
   // Load existing post data
   useEffect(() => {
@@ -45,9 +44,6 @@ export default function EditBlogPostForm() {
           setIsLoading(false)
           return
         }
-
-        // Store original published status
-        setOriginalPublished(post.published !== false) // Default to true if not explicitly false
 
         // Populate form with existing data
         setFormData({
