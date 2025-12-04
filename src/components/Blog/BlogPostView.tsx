@@ -27,6 +27,12 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
   const sidebarRef = useRef<HTMLDivElement>(null)
   const { lenisRef } = useLenis()
   const [sidebarBottom, setSidebarBottom] = useState<string>('clamp(10rem, 20vh, 20rem)')
+  // State for fixed sidebar positioning
+  const [sidebarStyle, setSidebarStyle] = useState<{
+    isFixed: boolean
+    left: number
+    top: number
+  }>({ isFixed: false, left: 0, top: 96 }) // 96px = 6rem default top
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -61,22 +67,22 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
     if (!content || typeof content !== 'string') {
       return ''
     }
-    
+
     let cleaned = content.trim()
-    
+
     // Remove opening HTML tags at the start (like <pre><code class="language-markdown">)
     // Handle with or without whitespace
     cleaned = cleaned.replace(/^\s*<pre><code[^>]*>\s*/i, '')
-    
+
     // Remove closing HTML tags at the end (like </code></pre><p></p>)
     // Handle various combinations with optional whitespace
     cleaned = cleaned.replace(/\s*<\/code><\/pre>\s*(<p><\/p>)?\s*$/i, '')
     cleaned = cleaned.replace(/\s*<\/code><\/pre>\s*$/i, '')
-    
+
     // Also handle standalone closing tags that might be on separate lines
     cleaned = cleaned.replace(/^\s*<\/code><\/pre>\s*/i, '')
     cleaned = cleaned.replace(/\s*<p><\/p>\s*$/i, '')
-    
+
     return cleaned.trim()
   }
 
@@ -86,7 +92,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
     if (!post.content || typeof post.content !== 'string') {
       return { contentBlocks: [], headings: [] }
     }
-    
+
     // Clean HTML tags from content before processing
     const cleanedContent = cleanContent(post.content)
     const lines = cleanedContent.split('\n')
@@ -97,7 +103,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
     lines.forEach((line) => {
       const trimmed = line.trim()
-      
+
       if (trimmed.startsWith('#')) {
         // Save current paragraph if exists
         if (currentParagraph.length > 0) {
@@ -114,14 +120,14 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
           const level = match[1].length
           const text = match[2].trim()
           const id = `heading-${headingCounter++}`
-          
+
           headingsList.push({
             id,
             text,
             level,
             element: null,
           })
-          
+
           blocks.push({
             type: 'heading',
             content: text,
@@ -159,7 +165,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
       console.log('[BlogPostView] Content preview:', cleanedContent.substring(0, 200))
     }
     console.log('[BlogPostView] Content blocks:', blocks.length)
-    
+
     return { contentBlocks: blocks, headings: headingsList }
   }, [post.content])
 
@@ -217,7 +223,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
           // This handles the case when user scrolls past all headings
           const scrollY = window.scrollY + window.innerHeight * 0.2 // 20% from top (matching rootMargin)
           let lastPassedHeading: string | null = null
-          
+
           headingElements.forEach(({ id, element }) => {
             const rect = element.getBoundingClientRect()
             const elementTop = rect.top + window.scrollY
@@ -225,7 +231,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
               lastPassedHeading = id
             }
           })
-          
+
           if (lastPassedHeading) {
             setActiveHeadingId(lastPassedHeading)
           }
@@ -241,7 +247,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
               } else {
                 intersectingHeadings.delete(id)
               }
-              
+
               // Update active heading after a brief delay to batch updates
               setTimeout(updateActiveHeading, 0)
             })
@@ -252,7 +258,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
         observer.observe(element)
         observers.push(observer)
       })
-      
+
       // Set initial active heading (first one) if none is set
       setActiveHeadingId((current) => {
         if (!current && headingElements.length > 0) {
@@ -260,14 +266,14 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
         }
         return current
       })
-      
+
       // Also update on scroll to handle edge cases
       const handleScroll = () => {
         updateActiveHeading()
       }
-      
+
       window.addEventListener('scroll', handleScroll, { passive: true })
-      
+
       // Return cleanup function
       return () => {
         window.removeEventListener('scroll', handleScroll)
@@ -305,48 +311,39 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
       const article = contentRef.current
       const windowHeight = window.innerHeight
-      
-      // Get current scroll position - always use window.scrollY for getBoundingClientRect consistency
-      // getBoundingClientRect() is always relative to the actual viewport, not Lenis's smoothed position
-      const scrollY = window.scrollY || window.pageYOffset || 0
-      
-      // Get article's position relative to viewport
+
+      // Get current scroll position
+      // Use Lenis scroll position if available, otherwise use window.scrollY
+      const lenis = lenisRef?.current?.lenis
+      const scrollY = lenis ? lenis.scroll : (window.scrollY || window.pageYOffset || 0)
+
+      // Get article's absolute position in the document
+      // We need to calculate this differently because Lenis uses transforms
       const articleRect = article.getBoundingClientRect()
-      
-      // Calculate absolute positions in document
+
+      // With Lenis, getBoundingClientRect is already correct because it's relative to viewport
+      // The scroll position from Lenis gives us how far we've scrolled
       const articleTop = articleRect.top + scrollY
-      const articleBottom = articleRect.bottom + scrollY
-      
+      const articleHeight = article.offsetHeight
+      const articleBottom = articleTop + articleHeight
+
       // Progress calculation:
-      // 0% when article top enters viewport (articleRect.top = 0)
-      // 100% when article bottom exits viewport (articleRect.bottom = windowHeight)
-      // 
-      // Scroll range: from when top enters (scrollY = articleTop) to when bottom exits (scrollY = articleBottom - windowHeight)
-      const scrollStart = articleTop  // Scroll position when article top enters viewport
-      const scrollEnd = articleBottom - windowHeight  // Scroll position when article bottom exits viewport
+      // 0% when we start reading the article (scrolled to article top)
+      // 100% when we've scrolled through the entire article
+      const scrollStart = articleTop - windowHeight * 0.1  // Start slightly before article enters
+      const scrollEnd = articleBottom - windowHeight * 0.3  // End when near bottom of article
       const totalScrollable = scrollEnd - scrollStart
-      
+
       // Handle edge cases
       if (totalScrollable <= 0) {
-        // Article fits entirely in viewport or calculation error
-        if (articleRect.top <= 0 && articleRect.bottom >= windowHeight) {
-          // Article is taller than viewport and fully visible
-          setScrollProgress(50) // Show 50% as middle point
-        } else if (articleRect.top >= 0 && articleRect.bottom <= windowHeight) {
-          // Article fits entirely in viewport
-          setScrollProgress(100) // Fully visible = 100%
-        } else {
-          setScrollProgress(0)
-        }
+        setScrollProgress(articleRect.top <= 0 ? 100 : 0)
         return
       }
-      
+
       // Calculate current progress
-      // When scrollY = scrollStart, progress = 0%
-      // When scrollY = scrollEnd, progress = 100%
       const scrolled = scrollY - scrollStart
       const progress = Math.max(0, Math.min(100, (scrolled / totalScrollable) * 100))
-      
+
       setScrollProgress(progress)
     }
 
@@ -360,16 +357,15 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
       })
     }
 
-    // Listen to Lenis scroll events if available
+    // Listen to Lenis scroll events if available, otherwise use window scroll
     const lenis = lenisRef?.current?.lenis
     if (lenis) {
       lenis.on('scroll', throttledHandleScroll)
-    } else {
-      window.addEventListener('scroll', throttledHandleScroll, { passive: true })
     }
-    
+    // Always add window scroll listener as fallback (covers cases where Lenis isn't controlling scroll)
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true })
     window.addEventListener('resize', throttledHandleScroll, { passive: true })
-    
+
     // Initial calculation with a small delay to ensure DOM is ready
     const initialTimeout = setTimeout(() => {
       handleScroll()
@@ -382,9 +378,8 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
       }
       if (lenis) {
         lenis.off('scroll', throttledHandleScroll)
-      } else {
-        window.removeEventListener('scroll', throttledHandleScroll)
       }
+      window.removeEventListener('scroll', throttledHandleScroll)
       window.removeEventListener('resize', throttledHandleScroll)
     }
   }, [post.content, lenisRef])
@@ -464,62 +459,72 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
     return () => clearTimeout(timeoutId)
   }, [sidebarBottom])
 
-  // Prevent sidebar from overlapping footer - optimized for smoothness
+  // Prevent sidebar from overlapping footer AND handle fixed positioning
+  // Since Lenis uses transforms that break CSS sticky, we use JavaScript to manage fixed positioning
   useEffect(() => {
     let rafId: number | null = null
     let lastBottom = sidebarBottom
+    let lastIsFixed = sidebarStyle.isFixed
+    let lastLeft = sidebarStyle.left
 
     const updateSidebarPosition = () => {
-      if (!sidebarRef.current) return
+      if (!sidebarRef.current || !tocRef.current || !contentRef.current) return
 
+      // Get current scroll position
+      const lenis = lenisRef?.current?.lenis
+      const scrollY = lenis ? lenis.scroll : (window.scrollY || window.pageYOffset || 0)
+
+      // Get the tocRef's position (this is where the sidebar placeholder is)
+      const tocRect = tocRef.current.getBoundingClientRect()
+      const tocAbsoluteTop = tocRect.top + scrollY
+
+      // The sidebar should become fixed when we've scrolled past where it would naturally be
+      const fixedTopOffset = 96 // 6rem in pixels
+      const shouldBeFixed = scrollY > (tocAbsoluteTop - fixedTopOffset)
+
+      // Calculate the left position from the tocRef element
+      const newLeft = tocRect.left
+
+      // Handle footer
       const footer = document.getElementById('contact')
-      if (!footer) {
-        if (lastBottom !== 'clamp(10rem, 20vh, 20rem)') {
-          setSidebarBottom('clamp(10rem, 20vh, 20rem)')
-          lastBottom = 'clamp(10rem, 20vh, 20rem)'
+      let newBottom = 'clamp(10rem, 20vh, 20rem)'
+
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect()
+        const viewportHeight = window.innerHeight
+
+        // Calculate distance from bottom of viewport to top of footer
+        const footerTopFromBottom = viewportHeight - footerRect.top
+
+        // If footer is visible in viewport and would overlap sidebar
+        if (footerTopFromBottom > 0 && footerTopFromBottom < viewportHeight) {
+          const padding = 32
+          const footerBottom = Math.max(padding, footerTopFromBottom + padding)
+          newBottom = `${footerBottom}px`
         }
-        return
       }
 
-      const footerRect = footer.getBoundingClientRect()
-      const viewportHeight = window.innerHeight
+      // Update state only if values changed
+      if (lastBottom !== newBottom) {
+        setSidebarBottom(newBottom)
+        lastBottom = newBottom
+      }
 
-      // Calculate distance from bottom of viewport to top of footer
-      const footerTopFromBottom = viewportHeight - footerRect.top
-
-      // If footer is visible in viewport and would overlap sidebar
-      if (footerTopFromBottom > 0 && footerTopFromBottom < viewportHeight) {
-        // Set sidebar bottom to be above footer with padding (2rem = 32px)
-        const padding = 32
-        const newBottom = Math.max(padding, footerTopFromBottom + padding)
-        const newBottomStr = `${newBottom}px`
-        
-        // Only update if value actually changed to prevent unnecessary re-renders
-        if (lastBottom !== newBottomStr) {
-          setSidebarBottom(newBottomStr)
-          lastBottom = newBottomStr
-        }
-      } else if (footerRect.top > viewportHeight) {
-        // Footer is below viewport, use default position
-        const defaultBottom = 'clamp(10rem, 20vh, 20rem)'
-        if (lastBottom !== defaultBottom) {
-          setSidebarBottom(defaultBottom)
-          lastBottom = defaultBottom
-        }
-      } else {
-        // Footer is above viewport, ensure minimum bottom spacing
-        const defaultBottom = 'clamp(10rem, 20vh, 20rem)'
-        if (lastBottom !== defaultBottom) {
-          setSidebarBottom(defaultBottom)
-          lastBottom = defaultBottom
-        }
+      if (lastIsFixed !== shouldBeFixed || lastLeft !== newLeft) {
+        setSidebarStyle({
+          isFixed: shouldBeFixed,
+          left: newLeft,
+          top: fixedTopOffset,
+        })
+        lastIsFixed = shouldBeFixed
+        lastLeft = newLeft
       }
     }
 
     // Throttled scroll handler for smooth performance
     const handleScroll = () => {
       if (rafId !== null) return
-      
+
       rafId = requestAnimationFrame(() => {
         updateSidebarPosition()
         rafId = null
@@ -529,13 +534,12 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
     // Initial check
     updateSidebarPosition()
 
-    // Use Lenis scroll events if available
+    // Listen to both Lenis and window scroll events
     const lenis = lenisRef?.current?.lenis
     if (lenis) {
       lenis.on('scroll', handleScroll)
-    } else {
-      window.addEventListener('scroll', handleScroll, { passive: true })
     }
+    window.addEventListener('scroll', handleScroll, { passive: true })
 
     // Update on resize with debounce
     let resizeTimeout: ReturnType<typeof setTimeout>
@@ -553,13 +557,13 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
       }
       if (lenis) {
         lenis.off('scroll', handleScroll)
-      } else {
-        window.removeEventListener('scroll', handleScroll)
       }
+      window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleResize)
       clearTimeout(resizeTimeout)
     }
-  }, [lenisRef])
+  }, [lenisRef, sidebarBottom, sidebarStyle.isFixed, sidebarStyle.left])
+
 
   const tags = post.tags && Array.isArray(post.tags) ? post.tags : []
   const readingTime = calculateReadingTime(post.content)
@@ -590,7 +594,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
     // Update on resize
     window.addEventListener('resize', updateHeight)
-    
+
     // Use MutationObserver to watch for content changes
     const observer = new MutationObserver(() => {
       updateHeight()
@@ -659,7 +663,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
         {/* Featured Image - Centered, Full Width */}
         <div className="relative w-full mb-8 sm:mb-10 md:mb-12 rounded-xl xs:rounded-2xl overflow-hidden bg-[var(--color-cream-dark)]">
-          <img 
+          <img
             src={getImageUrl(post)}
             alt={post.title}
             className="w-full h-auto object-cover"
@@ -681,18 +685,17 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                     <button
                       key={heading.id}
                       onClick={() => scrollToHeading(heading.id)}
-                      className={`relative block w-full text-left transition-all duration-200 ${
-                        isActive
-                          ? 'text-[var(--color-primary)] font-semibold'
-                          : 'text-[var(--color-charcoal)]/60 hover:text-[var(--color-charcoal)]'
-                      }`}
+                      className={`relative block w-full text-left transition-all duration-200 ${isActive
+                        ? 'text-[var(--color-primary)] font-semibold'
+                        : 'text-[var(--color-charcoal)]/60 hover:text-[var(--color-charcoal)]'
+                        }`}
                       style={{
                         paddingLeft: `${(heading.level - 1) * 0.75}rem`,
-                        fontSize: heading.level === 1 
-                          ? 'clamp(0.875rem, 1.2vw, 0.95rem)' 
-                          : heading.level === 2 
-                          ? 'clamp(0.8rem, 1.1vw, 0.9rem)' 
-                          : 'clamp(0.75rem, 1vw, 0.85rem)',
+                        fontSize: heading.level === 1
+                          ? 'clamp(0.875rem, 1.2vw, 0.95rem)'
+                          : heading.level === 2
+                            ? 'clamp(0.8rem, 1.1vw, 0.9rem)'
+                            : 'clamp(0.75rem, 1vw, 0.85rem)',
                         lineHeight: 1.5,
                       }}
                     >
@@ -700,7 +703,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                         <motion.span
                           layoutId="activeHeadingMobile"
                           className="absolute top-0 bottom-0 w-0.5 bg-[var(--color-primary)]"
-                          style={{ 
+                          style={{
                             left: `${(heading.level - 1) * 0.75}rem`,
                           }}
                           initial={false}
@@ -748,11 +751,11 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                       id: block.id,
                       className: "blog-heading font-heading text-[var(--color-charcoal)] mt-10 xs:mt-12 sm:mt-14 md:mt-16 mb-6 xs:mb-7 sm:mb-8 first:mt-0 scroll-mt-20 xs:scroll-mt-22 sm:scroll-mt-24",
                       style: {
-                        fontSize: block.level === 1 
-                          ? 'clamp(1.75rem, 4vw, 2.5rem)' 
-                          : block.level === 2 
-                          ? 'clamp(1.5rem, 3.5vw, 2rem)' 
-                          : 'clamp(1.25rem, 3vw, 1.75rem)',
+                        fontSize: block.level === 1
+                          ? 'clamp(1.75rem, 4vw, 2.5rem)'
+                          : block.level === 2
+                            ? 'clamp(1.5rem, 3.5vw, 2rem)'
+                            : 'clamp(1.25rem, 3vw, 1.75rem)',
                         fontWeight: 700,
                         lineHeight: 1.2,
                       },
@@ -778,31 +781,34 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
             </div>
           </article>
 
-          {/* Table of Contents Sidebar - Right Side - Sticky positioning starts below image */}
+          {/* Table of Contents Sidebar - Right Side */}
+          {/* The aside acts as a placeholder to maintain grid layout */}
           <aside
             ref={tocRef}
-            className="hidden lg:block"
-            style={{ width: '320px' }}
+            className="hidden lg:block relative"
+            style={{ width: '320px', minHeight: '100px' }}
           >
-            {/* Sticky Sidebar - Starts below image, then sticks as you scroll */}
-            <div 
+            {/* Sidebar content - Fixed when scrolling past initial position */}
+            <div
               ref={sidebarRef}
-              className="z-40 w-full"
-              style={{ 
-                position: 'sticky',
-                top: '6rem',
-                maxHeight: sidebarBottom.includes('px') 
-                  ? `calc(100vh - ${sidebarBottom.replace('px', '')}px - 6rem)` 
-                  : `calc(100vh - 8rem - 6rem)`,
-              }}
-            >
-            <div 
-              className="bg-white rounded-xl lg:rounded-2xl shadow-brand border border-[var(--color-charcoal)]/5 flex flex-col"
+              className="z-40"
               style={{
-                height: '100%',
-                maxHeight: '100%',
+                position: sidebarStyle.isFixed ? 'fixed' : 'relative',
+                top: sidebarStyle.isFixed ? `${sidebarStyle.top}px` : 0,
+                left: sidebarStyle.isFixed ? `${sidebarStyle.left}px` : 0,
+                width: '320px',
+                maxHeight: sidebarBottom.includes('px')
+                  ? `calc(100vh - ${sidebarBottom.replace('px', '')}px - 6rem)`
+                  : `calc(100vh - 14rem)`,
               }}
             >
+              <div
+                className="bg-white rounded-xl lg:rounded-2xl shadow-brand border border-[var(--color-charcoal)]/5 flex flex-col overflow-hidden"
+                style={{
+                  maxHeight: 'inherit',
+                }}
+
+              >
                 {/* Progress Indicator - FIXED AT TOP - ALWAYS VISIBLE */}
                 <div className={`flex-shrink-0 p-4 lg:p-6 ${headings.length > 0 ? "pb-3 lg:pb-4 border-b border-[var(--color-charcoal)]/10" : ""}`}>
                   <div className="flex items-center justify-between mb-2 lg:mb-3">
@@ -825,7 +831,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                 </div>
 
                 {/* In This Article - SCROLLABLE SECTION */}
-                <div 
+                <div
                   ref={sidebarScrollContainerRef}
                   className="flex-1 overflow-y-auto p-4 lg:p-6 pt-3 lg:pt-4"
                   style={{
@@ -844,18 +850,17 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                             key={heading.id}
                             ref={isActive ? activeHeadingButtonRef : null}
                             onClick={() => scrollToHeading(heading.id)}
-                            className={`relative block w-full text-left transition-all duration-200 ${
-                              isActive
-                                ? 'text-[var(--color-primary)] font-semibold'
-                                : 'text-[var(--color-charcoal)]/60 hover:text-[var(--color-charcoal)]'
-                            }`}
+                            className={`relative block w-full text-left transition-all duration-200 ${isActive
+                              ? 'text-[var(--color-primary)] font-semibold'
+                              : 'text-[var(--color-charcoal)]/60 hover:text-[var(--color-charcoal)]'
+                              }`}
                             style={{
                               paddingLeft: `${(heading.level - 1) * 0.75}rem`,
-                              fontSize: heading.level === 1 
-                                ? 'clamp(0.875rem, 1.2vw, 0.95rem)' 
-                                : heading.level === 2 
-                                ? 'clamp(0.8rem, 1.1vw, 0.9rem)' 
-                                : 'clamp(0.75rem, 1vw, 0.85rem)',
+                              fontSize: heading.level === 1
+                                ? 'clamp(0.875rem, 1.2vw, 0.95rem)'
+                                : heading.level === 2
+                                  ? 'clamp(0.8rem, 1.1vw, 0.9rem)'
+                                  : 'clamp(0.75rem, 1vw, 0.85rem)',
                               lineHeight: 1.5,
                             }}
                           >
@@ -863,7 +868,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                               <motion.span
                                 layoutId="activeHeading"
                                 className="absolute top-0 bottom-0 w-0.5 bg-[var(--color-primary)]"
-                                style={{ 
+                                style={{
                                   left: `${(heading.level - 1) * 0.75}rem`,
                                 }}
                                 initial={false}
@@ -883,7 +888,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                     </p>
                   )}
                 </div>
-            </div>
+              </div>
             </div>
           </aside>
         </div>

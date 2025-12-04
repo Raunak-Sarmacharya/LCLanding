@@ -22,6 +22,7 @@ export default function NewsletterSection() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -36,16 +37,45 @@ export default function NewsletterSection() {
     if (!email || isSubmitting) return
 
     setIsSubmitting(true)
+    setError(null)
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    setIsSubmitting(false)
-    setIsSuccess(true)
-    setEmail('')
-    
-    // Reset success state after 4 seconds
-    setTimeout(() => setIsSuccess(false), 4000)
+    try {
+      // Determine API base URL
+      const apiBaseUrl = typeof window !== 'undefined'
+        ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? '/api'
+          : `${window.location.origin}/api`)
+        : '/api'
+
+      const response = await fetch(`${apiBaseUrl}/newsletter`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to subscribe to newsletter')
+      }
+
+      // Success
+      setIsSubmitting(false)
+      setIsSuccess(true)
+      setEmail('')
+      
+      // Reset success state after 4 seconds
+      setTimeout(() => setIsSuccess(false), 4000)
+    } catch (err) {
+      console.error('Newsletter subscription error:', err)
+      setIsSubmitting(false)
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      
+      // Clear error after 5 seconds
+      setTimeout(() => setError(null), 5000)
+    }
   }
 
   return (
@@ -279,6 +309,20 @@ export default function NewsletterSection() {
                               transition={{ duration: 0.3 }}
                             />
                           </div>
+                          {/* Error Message */}
+                          {error && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="mt-3 flex items-center gap-2 text-sm text-red-600"
+                            >
+                              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span>{error}</span>
+                            </motion.div>
+                          )}
                         </div>
 
                         {/* Submit Button - Clover Style */}
