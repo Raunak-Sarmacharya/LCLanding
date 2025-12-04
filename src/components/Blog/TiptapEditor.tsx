@@ -2,6 +2,7 @@ import { useEditor, EditorContent, EditorContext } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Mention from '@tiptap/extension-mention'
 import { Markdown } from '@tiptap/markdown'
+import { PluginKey } from '@tiptap/pm/state'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { IconBold, IconItalic, IconHeading, IconList, IconListNumbers, IconCode, IconQuote } from '@tabler/icons-react'
 import tippy, { Instance as TippyInstance } from 'tippy.js'
@@ -15,7 +16,7 @@ interface TiptapEditorProps {
   onTagsChange?: (tags: string[]) => void
 }
 
-export default function TiptapEditor({ content, onChange, placeholder, tags = [], onTagsChange }: TiptapEditorProps) {
+export default function TiptapEditor({ content, onChange, placeholder: _placeholder, tags = [], onTagsChange }: TiptapEditorProps) {
   const [existingTags, setExistingTags] = useState<string[]>(tags)
 
   // Extract tags from content when it changes
@@ -44,7 +45,7 @@ export default function TiptapEditor({ content, onChange, placeholder, tags = []
       },
       suggestion: {
         char: '#',
-        pluginKey: 'tagMention',
+        pluginKey: new PluginKey('tagMention'),
         command: ({ editor, range, props }: any) => {
           editor
             .chain()
@@ -109,7 +110,9 @@ export default function TiptapEditor({ content, onChange, placeholder, tags = []
               button.className = 'w-full text-left px-3 py-2 rounded hover:bg-[var(--color-cream-dark)] transition-colors'
               button.textContent = `#${item.label || item.id}`
               button.addEventListener('click', () => command(item))
-              component.appendChild(button)
+              if (component) {
+                component.appendChild(button)
+              }
             })
           }
 
@@ -166,11 +169,7 @@ export default function TiptapEditor({ content, onChange, placeholder, tags = []
         },
       }),
       mentionExtension,
-      Markdown.configure({
-        html: true,
-        transformPastedText: true,
-        transformCopiedText: true,
-      }),
+      Markdown,
     ],
     content: content || '',
     editorProps: {
@@ -181,7 +180,8 @@ export default function TiptapEditor({ content, onChange, placeholder, tags = []
     onUpdate: ({ editor }) => {
       // Get content as markdown to maintain compatibility
       try {
-        const markdown = editor.storage.markdown?.getMarkdown() || editor.getHTML()
+        // Use the markdown extension's serializer if available
+        const markdown = (editor.storage.markdown as any)?.serializer?.serialize(editor.state.doc) || editor.getHTML()
         onChange(markdown)
       } catch (error) {
         // Fallback to HTML if markdown storage is not available
@@ -196,13 +196,13 @@ export default function TiptapEditor({ content, onChange, placeholder, tags = []
   useEffect(() => {
     if (editor) {
       try {
-        const currentContent = editor.storage.markdown?.getMarkdown() || editor.getHTML()
+        const currentContent = (editor.storage.markdown as any)?.serializer?.serialize(editor.state.doc) || editor.getHTML()
         if (content && content !== currentContent) {
           // Try markdown first, fallback to HTML
           try {
-            editor.commands.setContent(content || '', false, { contentType: 'markdown' })
+            editor.commands.setContent(content || '', { emitUpdate: false })
           } catch {
-            editor.commands.setContent(content || '', false)
+            editor.commands.setContent(content || '', { emitUpdate: false })
           }
         }
       } catch (error) {

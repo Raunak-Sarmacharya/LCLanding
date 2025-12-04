@@ -1,3 +1,4 @@
+import React from 'react'
 import { motion } from 'motion/react'
 import { useEffect, useRef, useState, useMemo } from 'react'
 import type { BlogPost } from '../../lib/types'
@@ -309,21 +310,20 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
               ) : (
                 contentBlocks.map((block, index) => {
                   if (block.type === 'heading') {
-                    const HeadingTag = `h${block.level}` as keyof JSX.IntrinsicElements
-                    return (
-                      <HeadingTag
-                        key={block.id || index}
-                        id={block.id}
-                        className="blog-heading font-heading text-[var(--color-charcoal)] mt-16 mb-8 first:mt-0 scroll-mt-24"
-                        style={{
-                          fontSize: block.level === 1 ? '2.5rem' : block.level === 2 ? '2rem' : '1.75rem',
-                          fontWeight: 700,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {block.content}
-                      </HeadingTag>
-                    )
+                    // Create heading element using React.createElement to avoid JSX namespace issues
+                    const HeadingTag = `h${block.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                    const headingProps = {
+                      key: block.id || index,
+                      id: block.id,
+                      className: "blog-heading font-heading text-[var(--color-charcoal)] mt-16 mb-8 first:mt-0 scroll-mt-24",
+                      style: {
+                        fontSize: block.level === 1 ? '2.5rem' : block.level === 2 ? '2rem' : '1.75rem',
+                        fontWeight: 700,
+                        lineHeight: 1.2,
+                      },
+                      children: block.content,
+                    }
+                    return React.createElement(HeadingTag, headingProps)
                   } else {
                     return (
                       <motion.p

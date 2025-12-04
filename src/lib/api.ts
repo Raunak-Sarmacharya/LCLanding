@@ -48,17 +48,31 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
       .order('created_at', { ascending: false })
       .limit(100)
 
+    let data: any[] | null = null
+    let error: any = null
+
     // If error is about missing tags column, retry without it
     if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
       console.warn('[getBlogPosts] Tags column not found, fetching without tags')
-      result = await supabase
+      const retryResult = await supabase
         .from('posts')
         .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
         .order('created_at', { ascending: false })
         .limit(100)
+      
+      const { data: retryData, error: retryError } = retryResult
+      if (retryError) {
+        throw new Error(retryError.message || 'Failed to fetch posts from database')
+      }
+      
+      // Map retry data to include null tags
+      data = (retryData || []).map((post: any) => ({ ...post, tags: null }))
+      error = null
+    } else {
+      const resultData = result
+      data = resultData.data
+      error = resultData.error
     }
-
-    const { data, error } = result
 
     if (error) {
       console.error('[getBlogPosts] Supabase query error:', error)
@@ -80,7 +94,7 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
           created_at: post.created_at ? new Date(post.created_at).toISOString() : new Date().toISOString(),
           updated_at: post.updated_at ? new Date(post.updated_at).toISOString() : new Date().toISOString(),
           published: post.published !== undefined ? Boolean(post.published) : true,
-          tags: Array.isArray(post.tags) ? post.tags.map(t => String(t).trim()).filter(Boolean) : null,
+          tags: Array.isArray(post.tags) ? post.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
         })
       }
     }
@@ -141,7 +155,7 @@ async function fetchBlogPostFromSupabase(slug: string): Promise<BlogPost | null>
       created_at: data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString(),
       updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
       published: data.published !== undefined ? Boolean(data.published) : true,
-      tags: Array.isArray(data.tags) ? data.tags.map(t => String(t).trim()).filter(Boolean) : null,
+      tags: Array.isArray(data.tags) ? data.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
     }
 
     const totalTime = Date.now() - startTime
