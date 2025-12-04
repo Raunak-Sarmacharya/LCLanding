@@ -421,21 +421,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (tags !== undefined) updateData.tags = tags && tags.length > 0 ? tags : null
       if (published !== undefined) updateData.published = published
 
-      // Update post with retry
+      // Update post with retry - use a more robust approach
       let updateResult: { data: PostRow | null; error: any }
       try {
         updateResult = await withRetry(async () => {
-          // Try to update with tags first - select all columns explicitly
-          let result = await supabase
+          console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Updating post with ID: ${existingPost.id}`)
+          console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Update data:`, JSON.stringify(updateData, null, 2))
+
+          // Strategy 1: Try update with select in one query
+          let updateQuery = supabase
             .from('posts')
             .update(updateData)
             .eq('id', existingPost.id)
+
+          // Try to update with tags first
+          let result = await updateQuery
             .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
             .single()
 
           // If error is about missing tags column, retry without tags
           if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
-            console.warn('[PUT/PATCH /api/blog/[slug]] Tags column not found, updating without tags')
+            console.warn(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Tags column not found, updating without tags`)
             const { tags, ...dataWithoutTags } = updateData
             result = await supabase
               .from('posts')
@@ -445,29 +451,76 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .single()
           }
 
-          // If error is about "Cannot coerce the result to a single JSON object", try without .single()
-          if (result.error && (result.error.message?.includes('coerce') || result.error.message?.includes('single'))) {
-            console.warn('[PUT/PATCH /api/blog/[slug]] Single result error, trying without .single()')
-            const retryResult = await supabase
+          // Strategy 2: If select fails, update first then fetch separately
+          if (result.error && (result.error.message?.includes('coerce') || result.error.message?.includes('single') || result.error.message?.includes('row') || result.error.message?.includes('No rows'))) {
+            console.warn(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Select failed, trying update then separate fetch. Error: ${result.error.message}`)
+            
+            // First, perform the update without select - Supabase update returns count or data
+            const updateOnly = await supabase
               .from('posts')
               .update(updateData)
               .eq('id', existingPost.id)
+
+            if (updateOnly.error) {
+              console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Update failed:`, updateOnly.error)
+              throw new Error(updateOnly.error.message || 'Database update error')
+            }
+
+            // Wait a brief moment for the update to propagate in the database
+            await new Promise(resolve => setTimeout(resolve, 150))
+
+            console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Update command completed successfully`)
+
+            // Then fetch the updated row separately
+            console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Fetching updated post separately`)
+            const fetchResult = await supabase
+              .from('posts')
               .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
-              .limit(1)
-            
-            if (retryResult.error) {
-              throw new Error(retryResult.error.message || 'Database update error')
+              .eq('id', existingPost.id)
+              .single()
+
+            if (fetchResult.error) {
+              console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Failed to fetch updated post:`, fetchResult.error)
+              // If single() fails, try without it
+              const fetchArray = await supabase
+                .from('posts')
+                .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
+                .eq('id', existingPost.id)
+                .limit(1)
+
+              if (fetchArray.error) {
+                throw new Error(`Update succeeded but failed to fetch updated row: ${fetchArray.error.message}`)
+              }
+
+              if (!fetchArray.data || fetchArray.data.length === 0) {
+                throw new Error('Update succeeded but no rows found when fetching updated post (possible RLS issue)')
+              }
+
+              return { data: fetchArray.data[0], error: null }
             }
-            
-            if (!retryResult.data || retryResult.data.length === 0) {
-              throw new Error('No rows returned from update')
-            }
-            
-            return { data: retryResult.data[0], error: null }
+
+            return fetchResult
           }
 
           if (result.error) {
+            console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Update error:`, result.error)
             throw new Error(result.error.message || 'Database update error')
+          }
+
+          if (!result.data) {
+            console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Update succeeded but no data returned`)
+            // Try fetching separately as fallback
+            const fetchResult = await supabase
+              .from('posts')
+              .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
+              .eq('id', existingPost.id)
+              .single()
+
+            if (fetchResult.error || !fetchResult.data) {
+              throw new Error('Update succeeded but failed to retrieve updated data')
+            }
+
+            return fetchResult
           }
 
           return result
