@@ -31,12 +31,14 @@ function getEmailConfig() {
 
 /**
  * Create SMTP transporter for Hostinger
+ * Tries multiple authentication methods for compatibility
  */
 export function createEmailTransporter() {
   const config = getEmailConfig()
   
   // For Hostinger SMTP, port 587 uses STARTTLS (secure: false, requireTLS: true)
   // Port 465 uses SSL/TLS (secure: true)
+  // Nodemailer will automatically try different auth methods (PLAIN, LOGIN, etc.)
   const transporter = nodemailer.createTransport({
     host: config.host,
     port: config.port,
@@ -48,7 +50,12 @@ export function createEmailTransporter() {
     },
     tls: {
       rejectUnauthorized: false, // For development, set to true in production with proper certs
+      minVersion: 'TLSv1.2', // Ensure minimum TLS version
     },
+    // Connection timeout
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   })
   
   return transporter
@@ -86,16 +93,40 @@ export async function sendVerificationEmail(
     await transporter.verify()
   } catch (verifyError) {
     const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error'
+    const errorCode = verifyError && typeof verifyError === 'object' && 'code' in verifyError ? verifyError.code : undefined
+    
+    // Enhanced error logging with troubleshooting hints
     console.error('[Email] SMTP verification failed:', {
       host: config.host,
       port: config.port,
       user: config.user,
       error: errorMessage,
+      code: errorCode,
+      troubleshooting: [
+        '1. Verify EMAIL_USER and EMAIL_PASSWORD are set correctly in Vercel environment variables',
+        '2. If 2FA is enabled, use an app-specific password instead of your regular password',
+        '3. Check if the email account is active and not restricted',
+        '4. Try using port 465 with SSL (set EMAIL_PORT=465 and EMAIL_SECURE=true)',
+        '5. Verify SMTP is enabled in your Hostinger email account settings',
+      ],
     })
-    throw new Error(`SMTP authentication failed: ${errorMessage}. Please check EMAIL_USER and EMAIL_PASSWORD environment variables.`)
+    
+    // Provide more helpful error message
+    let helpfulMessage = `SMTP authentication failed: ${errorMessage}`
+    if (errorCode === 'EAUTH') {
+      helpfulMessage += '\n\nTroubleshooting steps:'
+      helpfulMessage += '\n- Verify EMAIL_USER and EMAIL_PASSWORD are correct in Vercel environment variables'
+      helpfulMessage += '\n- If 2FA is enabled, generate an app-specific password and use that'
+      helpfulMessage += '\n- Check that SMTP is enabled in your Hostinger email account'
+      helpfulMessage += '\n- Try port 465 with SSL: set EMAIL_PORT=465 and EMAIL_SECURE=true'
+    }
+    
+    throw new Error(helpfulMessage)
   }
   
-  const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`
+  // URL-encode the token to handle any special characters
+  const encodedToken = encodeURIComponent(verificationToken)
+  const verificationUrl = `${baseUrl}/api/verify-email?token=${encodedToken}`
   
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
@@ -208,13 +239,22 @@ export async function sendWelcomeEmail(
     await transporter.verify()
   } catch (verifyError) {
     const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error'
+    const errorCode = verifyError && typeof verifyError === 'object' && 'code' in verifyError ? verifyError.code : undefined
+    
     console.error('[Email] SMTP verification failed for welcome email:', {
       host: config.host,
       port: config.port,
       user: config.user,
       error: errorMessage,
+      code: errorCode,
     })
-    throw new Error(`SMTP authentication failed: ${errorMessage}. Please check EMAIL_USER and EMAIL_PASSWORD environment variables.`)
+    
+    let helpfulMessage = `SMTP authentication failed: ${errorMessage}`
+    if (errorCode === 'EAUTH') {
+      helpfulMessage += '\n\nTroubleshooting: Check EMAIL_USER and EMAIL_PASSWORD in Vercel environment variables. Use app-specific password if 2FA is enabled.'
+    }
+    
+    throw new Error(helpfulMessage)
   }
   
   const mailOptions = {

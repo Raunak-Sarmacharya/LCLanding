@@ -206,7 +206,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { token } = req.query
 
+    // Log for debugging (without exposing full token)
+    console.log('[Verify Email API] Received verification request:', {
+      hasToken: !!token,
+      tokenType: typeof token,
+      tokenLength: typeof token === 'string' ? token.length : 0,
+      queryKeys: Object.keys(req.query),
+    })
+
     if (!token || typeof token !== 'string') {
+      console.error('[Verify Email API] Missing or invalid token:', {
+        token,
+        tokenType: typeof token,
+        query: req.query,
+      })
       // Redirect to error page or show error
       return res.redirect(302, '/verify-email?error=missing_token')
     }
