@@ -439,14 +439,16 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
     let response: Response
     try {
       // Add cache-busting query parameter to ensure fresh data
-      const cacheBuster = `?t=${Date.now()}`
+      // Use both timestamp and random value to ensure uniqueness
+      const cacheBuster = `?t=${Date.now()}&r=${Math.random().toString(36).substr(2, 9)}`
       response = await fetch(`${API_BASE_URL}/blog/${slug}${cacheBuster}`, {
         method: 'GET',
         cache: 'no-store',
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
         },
         redirect: 'follow',
       })

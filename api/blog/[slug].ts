@@ -419,7 +419,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (excerpt !== undefined) updateData.excerpt = excerpt
       if (image_url !== undefined) updateData.image_url = image_url
       if (tags !== undefined) updateData.tags = tags && tags.length > 0 ? tags : null
-      if (published !== undefined) updateData.published = published
+      // Always update published if provided - this ensures published status is maintained
+      if (published !== undefined) {
+        updateData.published = Boolean(published) // Ensure it's a boolean
+        console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Setting published to: ${updateData.published}`)
+      } else {
+        // If published is not provided, default to true to ensure posts stay published when edited
+        // This is a safety measure - if the client doesn't specify, we assume they want it published
+        updateData.published = true
+        console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Published not provided, defaulting to true`)
+      }
 
       // Update post with retry - use a more robust approach
       let updateResult: { data: PostRow | null; error: any }

@@ -156,14 +156,17 @@ export function useBlogPost(slug: string): UseBlogPostResult {
         setLoading(true)
         setError(null)
         // Add cache-busting by appending refresh key to slug internally
+        // The getBlogPost function already handles cache-busting with query params
         const data = await getBlogPost(slug)
 
         if (!cancelled) {
           setPost(data)
           setLoading(false)
+          console.log('[useBlogPost] Post fetched successfully:', data?.title)
         }
       } catch (err) {
         if (!cancelled) {
+          console.error('[useBlogPost] Error fetching post:', err)
           setError(err instanceof Error ? err : new Error('Failed to fetch post'))
           setLoading(false)
         }
@@ -180,8 +183,21 @@ export function useBlogPost(slug: string): UseBlogPostResult {
   // Expose refresh function to force re-fetch
   useEffect(() => {
     // Listen for custom event to refresh post data
-    const handleRefresh = () => {
-      setRefreshKey(prev => prev + 1)
+    const handleRefresh = (event: Event) => {
+      const customEvent = event as CustomEvent
+      // Only refresh if the slug matches or if no slug is specified in the event
+      if (!customEvent.detail?.slug || customEvent.detail.slug === slug) {
+        console.log('[useBlogPost] Refreshing post data due to update event')
+        // Force a refresh by incrementing the key
+        setRefreshKey(prev => prev + 1)
+        // Also clear any cached data for this specific post
+        try {
+          // Clear any post-specific cache if it exists
+          localStorage.removeItem(`blog_post_cache_${slug}`)
+        } catch (error) {
+          console.warn('[useBlogPost] Failed to clear post cache:', error)
+        }
+      }
     }
     
     window.addEventListener('blogPostUpdated', handleRefresh)
@@ -189,7 +205,7 @@ export function useBlogPost(slug: string): UseBlogPostResult {
     return () => {
       window.removeEventListener('blogPostUpdated', handleRefresh)
     }
-  }, [])
+  }, [slug]) // Add slug as dependency to ensure handler has latest slug value
 
   return { post, loading, error }
 }

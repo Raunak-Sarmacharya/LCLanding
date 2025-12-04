@@ -24,6 +24,7 @@ export default function EditBlogPostForm() {
   })
   const [tagsInput, setTagsInput] = useState('')
   const [editorTags, setEditorTags] = useState<string[]>([])
+  const [originalPublished, setOriginalPublished] = useState<boolean>(true) // Track original published status
 
   // Load existing post data
   useEffect(() => {
@@ -44,6 +45,9 @@ export default function EditBlogPostForm() {
           setIsLoading(false)
           return
         }
+
+        // Store original published status
+        setOriginalPublished(post.published !== false) // Default to true if not explicitly false
 
         // Populate form with existing data
         setFormData({
@@ -143,6 +147,10 @@ export default function EditBlogPostForm() {
         updateData.tags = null // Explicitly set to null if empty
       }
 
+      // Explicitly set published to true to ensure the post remains published after update
+      // This is critical for published posts - we want to keep them published when editing
+      updateData.published = true
+
       console.log('[EditBlogPostForm] Sending update data:', updateData)
 
       const post = await updateBlogPost(slug, updateData)
@@ -158,9 +166,17 @@ export default function EditBlogPostForm() {
       // Clear blog posts cache so updated post appears immediately
       clearBlogPostsCache()
 
+      // Clear blog posts cache so updated post appears immediately in lists
+      clearBlogPostsCache()
+
       // Dispatch custom event to force refresh of individual post views
+      // Include timestamp in detail to ensure the event triggers a refresh
       window.dispatchEvent(new CustomEvent('blogPostUpdated', { 
-        detail: { slug: post.slug, postId: post.id } 
+        detail: { 
+          slug: post.slug, 
+          postId: post.id,
+          timestamp: Date.now() // Add timestamp to force refresh
+        } 
       }))
 
       // Reset submitting state first
@@ -175,9 +191,10 @@ export default function EditBlogPostForm() {
         if (post?.slug) {
           // Add timestamp to force browser/CDN to bypass cache
           const cacheBuster = `?t=${Date.now()}`
-          navigate(`/blog/${post.slug}${cacheBuster}`, { replace: true })
+          // Use replace: false to ensure navigation triggers a full refresh
+          navigate(`/blog/${post.slug}${cacheBuster}`, { replace: false })
         } else {
-          navigate('/blog', { replace: true })
+          navigate('/blog', { replace: false })
         }
       }, 2000) // Reduced from 3000ms to 2000ms for faster redirect
     } catch (err) {
