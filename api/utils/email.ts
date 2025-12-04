@@ -233,6 +233,284 @@ export async function sendVerificationEmail(
 }
 
 /**
+ * Send verification email for contact form submission
+ */
+export async function sendContactVerificationEmail(
+  email: string,
+  verificationToken: string,
+  baseUrl: string = 'https://localcook.shop'
+): Promise<void> {
+  const config = getEmailConfig()
+  
+  // Verify connection before sending
+  const transporter = createEmailTransporter()
+  
+  try {
+    // Verify SMTP connection
+    await transporter.verify()
+  } catch (verifyError) {
+    const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error'
+    const errorCode = verifyError && typeof verifyError === 'object' && 'code' in verifyError ? verifyError.code : undefined
+    
+    console.error('[Email] SMTP verification failed:', {
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      error: errorMessage,
+      code: errorCode,
+    })
+    
+    let helpfulMessage = `SMTP authentication failed: ${errorMessage}`
+    if (errorCode === 'EAUTH') {
+      helpfulMessage += '\n\nTroubleshooting: Check EMAIL_USER and EMAIL_PASSWORD in Vercel environment variables. Use app-specific password if 2FA is enabled.'
+    }
+    
+    throw new Error(helpfulMessage)
+  }
+  
+  // URL-encode the token to handle any special characters
+  const encodedToken = encodeURIComponent(verificationToken)
+  const verificationUrl = `${baseUrl}/api/verify-contact?token=${encodedToken}`
+  
+  const mailOptions = {
+    from: `"${config.org}" <${config.user}>`,
+    to: email,
+    subject: 'Please verify your contact form submission',
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Verify Your Contact Form - LocalCooks</title>
+        </head>
+        <body style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; background-color: #FFF9F5; margin: 0; padding: 0;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <!-- Header with brand gradient -->
+            <div style="background: linear-gradient(135deg, #f51042 0%, #ff4d6d 50%, #FF8A7A 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 10px 40px -10px rgba(245, 16, 66, 0.3);">
+              <h1 style="color: white; margin: 0; font-size: 32px; font-family: 'Lobster', cursive; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Verify Your Message 📧</h1>
+            </div>
+            
+            <!-- Main content with cream background -->
+            <div style="background: #FFF9F5; padding: 40px 30px; border: 1px solid rgba(245, 16, 66, 0.1); border-top: none; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+              <p style="font-size: 18px; margin-bottom: 20px; color: #1A1A1A; font-weight: 500;">
+                Thank you for reaching out to LocalCooks! We're excited to hear from you. 🍽️
+              </p>
+              
+              <p style="font-size: 16px; margin-bottom: 30px; color: #333333; line-height: 1.7;">
+                To ensure we can respond to your message, please verify your email address by clicking the button below:
+              </p>
+              
+              <!-- CTA Button with brand colors -->
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${verificationUrl}" 
+                   style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
+                  Verify Email Address ✨
+                </a>
+              </div>
+              
+              <!-- Alternative link -->
+              <p style="font-size: 14px; color: #666; margin-top: 30px; text-align: center;">
+                Or copy and paste this link into your browser:
+              </p>
+              <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1);">
+                <a href="${verificationUrl}" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
+              </p>
+              
+              <!-- Why verify section -->
+              <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(245, 16, 66, 0.1);">
+                <p style="font-size: 16px; color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">
+                  Why verify? 🤔
+                </p>
+                <ul style="font-size: 15px; color: #333333; padding-left: 20px; margin: 0; line-height: 1.8;">
+                  <li style="margin-bottom: 8px;">Ensures we have your correct email address to respond</li>
+                  <li style="margin-bottom: 8px;">Protects you from spam and unauthorized submissions</li>
+                  <li style="margin-bottom: 8px;">Helps us maintain a high-quality contact list</li>
+                  <li>Complies with email best practices</li>
+                </ul>
+              </div>
+              
+              <p style="font-size: 13px; color: #999; margin-top: 30px; text-align: center; padding: 15px; background: #FFF0E8; border-radius: 8px;">
+                ⏰ This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
+              </p>
+            </div>
+            
+            <!-- Footer -->
+            <div style="text-align: center; margin-top: 30px; padding: 25px 20px; color: #999; font-size: 12px;">
+              <p style="margin: 0; color: #666;">© ${new Date().getFullYear()} LocalCooks. All rights reserved.</p>
+              <p style="margin: 15px 0 0 0;">
+                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500; margin: 0 10px;">Visit our website</a> | 
+                <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500; margin: 0 10px;">Contact Support</a>
+              </p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+      Verify Your Contact Form Submission
+      
+      Thank you for reaching out to LocalCooks! To ensure we can respond to your message, please verify your email address by clicking the link below:
+      
+      ${verificationUrl}
+      
+      This verification link will expire in 7 days.
+      
+      If you didn't submit a contact form, you can safely ignore this email.
+      
+      © ${new Date().getFullYear()} ${config.org}. All rights reserved.
+    `,
+  }
+
+  try {
+    await transporter.sendMail(mailOptions)
+  } catch (sendError) {
+    const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error'
+    const errorCode = sendError && typeof sendError === 'object' && 'code' in sendError ? sendError.code : undefined
+    console.error('[Email] Failed to send contact verification email:', {
+      to: email,
+      error: errorMessage,
+      code: errorCode,
+    })
+    throw sendError
+  }
+}
+
+/**
+ * Send confirmation email after contact form verification
+ */
+export async function sendContactConfirmationEmail(
+  email: string,
+  name: string,
+  baseUrl: string = 'https://localcook.shop'
+): Promise<void> {
+  const config = getEmailConfig()
+  const transporter = createEmailTransporter()
+  
+  // Verify connection before sending
+  try {
+    await transporter.verify()
+  } catch (verifyError) {
+    const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error'
+    const errorCode = verifyError && typeof verifyError === 'object' && 'code' in verifyError ? verifyError.code : undefined
+    
+    console.error('[Email] SMTP verification failed for contact confirmation email:', {
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      error: errorMessage,
+      code: errorCode,
+    })
+    
+    let helpfulMessage = `SMTP authentication failed: ${errorMessage}`
+    if (errorCode === 'EAUTH') {
+      helpfulMessage += '\n\nTroubleshooting: Check EMAIL_USER and EMAIL_PASSWORD in Vercel environment variables. Use app-specific password if 2FA is enabled.'
+    }
+    
+    throw new Error(helpfulMessage)
+  }
+  
+  const mailOptions = {
+    from: `"${config.org}" <${config.user}>`,
+    to: email,
+    subject: 'We received your message! 🎉',
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Message Received - LocalCooks</title>
+        </head>
+        <body style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; background-color: #FFF9F5; margin: 0; padding: 0;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <!-- Header with celebration gradient -->
+            <div style="background: linear-gradient(135deg, #f51042 0%, #E5A84B 50%, #FF8A7A 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 10px 40px -10px rgba(245, 16, 66, 0.3);">
+              <h1 style="color: white; margin: 0; font-size: 36px; font-family: 'Lobster', cursive; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Message Received! 🎉</h1>
+              <p style="color: white; margin: 10px 0 0 0; font-size: 18px; opacity: 0.95;">Hi ${name}!</p>
+            </div>
+            
+            <!-- Main content with cream background -->
+            <div style="background: #FFF9F5; padding: 40px 30px; border: 1px solid rgba(245, 16, 66, 0.1); border-top: none; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+              <p style="font-size: 18px; margin-bottom: 25px; color: #1A1A1A; font-weight: 500; line-height: 1.7;">
+                Great news! Your email has been verified and we've received your message. 🎊
+              </p>
+              
+              <p style="font-size: 17px; margin-bottom: 20px; color: #1A1A1A; font-weight: 600;">
+                What happens next?
+              </p>
+              
+              <!-- Next steps list -->
+              <div style="background: #FFEDD5; padding: 25px; border-radius: 12px; border-left: 4px solid #f51042; margin-bottom: 30px;">
+                <ul style="font-size: 16px; color: #1A1A1A; padding-left: 0; margin: 0; list-style: none;">
+                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #f51042; font-size: 20px;">📬</span>
+                    We'll review your message carefully
+                  </li>
+                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #E5A84B; font-size: 20px;">⏱️</span>
+                    Expect a response within 24 hours
+                  </li>
+                  <li style="padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #FF8A7A; font-size: 20px;">💬</span>
+                    We'll get back to you at this email address
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${baseUrl}" 
+                   style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
+                  Visit LocalCooks 🚀
+                </a>
+              </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="text-align: center; margin-top: 30px; padding: 25px 20px; color: #999; font-size: 12px;">
+              <p style="margin: 0; color: #666;">© ${new Date().getFullYear()} LocalCooks. All rights reserved.</p>
+              <p style="margin: 15px 0 0 0;">
+                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+              </p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+      Message Received! 🎉
+      
+      Hi ${name}!
+      
+      Great news! Your email has been verified and we've received your message.
+      
+      What happens next?
+      - We'll review your message carefully
+      - Expect a response within 24 hours
+      - We'll get back to you at this email address
+      
+      Visit us at: ${baseUrl}
+      
+      © ${new Date().getFullYear()} ${config.org}. All rights reserved.
+    `,
+  }
+
+  try {
+    await transporter.sendMail(mailOptions)
+  } catch (sendError) {
+    const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error'
+    const errorCode = sendError && typeof sendError === 'object' && 'code' in sendError ? sendError.code : undefined
+    console.error('[Email] Failed to send contact confirmation email:', {
+      to: email,
+      error: errorMessage,
+      code: errorCode,
+    })
+    throw sendError
+  }
+}
+
+/**
  * Send welcome email after successful verification
  */
 export async function sendWelcomeEmail(

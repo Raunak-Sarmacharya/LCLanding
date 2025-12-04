@@ -69,6 +69,8 @@ const legalLinks = [
 function ContactPageContent() {
   const [inquiryType, setInquiryType] = useState<InquiryType>('general')
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [isTopicOpen, setIsTopicOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
@@ -137,11 +139,68 @@ function ContactPageContent() {
     setIsTopicOpen(false)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Simulate form submission
-    console.log('Form submitted:', { inquiryType, ...formData })
-    setIsSubmitted(true)
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
+    setError(null)
+    
+    try {
+      // Determine API base URL
+      const apiBaseUrl = typeof window !== 'undefined'
+        ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? '/api'
+          : `${window.location.origin}/api`)
+        : '/api'
+
+      const response = await fetch(`${apiBaseUrl}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || undefined,
+          message: formData.message.trim() || undefined,
+          inquiryType,
+          topic: formData.topic || undefined,
+          cookingDescription: formData.cookingDescription.trim() || undefined,
+          experience: formData.experience.trim() || undefined,
+          heardFrom: formData.heardFrom.trim() || undefined,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to submit contact form')
+      }
+
+      // Success - show verification message
+      setIsSubmitting(false)
+      setIsSubmitted(true)
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        topic: '',
+        cookingDescription: '',
+        experience: '',
+        heardFrom: '',
+      })
+    } catch (err) {
+      console.error('Contact form submission error:', err)
+      setIsSubmitting(false)
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      
+      // Clear error after 5 seconds
+      setTimeout(() => setError(null), 5000)
+    }
   }
 
   const handleBackToTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -153,6 +212,7 @@ function ContactPageContent() {
   const handleInquiryTypeChange = (type: InquiryType) => {
     setInquiryType(type)
     setIsSubmitted(false)
+    setError(null)
     setFormData({
       name: '',
       email: '',
@@ -244,19 +304,19 @@ function ContactPageContent() {
                 {inquiryType === 'general' ? (
                   <>
                     <h2 className="font-heading text-3xl sm:text-4xl text-[var(--color-charcoal)] mb-4">
-                      Thank you! 🎉
+                      Check Your Email! 📧
                     </h2>
                     <p className="font-body text-lg text-[var(--color-charcoal)]/60 max-w-md mx-auto mb-8">
-                      We've received your message and will get back to you within 24 hours. Check your inbox for our response.
+                      We've received your message! Please check your email and click the verification link to confirm your submission. Once verified, we'll get back to you within 24 hours.
                     </p>
                   </>
                 ) : (
                   <>
                     <h2 className="font-heading text-3xl sm:text-4xl text-[var(--color-charcoal)] mb-4">
-                      Welcome to the Local Cooks Family! 👨‍🍳
+                      Check Your Email! 📧
                     </h2>
                     <p className="font-body text-lg text-[var(--color-charcoal)]/60 max-w-md mx-auto mb-8">
-                      Thank you for your interest! We're excited to learn more about your culinary creations. We'll review your application and be in touch within 1-2 business days. Keep an eye on your inbox!
+                      Thank you for your interest! Please check your email and click the verification link to confirm your application. Once verified, we'll review your submission and be in touch within 1-2 business days.
                     </p>
                   </>
                 )}
@@ -517,17 +577,44 @@ function ContactPageContent() {
                   <Link to="/#terms" className="text-[var(--color-primary)] hover:underline transition-colors">Terms of Service</Link>.
                 </p>
 
+                {/* Error Message */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg font-body text-sm"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+
                 {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-10 py-4 rounded-full font-body font-semibold text-lg transition-all duration-300 shadow-lg shadow-[var(--color-primary)]/25 hover:shadow-xl hover:shadow-[var(--color-primary)]/35 flex items-center gap-3"
+                  disabled={isSubmitting}
+                  whileHover={!isSubmitting ? { scale: 1.02, y: -2 } : {}}
+                  whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                  className={`bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-10 py-4 rounded-full font-body font-semibold text-lg transition-all duration-300 shadow-lg shadow-[var(--color-primary)]/25 hover:shadow-xl hover:shadow-[var(--color-primary)]/35 flex items-center gap-3 ${
+                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <span>{inquiryType === 'general' ? 'Send My Message' : "Let's Cook Together"}</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{inquiryType === 'general' ? 'Send My Message' : "Let's Cook Together"}</span>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </>
+                  )}
                 </motion.button>
               </motion.form>
             )}

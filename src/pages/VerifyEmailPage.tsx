@@ -8,11 +8,16 @@ export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'already_verified' | 'expired'>('loading')
   const [errorMessage, setErrorMessage] = useState<string>('')
+  const [verificationType, setVerificationType] = useState<'newsletter' | 'contact'>('newsletter')
 
   useEffect(() => {
     const success = searchParams.get('success')
     const error = searchParams.get('error')
     const alreadyVerified = searchParams.get('already_verified')
+    const type = searchParams.get('type') // 'contact' or null (newsletter)
+    
+    // Set verification type
+    setVerificationType(type === 'contact' ? 'contact' : 'newsletter')
 
     if (success === 'true' && alreadyVerified === 'true') {
       setStatus('already_verified')
@@ -99,7 +104,9 @@ export default function VerifyEmailPage() {
                   Thank you for verifying your email address.
                 </p>
                 <p className="font-body text-base text-[var(--color-charcoal)]/60 mb-8">
-                  You're now subscribed to our newsletter and will receive updates about new chefs, exclusive deals, and authentic recipes.
+                  {verificationType === 'contact' 
+                    ? "We've received your message and will get back to you within 24 hours. Check your inbox for our response."
+                    : "You're now subscribed to our newsletter and will receive updates about new chefs, exclusive deals, and authentic recipes."}
                 </p>
                 <div className="space-y-3">
                   <Link
