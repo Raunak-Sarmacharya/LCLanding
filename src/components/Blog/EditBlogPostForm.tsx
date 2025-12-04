@@ -118,14 +118,37 @@ export default function EditBlogPostForm() {
       // Merge editor tags (from # mentions) with input tags, removing duplicates
       const allTags = [...new Set([...editorTags, ...inputTags])]
 
-      const post = await updateBlogPost(slug, {
+      // Prepare update data - only include fields that are actually provided
+      const updateData: UpdateBlogPostInput = {
         title: formData.title.trim(),
         content: formData.content.trim(),
-        excerpt: formData.excerpt?.trim() || null,
         author_name: formData.author_name.trim(),
-        tags: allTags.length > 0 ? allTags : null,
-        image_url: formData.image_url?.trim() || null,
-      })
+      }
+
+      // Only include optional fields if they have values
+      const trimmedExcerpt = formData.excerpt?.trim()
+      if (trimmedExcerpt) {
+        updateData.excerpt = trimmedExcerpt
+      } else {
+        updateData.excerpt = null // Explicitly set to null if empty
+      }
+
+      const trimmedImageUrl = formData.image_url?.trim()
+      if (trimmedImageUrl) {
+        updateData.image_url = trimmedImageUrl
+      } else {
+        updateData.image_url = null // Explicitly set to null if empty
+      }
+
+      if (allTags.length > 0) {
+        updateData.tags = allTags
+      } else {
+        updateData.tags = null // Explicitly set to null if empty
+      }
+
+      console.log('[EditBlogPostForm] Sending update data:', updateData)
+
+      const post = await updateBlogPost(slug, updateData)
 
       // Ensure we have a valid post response
       if (!post || !post.id) {

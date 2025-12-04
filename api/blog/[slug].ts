@@ -307,7 +307,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Parse request body
       const body = req.body
 
+      console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Request body type:`, typeof body)
+      console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Request body:`, JSON.stringify(body, null, 2))
+
       if (!body || typeof body !== 'object') {
+        console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Invalid request body:`, body)
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Access-Control-Allow-Origin', '*')
         return res.status(400).json({
@@ -317,9 +321,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Extract and validate fields (all optional for update)
-      const title = body.title && typeof body.title === 'string' ? body.title.trim() : undefined
-      const content = body.content && typeof body.content === 'string' ? body.content.trim() : undefined
-      const author_name = body.author_name && typeof body.author_name === 'string' ? body.author_name.trim() : undefined
+      // Handle empty strings properly - if field is provided (even as empty string), we should validate it
+      const title = body.title !== undefined 
+        ? (typeof body.title === 'string' ? body.title.trim() : undefined)
+        : undefined
+      const content = body.content !== undefined
+        ? (typeof body.content === 'string' ? body.content.trim() : undefined)
+        : undefined
+      const author_name = body.author_name !== undefined
+        ? (typeof body.author_name === 'string' ? body.author_name.trim() : undefined)
+        : undefined
       const excerpt = body.excerpt !== undefined 
         ? (body.excerpt && typeof body.excerpt === 'string' ? body.excerpt.trim() : null)
         : undefined
@@ -382,6 +393,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       if (validationErrors.length > 0) {
+        console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Validation errors:`, validationErrors)
+        console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Extracted values:`, {
+          title: title ? `${title.substring(0, 50)}...` : 'undefined',
+          content: content ? `${content.substring(0, 50)}...` : 'undefined',
+          author_name: author_name ? `${author_name.substring(0, 50)}...` : 'undefined',
+          excerpt: excerpt ? `${excerpt.substring(0, 50)}...` : (excerpt === null ? 'null' : 'undefined'),
+          image_url: image_url ? `${image_url.substring(0, 50)}...` : (image_url === null ? 'null' : 'undefined'),
+          tags: tags ? JSON.stringify(tags) : (tags === null ? 'null' : 'undefined'),
+        })
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Access-Control-Allow-Origin', '*')
         return res.status(400).json({

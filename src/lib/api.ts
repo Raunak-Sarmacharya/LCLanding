@@ -1041,10 +1041,20 @@ export async function updateBlogPost(slug: string, input: UpdateBlogPostInput): 
       throw fetchError
     }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || errorData.details || `Failed to update blog post: ${response.statusText}`)
-    }
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}))
+                  // Handle validation errors - details might be an array
+                  let errorMessage = errorData.error || `Failed to update blog post: ${response.statusText}`
+                  if (errorData.details) {
+                    if (Array.isArray(errorData.details)) {
+                      errorMessage = `${errorMessage}: ${errorData.details.join(', ')}`
+                    } else {
+                      errorMessage = `${errorMessage}: ${errorData.details}`
+                    }
+                  }
+                  console.error('[updateBlogPost] Error response:', errorData)
+                  throw new Error(errorMessage)
+                }
 
     // Read response body with timeout protection
     let text: string
