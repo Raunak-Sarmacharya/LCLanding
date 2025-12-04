@@ -1,11 +1,32 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createSign } from 'crypto'
-import { getSupabaseClient } from './middleware/supabase'
-import { sendWelcomeEmail } from './utils/email'
+import { createClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { sendWelcomeEmail } from './utils/email.js'
 
 // Configure runtime
 export const config = {
   runtime: 'nodejs'
+}
+
+/**
+ * Get Supabase client
+ */
+function getSupabaseClient(): SupabaseClient {
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables. Please set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel dashboard.')
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  })
 }
 
 /**
