@@ -562,7 +562,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Sanitize the returned post
       const sanitizedPost = sanitizePost(data)
       if (!sanitizedPost) {
-        console.error('[PUT/PATCH /api/blog/[slug]] Failed to sanitize updated post:', data)
+        console.error(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Failed to sanitize updated post:`, data)
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Access-Control-Allow-Origin', '*')
         return res.status(500).json({
@@ -573,12 +573,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const executionTime = Date.now() - startTime
       console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Success in ${executionTime}ms, updated post: ${sanitizedPost.id}`)
+      console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Updated post data:`, {
+        id: sanitizedPost.id,
+        title: sanitizedPost.title,
+        author_name: sanitizedPost.author_name,
+        slug: sanitizedPost.slug,
+        excerpt: sanitizedPost.excerpt?.substring(0, 50) + '...',
+      })
 
-      // Include full content and image_url in response
+      // Include full content and image_url in response - use database values
       const responsePost = {
         ...sanitizedPost,
-        content: data.content || content || sanitizedPost.content,
-        image_url: data.image_url || image_url || sanitizedPost.image_url || null,
+        // Ensure we use the actual database values, not the input values
+        content: data.content || sanitizedPost.content,
+        image_url: data.image_url !== undefined ? data.image_url : sanitizedPost.image_url,
+        title: data.title || sanitizedPost.title,
+        author_name: data.author_name || sanitizedPost.author_name,
+        excerpt: data.excerpt !== undefined ? data.excerpt : sanitizedPost.excerpt,
       }
 
       // Set headers and return response
@@ -748,8 +759,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const executionTime = Date.now() - startTime
     console.log(`[GET /api/blog/[slug]] [${requestId}] Success in ${executionTime}ms, slug: ${slug}`)
 
-    // Add cache header for successful responses
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600') // Cache for 5-10 minutes
+    // Add cache header for successful responses - reduced cache time for faster updates
+    // Use no-cache for individual posts to ensure updates are visible immediately
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    res.setHeader('Pragma', 'no-cache')
+    res.setHeader('Expires', '0')
 
     return res.status(200).json({ post: sanitizedPost })
   } catch (error) {

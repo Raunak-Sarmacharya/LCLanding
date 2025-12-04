@@ -158,6 +158,11 @@ export default function EditBlogPostForm() {
       // Clear blog posts cache so updated post appears immediately
       clearBlogPostsCache()
 
+      // Dispatch custom event to force refresh of individual post views
+      window.dispatchEvent(new CustomEvent('blogPostUpdated', { 
+        detail: { slug: post.slug, postId: post.id } 
+      }))
+
       // Reset submitting state first
       setIsSubmitting(false)
 
@@ -165,13 +170,16 @@ export default function EditBlogPostForm() {
       setIsSubmitted(true)
 
       // Redirect to the updated post after showing success message
+      // Add cache-busting query parameter to force refresh
       setTimeout(() => {
         if (post?.slug) {
-          navigate(`/blog/${post.slug}`)
+          // Add timestamp to force browser/CDN to bypass cache
+          const cacheBuster = `?t=${Date.now()}`
+          navigate(`/blog/${post.slug}${cacheBuster}`, { replace: true })
         } else {
-          navigate('/blog')
+          navigate('/blog', { replace: true })
         }
-      }, 3000)
+      }, 2000) // Reduced from 3000ms to 2000ms for faster redirect
     } catch (err) {
       // Always reset submitting state on error
       setIsSubmitting(false)

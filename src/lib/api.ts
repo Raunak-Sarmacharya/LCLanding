@@ -438,12 +438,15 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
 
     let response: Response
     try {
-      response = await fetch(`${API_BASE_URL}/blog/${slug}`, {
+      // Add cache-busting query parameter to ensure fresh data
+      const cacheBuster = `?t=${Date.now()}`
+      response = await fetch(`${API_BASE_URL}/blog/${slug}${cacheBuster}`, {
         method: 'GET',
         cache: 'no-store',
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
         },
         redirect: 'follow',
       })

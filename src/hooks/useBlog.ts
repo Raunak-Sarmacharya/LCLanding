@@ -141,6 +141,7 @@ export function useBlogPost(slug: string): UseBlogPostResult {
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     if (!slug) {
@@ -154,6 +155,7 @@ export function useBlogPost(slug: string): UseBlogPostResult {
       try {
         setLoading(true)
         setError(null)
+        // Add cache-busting by appending refresh key to slug internally
         const data = await getBlogPost(slug)
 
         if (!cancelled) {
@@ -173,7 +175,21 @@ export function useBlogPost(slug: string): UseBlogPostResult {
     return () => {
       cancelled = true
     }
-  }, [slug])
+  }, [slug, refreshKey]) // Add refreshKey as dependency to force re-fetch
+
+  // Expose refresh function to force re-fetch
+  useEffect(() => {
+    // Listen for custom event to refresh post data
+    const handleRefresh = () => {
+      setRefreshKey(prev => prev + 1)
+    }
+    
+    window.addEventListener('blogPostUpdated', handleRefresh)
+    
+    return () => {
+      window.removeEventListener('blogPostUpdated', handleRefresh)
+    }
+  }, [])
 
   return { post, loading, error }
 }
