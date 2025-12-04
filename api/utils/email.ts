@@ -7,8 +7,8 @@ function getEmailConfig() {
   const host = process.env.EMAIL_HOST || 'smtp.hostinger.com'
   const port = parseInt(process.env.EMAIL_PORT || '587', 10)
   const secure = process.env.EMAIL_SECURE === 'true' || port === 465
-  const user = process.env.EMAIL_USER || 'localcooks@localcook.shop'
-  const password = process.env.EMAIL_PASSWORD || 'LocalCooks#123'
+  const user = process.env.EMAIL_USER
+  const password = process.env.EMAIL_PASSWORD
   const org = process.env.EMAIL_ORG || 'LocalCooks'
   const domain = process.env.EMAIL_DOMAIN || 'localcook.shop'
   const unsubscribeEmail = process.env.EMAIL_UNSUBSCRIBE || 'unsubscribe@localcook.shop'
@@ -35,10 +35,13 @@ function getEmailConfig() {
 export function createEmailTransporter() {
   const config = getEmailConfig()
   
-  return nodemailer.createTransport({
+  // For Hostinger SMTP, port 587 uses STARTTLS (secure: false, requireTLS: true)
+  // Port 465 uses SSL/TLS (secure: true)
+  const transporter = nodemailer.createTransport({
     host: config.host,
     port: config.port,
     secure: config.secure, // true for 465, false for other ports
+    requireTLS: !config.secure, // Require TLS for port 587 (STARTTLS)
     auth: {
       user: config.user,
       pass: config.password,
@@ -47,6 +50,22 @@ export function createEmailTransporter() {
       rejectUnauthorized: false, // For development, set to true in production with proper certs
     },
   })
+  
+  return transporter
+}
+
+/**
+ * Verify SMTP connection and authentication
+ */
+export async function verifyEmailConnection(): Promise<boolean> {
+  try {
+    const transporter = createEmailTransporter()
+    await transporter.verify()
+    return true
+  } catch (error) {
+    console.error('[Email] SMTP connection verification failed:', error)
+    return false
+  }
 }
 
 /**
@@ -57,8 +76,24 @@ export async function sendVerificationEmail(
   verificationToken: string,
   baseUrl: string = 'https://localcook.shop'
 ): Promise<void> {
-  const transporter = createEmailTransporter()
   const config = getEmailConfig()
+  
+  // Verify connection before sending
+  const transporter = createEmailTransporter()
+  
+  try {
+    // Verify SMTP connection
+    await transporter.verify()
+  } catch (verifyError) {
+    const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error'
+    console.error('[Email] SMTP verification failed:', {
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      error: errorMessage,
+    })
+    throw new Error(`SMTP authentication failed: ${errorMessage}. Please check EMAIL_USER and EMAIL_PASSWORD environment variables.`)
+  }
   
   const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`
   
@@ -144,7 +179,18 @@ export async function sendVerificationEmail(
     `,
   }
 
-  await transporter.sendMail(mailOptions)
+  try {
+    await transporter.sendMail(mailOptions)
+  } catch (sendError) {
+    const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error'
+    const errorCode = sendError && typeof sendError === 'object' && 'code' in sendError ? sendError.code : undefined
+    console.error('[Email] Failed to send verification email:', {
+      to: email,
+      error: errorMessage,
+      code: errorCode,
+    })
+    throw sendError
+  }
 }
 
 /**
@@ -154,8 +200,22 @@ export async function sendWelcomeEmail(
   email: string,
   baseUrl: string = 'https://localcook.shop'
 ): Promise<void> {
-  const transporter = createEmailTransporter()
   const config = getEmailConfig()
+  const transporter = createEmailTransporter()
+  
+  // Verify connection before sending
+  try {
+    await transporter.verify()
+  } catch (verifyError) {
+    const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error'
+    console.error('[Email] SMTP verification failed for welcome email:', {
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      error: errorMessage,
+    })
+    throw new Error(`SMTP authentication failed: ${errorMessage}. Please check EMAIL_USER and EMAIL_PASSWORD environment variables.`)
+  }
   
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
@@ -231,6 +291,17 @@ export async function sendWelcomeEmail(
     `,
   }
 
-  await transporter.sendMail(mailOptions)
+  try {
+    await transporter.sendMail(mailOptions)
+  } catch (sendError) {
+    const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error'
+    const errorCode = sendError && typeof sendError === 'object' && 'code' in sendError ? sendError.code : undefined
+    console.error('[Email] Failed to send welcome email:', {
+      to: email,
+      error: errorMessage,
+      code: errorCode,
+    })
+    throw sendError
+  }
 }
 
