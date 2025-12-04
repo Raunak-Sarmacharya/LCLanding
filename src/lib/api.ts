@@ -1,4 +1,4 @@
-import type { BlogPost, CreateBlogPostInput } from './types'
+import type { BlogPost, CreateBlogPostInput, UpdateBlogPostInput } from './types'
 
 // Use absolute URL in production, relative in development
 const API_BASE_URL = typeof window !== 'undefined'
@@ -95,6 +95,7 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
           updated_at: post.updated_at ? new Date(post.updated_at).toISOString() : new Date().toISOString(),
           published: post.published !== undefined ? Boolean(post.published) : true,
           tags: Array.isArray(post.tags) ? post.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
+          image_url: post.image_url ? String(post.image_url).trim() : null,
         })
       }
     }
@@ -156,6 +157,7 @@ async function fetchBlogPostFromSupabase(slug: string): Promise<BlogPost | null>
       updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
       published: data.published !== undefined ? Boolean(data.published) : true,
       tags: Array.isArray(data.tags) ? data.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
+      image_url: data.image_url ? String(data.image_url).trim() : null,
     }
 
     const totalTime = Date.now() - startTime
@@ -620,6 +622,11 @@ async function createBlogPostFromSupabase(input: CreateBlogPostInput): Promise<B
       insertData.tags = input.tags
     }
 
+    // Try to include image_url if provided, but handle gracefully if column doesn't exist
+    if (input.image_url && input.image_url.trim()) {
+      insertData.image_url = input.image_url.trim()
+    }
+
     // Insert new post - try with tags first
     let result = await supabase
       .from('posts')
@@ -666,6 +673,7 @@ async function createBlogPostFromSupabase(input: CreateBlogPostInput): Promise<B
       updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
       published: data.published !== undefined ? Boolean(data.published) : true,
       tags: Array.isArray(data.tags) ? data.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
+      image_url: data.image_url ? String(data.image_url).trim() : null,
     }
 
     const totalTime = Date.now() - startTime
@@ -829,6 +837,264 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
     console.error(`[createBlogPost] Error after ${totalTime}ms:`, error)
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('Request timeout - the server took too long to respond. Your post may have been saved - please check the blog page.')
+    }
+    throw error
+  }
+}
+
+/**
+ * Update a blog post directly in Supabase (for local development)
+ */
+async function updateBlogPostFromSupabase(slug: string, input: UpdateBlogPostInput): Promise<BlogPost> {
+  const startTime = Date.now()
+  console.log(`[updateBlogPost] Using direct Supabase connection (development mode) for slug: ${slug}`)
+  
+  try {
+    const supabase = await getSupabaseClient()
+    
+    // Verify user is authenticated
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required. Please log in as an admin.')
+    }
+
+    // Check if post exists
+    const { data: existingPost, error: fetchError } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('slug', slug)
+      .single()
+
+    if (fetchError || !existingPost) {
+      throw new Error('Post not found')
+    }
+
+    // Build update object with only provided fields
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (input.title !== undefined) updateData.title = input.title.trim()
+    if (input.content !== undefined) updateData.content = input.content.trim()
+    if (input.author_name !== undefined) updateData.author_name = input.author_name.trim()
+    if (input.excerpt !== undefined) updateData.excerpt = input.excerpt?.trim() || null
+    if (input.image_url !== undefined) updateData.image_url = input.image_url?.trim() || null
+    if (input.published !== undefined) updateData.published = input.published
+    if (input.tags !== undefined) updateData.tags = input.tags && input.tags.length > 0 ? input.tags : null
+
+    // Update post - try with tags first
+    let result = await supabase
+      .from('posts')
+      .update(updateData)
+      .eq('id', existingPost.id)
+      .select()
+      .single()
+
+    // If error is about missing tags column, retry without tags
+    if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
+      console.warn('[updateBlogPost] Tags column not found, updating without tags')
+      const { tags, ...dataWithoutTags } = updateData
+      result = await supabase
+        .from('posts')
+        .update(dataWithoutTags)
+        .eq('id', existingPost.id)
+        .select()
+        .single()
+    }
+
+    const { data, error } = result
+
+    if (error) {
+      console.error('[updateBlogPost] Supabase update error:', error)
+      throw new Error(error.message || 'Failed to update blog post in database')
+    }
+
+    if (!data) {
+      throw new Error('No data returned from database')
+    }
+
+    // Validate and format response
+    if (!data.id || !data.title || !data.slug || !data.author_name) {
+      console.error('[updateBlogPost] Invalid post data returned:', data)
+      throw new Error('Invalid data returned from database')
+    }
+
+    const post: BlogPost = {
+      id: String(data.id).trim(),
+      title: String(data.title).trim(),
+      slug: String(data.slug).trim(),
+      content: data.content ? String(data.content).trim() : '',
+      excerpt: data.excerpt ? String(data.excerpt).trim() : null,
+      author_name: String(data.author_name).trim(),
+      created_at: data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString(),
+      updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
+      published: data.published !== undefined ? Boolean(data.published) : true,
+      tags: Array.isArray(data.tags) ? data.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
+      image_url: data.image_url ? String(data.image_url).trim() : null,
+    }
+
+    const totalTime = Date.now() - startTime
+    console.log(`[updateBlogPost] Successfully updated post in Supabase in ${totalTime}ms`)
+    return post
+  } catch (error) {
+    const totalTime = Date.now() - startTime
+    console.error(`[updateBlogPost] Error in development mode after ${totalTime}ms:`, error)
+    throw error
+  }
+}
+
+/**
+ * Update an existing blog post (admin only)
+ * 
+ * In development mode, calls Supabase directly to bypass API routes.
+ * In production, uses API routes for better security and server-side processing.
+ */
+export async function updateBlogPost(slug: string, input: UpdateBlogPostInput): Promise<BlogPost> {
+  const startTime = Date.now()
+  
+  // In development, call Supabase directly to avoid API route issues
+  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+    try {
+      console.log(`[updateBlogPost] Development mode: Using direct Supabase connection for slug: ${slug}`)
+      const post = await updateBlogPostFromSupabase(slug, input)
+      const totalTime = Date.now() - startTime
+      console.log(`[updateBlogPost] Operation completed in ${totalTime}ms`)
+      return post
+    } catch (error) {
+      const totalTime = Date.now() - startTime
+      console.error(`[updateBlogPost] Error in development mode after ${totalTime}ms:`, error)
+      // Fallback to API route if direct connection fails
+      console.log('[updateBlogPost] Falling back to API route...')
+    }
+  }
+
+  // Production mode or fallback: use API routes
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
+  try {
+    console.log(`[updateBlogPost] Starting request for slug: ${slug}`)
+
+    // Get auth token from Supabase session
+    let authToken: string | null = null
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+
+      if (supabaseUrl && supabaseAnonKey) {
+        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: false
+          }
+        })
+
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+        if (sessionError) {
+          console.warn('Session error:', sessionError)
+        }
+
+        authToken = session?.access_token || null
+
+        if (!authToken) {
+          await new Promise(resolve => setTimeout(resolve, 200))
+          const { data: { session: retrySession } } = await supabase.auth.getSession()
+          authToken = retrySession?.access_token || null
+        }
+      }
+    } catch (authError) {
+      console.warn('Failed to get auth token:', authError)
+    }
+
+    if (!authToken) {
+      throw new Error('Authentication required. Please log in as an admin. If you just logged in, please wait a moment and try again.')
+    }
+
+    console.log('[updateBlogPost] Fetching to:', `${API_BASE_URL}/blog/${slug}`)
+
+    let response: Response
+    try {
+      response = await fetch(`${API_BASE_URL}/blog/${slug}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(input),
+        signal: controller.signal,
+        cache: 'no-store',
+      })
+      clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+      console.log(`[updateBlogPost] Response received in ${fetchTime}ms, status: ${response.status}`)
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      const fetchTime = Date.now() - startTime
+      console.error(`[updateBlogPost] Fetch error after ${fetchTime}ms:`, fetchError)
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error('Request timeout - the server took too long to respond. Your changes may have been saved - please check the blog page.')
+      }
+      throw fetchError
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || errorData.details || `Failed to update blog post: ${response.statusText}`)
+    }
+
+    // Read response body with timeout protection
+    let text: string
+    try {
+      const textPromise = response.text()
+      let timeoutHandle: NodeJS.Timeout | null = null
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutHandle = setTimeout(() => reject(new Error('Response body read timeout')), 10000)
+      })
+
+      try {
+        text = await Promise.race([textPromise, timeoutPromise])
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+      } catch (raceError) {
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+        throw raceError
+      }
+    } catch (readError) {
+      const readTime = Date.now() - startTime
+      console.error(`[updateBlogPost] Error reading response body after ${readTime}ms:`, readError)
+      throw new Error('Failed to read server response')
+    }
+
+    if (!text || text.trim() === '') {
+      throw new Error('Empty response from server')
+    }
+
+    let data: any
+    try {
+      data = JSON.parse(text)
+      console.log('[updateBlogPost] Parsed response data:', data)
+    } catch (parseError) {
+      console.error('[updateBlogPost] JSON parse error:', parseError)
+      throw new Error('Invalid JSON response from server')
+    }
+
+    if (!data.post) {
+      console.error('[updateBlogPost] Missing post in response:', data)
+      throw new Error('Invalid response from server: post data missing')
+    }
+
+    const totalTime = Date.now() - startTime
+    console.log(`[updateBlogPost] Success in ${totalTime}ms`)
+    return data.post
+  } catch (error) {
+    clearTimeout(timeoutId)
+    const totalTime = Date.now() - startTime
+    console.error(`[updateBlogPost] Error after ${totalTime}ms:`, error)
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timeout - the server took too long to respond. Your changes may have been saved - please check the blog page.')
     }
     throw error
   }

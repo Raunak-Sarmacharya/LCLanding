@@ -1,8 +1,10 @@
 import React from 'react'
 import { motion } from 'motion/react'
 import { useEffect, useRef, useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../lib/types'
 import { useLenis } from '../../contexts/LenisContext'
+import { useAuth } from '../../hooks/useAuth'
 
 interface BlogPostViewProps {
   post: BlogPost
@@ -26,6 +28,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
   const activeHeadingButtonRef = useRef<HTMLButtonElement | null>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const { lenisRef } = useLenis()
+  const { isAdmin } = useAuth()
   const [sidebarBottom, setSidebarBottom] = useState<string>('clamp(10rem, 20vh, 20rem)')
   // State for fixed sidebar positioning
   const [sidebarStyle, setSidebarStyle] = useState<{
@@ -645,18 +648,33 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                 ))}
               </div>
             )}
-            {/* Reading Time and Date on Right */}
-            <div className="flex items-center gap-2 text-sm xs:text-base text-[var(--color-charcoal)]/70 ml-auto">
-              <span className="font-mono">
-                {readingTime} min read
-              </span>
-              <span className="text-[var(--color-charcoal)]/30">/</span>
-              <time
-                dateTime={post.created_at}
-                className="font-mono"
-              >
-                {formatDate(post.created_at)}
-              </time>
+            {/* Reading Time, Date, and Edit Button on Right */}
+            <div className="flex items-center gap-3 xs:gap-4 ml-auto">
+              <div className="flex items-center gap-2 text-sm xs:text-base text-[var(--color-charcoal)]/70">
+                <span className="font-mono">
+                  {readingTime} min read
+                </span>
+                <span className="text-[var(--color-charcoal)]/30">/</span>
+                <time
+                  dateTime={post.created_at}
+                  className="font-mono"
+                >
+                  {formatDate(post.created_at)}
+                </time>
+              </div>
+              {/* Edit Button - Admin Only */}
+              {isAdmin && (
+                <Link
+                  to={`/blog/${post.slug}/edit`}
+                  className="inline-flex items-center gap-1.5 xs:gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-3 xs:px-4 py-1.5 xs:py-2 rounded-full font-body font-semibold text-xs xs:text-sm transition-all duration-300 hover:scale-105 shadow-md shadow-[var(--color-primary)]/20"
+                  title="Edit this post"
+                >
+                  <svg className="w-3.5 h-3.5 xs:w-4 xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span className="hidden xs:inline">Edit</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

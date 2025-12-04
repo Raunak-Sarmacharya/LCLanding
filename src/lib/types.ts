@@ -22,3 +22,13 @@ export interface CreateBlogPostInput {
   image_url?: string
 }
 
+export interface UpdateBlogPostInput {
+  title?: string
+  content?: string
+  excerpt?: string | null
+  author_name?: string
+  tags?: string[] | null
+  image_url?: string | null
+  published?: boolean
+}
+

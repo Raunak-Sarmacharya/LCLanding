@@ -1,12 +1,15 @@
 import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../lib/types'
+import { useAuth } from '../../hooks/useAuth'
 
 interface BlogCardProps {
   post: BlogPost
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
+  const { isAdmin } = useAuth()
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
@@ -97,22 +100,38 @@ export default function BlogCard({ post }: BlogCardProps) {
             </p>
           )}
 
-          {/* Read More Link */}
-          <div className="flex items-center gap-1.5 xs:gap-2 text-[var(--color-primary)] font-body text-sm xs:text-base font-semibold group-hover:gap-2.5 xs:group-hover:gap-3 transition-all duration-300">
-            <span>Read More</span>
-            <svg
-              className="w-4 h-4 xs:w-5 xs:h-5 transition-transform duration-300 group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
+          {/* Read More Link and Edit Button */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 xs:gap-2 text-[var(--color-primary)] font-body text-sm xs:text-base font-semibold group-hover:gap-2.5 xs:group-hover:gap-3 transition-all duration-300">
+              <span>Read More</span>
+              <svg
+                className="w-4 h-4 xs:w-5 xs:h-5 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </div>
+            {/* Edit Button - Admin Only */}
+            {isAdmin && (
+              <Link
+                to={`/blog/${post.slug}/edit`}
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)] text-[var(--color-primary)] hover:text-white px-2.5 xs:px-3 py-1 xs:py-1.5 rounded-full font-body font-semibold text-xs transition-all duration-300 hover:scale-105"
+                title="Edit this post"
+              >
+                <svg className="w-3.5 h-3.5 xs:w-4 xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span className="hidden sm:inline">Edit</span>
+              </Link>
+            )}
           </div>
         </div>
       </Link>
