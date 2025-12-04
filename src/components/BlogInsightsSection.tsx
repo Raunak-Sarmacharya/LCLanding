@@ -49,11 +49,14 @@ function formatDate(dateString: string): string {
 export default function BlogInsightsSection() {
   const { posts, loading } = useBlogPosts()
   const sectionRef = useRef<HTMLElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
   // Always 5 cards: 2 left, 1 center, 2 right
   const cardRefs = useRef<(HTMLLIElement | null)[]>(new Array(5).fill(null))
   // Use once: true but with a more lenient margin to ensure it triggers even when GSAP wrapper is animating
   // The margin of -150px means it triggers earlier, giving time for wrapper animation to complete
   const isInView = useInView(sectionRef, { once: true, margin: '-150px', amount: 0.1 })
+  // Separate header visibility check for more reliable triggering
+  const isHeaderInView = useInView(headerRef, { once: true, margin: '-100px', amount: 0.05 })
   // Use virtual index for infinite scroll (can go infinitely in either direction)
   const [virtualIndex, setVirtualIndex] = useState(0)
   const xRefs = useRef<{ [key: number]: number }>({})
@@ -332,7 +335,9 @@ export default function BlogInsightsSection() {
         backgroundColor: 'var(--color-primary-dark)',
         background: 'var(--color-primary-dark)',
         position: 'relative',
-        zIndex: 0
+        zIndex: 0,
+        opacity: 1,
+        visibility: 'visible'
       }}
     >
       {/* Main background - part of section, extends beyond to ensure seamless transition */}
@@ -392,36 +397,70 @@ export default function BlogInsightsSection() {
       />
 
       {/* Content Container */}
-      <div className="relative max-w-[1400px] mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-6 w-full box-border overflow-x-visible pt-6 xs:pt-8 sm:pt-10 md:pt-12 pb-16 xs:pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>
-        {/* Premium Section Header - Matching AppPromo style with smooth animations */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mb-6 xs:mb-8 sm:mb-10 md:mb-12"
+      <div className="relative max-w-[1400px] mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-6 w-full box-border overflow-x-visible pt-6 xs:pt-8 sm:pt-10 md:pt-12 pb-16 xs:pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 10, position: 'relative' }}>
+        {/* Premium Section Header - Matching AppPromo and FeaturedChefs elegant style */}
+        <div 
+          ref={headerRef}
+          className="pt-12 sm:pt-16 pb-8 sm:pb-10 md:pt-20 md:pb-12" 
+          style={{ position: 'relative', zIndex: 10, visibility: 'visible', opacity: 1 }}
         >
-          {/* Label - Matching AppPromo pattern */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="mb-3 xs:mb-4 sm:mb-6"
-          >
-            <span className="inline-block font-mono text-[10px] xs:text-xs sm:text-sm text-white/60 uppercase tracking-[0.3em]">
-              From Our Kitchen
-            </span>
-          </motion.div>
+          <div className="grid lg:grid-cols-12 gap-6 items-end">
+            {/* Left side - Main headline */}
+            <div className="lg:col-span-7" style={{ position: 'relative', zIndex: 10 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-6 sm:mb-8"
+              >
+                <div className="inline-block relative pb-2 sm:pb-3">
+                  <span className="font-display text-[clamp(1.5rem,4vw,2.5rem)] sm:text-[clamp(1.75rem,4.5vw,3rem)] text-white leading-tight tracking-tight">
+                    Blog{' '}
+                    <span className="font-heading text-[clamp(1.5rem,4vw,2.5rem)] sm:text-[clamp(1.75rem,4.5vw,3rem)] text-white/90">
+                      Insights
+                    </span>
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] sm:h-[2px] bg-gradient-to-r from-transparent via-white/50 via-white/70 via-white/50 to-transparent" />
+                </div>
+              </motion.div>
 
-          {/* Main Title - Elegant and Premium */}
-          <motion.h2
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: 0.9, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="font-heading text-[clamp(1.75rem,5vw,2.5rem)] xs:text-[clamp(2rem,6vw,4.5rem)] sm:text-[clamp(2.5rem,7vw,5rem)] text-white leading-[0.9] tracking-tight"
-          >
-            Food <span className="font-display text-[var(--color-butter)] italic">Stories</span>
-          </motion.h2>
-        </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-4"
+              >
+                <span className="inline-block font-mono text-xs text-white/60 uppercase tracking-[0.3em]">
+                  From Our Kitchen
+                </span>
+              </motion.div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 60 }}
+                animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="font-heading text-[clamp(2rem,6vw,5.5rem)] sm:text-[clamp(2.5rem,7vw,5.5rem)] text-white leading-[0.85] tracking-tight"
+                style={{ visibility: 'visible' }}
+              >
+                Food <span className="font-display text-[var(--color-butter)] italic">Stories</span>
+                <br />
+                <span className="font-display text-white/90">From Local Chefs</span>
+              </motion.h2>
+            </div>
+
+            {/* Right side - Subtext */}
+            <div className="lg:col-span-5 lg:pb-2" style={{ position: 'relative', zIndex: 10 }}>
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                animate={(isInView || isHeaderInView) ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="font-body text-base sm:text-lg md:text-xl text-white/70 leading-relaxed max-w-md"
+              >
+                Discover authentic recipes, cooking tips, and stories from passionate local chefs in your community.
+              </motion.p>
+            </div>
+          </div>
+        </div>
 
         {/* Carousel Container with 3D Perspective - Matching Figma Design */}
         <div className="relative overflow-visible">

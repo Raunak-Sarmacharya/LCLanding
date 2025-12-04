@@ -249,9 +249,7 @@ function HomePage() {
         <div className="animate-section">
           <AppPromo />
         </div>
-        <div className="animate-section">
-          <BlogInsightsSection />
-        </div>
+        <BlogInsightsSection />
         <NewsletterSection />
         <Footer />
       </div>
