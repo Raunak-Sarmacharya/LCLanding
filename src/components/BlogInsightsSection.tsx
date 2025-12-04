@@ -555,28 +555,50 @@ export default function BlogInsightsSection() {
             </ul>
           </div>
 
-          {/* Navigation Controls - Matching website color scheme */}
-          <div className="flex items-center justify-center mt-6">
+          {/* Navigation Controls - Aligned to left edge of centered card */}
+          <div className="flex items-center mt-6" style={{ justifyContent: 'flex-start' }}>
+            {/* Unified container overlay - subtle warm tone complementing white buttons */}
             <div
-              className="flex gap-[1.87px] items-start"
+              className="flex gap-1.5 items-center"
               style={{
-                background: 'white',
-                border: '1px solid var(--color-charcoal)/10',
-                borderRadius: '10.86px',
-                padding: 0,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                // Align to left edge of centered card (855px wide)
+                // Account for container max-width (1400px) and centering
+                // On screens wider than 1400px: (1400px - 855px) / 2 = 272.5px
+                // On smaller screens: (100% - 855px) / 2, but clamped to account for padding
+                marginLeft: 'clamp(0.5rem, calc((100% - 855px) / 2), calc((1400px - 855px) / 2))',
+                // Unified container: subtle warm cream background that complements white buttons
+                // Using low opacity to maintain visibility on dark background while being subtle
+                background: 'rgba(255, 237, 213, 0.12)', // Warm butter/cream with low opacity
+                border: '1px solid rgba(255, 237, 213, 0.2)', // Subtle warm border
+                borderRadius: '14px', // Slightly larger than button radius for visual harmony
+                padding: '4px', // Small padding to create gap between container and buttons
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
               }}
             >
-              {/* Previous Button */}
+              {/* Previous Button - White background matching website's button style */}
               <button
                 onClick={handlePreviousClick}
-                className="flex items-center justify-center relative hover:bg-[var(--color-butter)] transition-colors duration-200"
+                className="flex items-center justify-center relative transition-all duration-200 hover:shadow-lg active:scale-95"
                 style={{
-                  width: '43.43px',
-                  height: '43.43px',
-                  borderRadius: '9.75px',
-                  background: 'var(--color-cream-dark)',
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '12px',
+                  // White background matching other buttons on the website
+                  background: 'white',
+                  // Subtle border matching website's white button style (charcoal with low opacity)
+                  border: '1px solid rgba(26, 26, 26, 0.1)', // var(--color-charcoal)/10
                   cursor: 'pointer',
+                  // Shadow matching website's white button style
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(245, 16, 66, 0.3)' // var(--color-primary) on hover
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 16, 66, 0.15)' // Brand color shadow
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(26, 26, 26, 0.1)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)'
                 }}
                 title="Go to previous slide"
                 aria-label="Go to previous slide"
@@ -584,33 +606,48 @@ export default function BlogInsightsSection() {
                 <div style={{ transform: 'rotate(180deg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <IconArrowNarrowRight 
                     style={{
-                      width: '9.55px',
-                      height: '11.018px',
-                      color: 'var(--color-charcoal)',
+                      width: '16px',
+                      height: '16px',
+                      color: 'var(--color-primary)', // Brand color (#f51042) for arrows
+                      strokeWidth: 2.5,
                     }}
                   />
                 </div>
               </button>
 
-              {/* Next Button */}
+              {/* Next Button - White background matching website's button style */}
               <button
                 onClick={handleNextClick}
-                className="flex items-center justify-center relative hover:bg-[var(--color-butter)] transition-colors duration-200"
+                className="flex items-center justify-center relative transition-all duration-200 hover:shadow-lg active:scale-95"
                 style={{
-                  width: '43.43px',
-                  height: '43.43px',
-                  borderRadius: '9.75px',
-                  background: 'var(--color-cream-dark)',
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '12px',
+                  // White background matching other buttons on the website
+                  background: 'white',
+                  // Subtle border matching website's white button style (charcoal with low opacity)
+                  border: '1px solid rgba(26, 26, 26, 0.1)', // var(--color-charcoal)/10
                   cursor: 'pointer',
+                  // Shadow matching website's white button style
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(245, 16, 66, 0.3)' // var(--color-primary) on hover
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 16, 66, 0.15)' // Brand color shadow
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(26, 26, 26, 0.1)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)'
                 }}
                 title="Go to next slide"
                 aria-label="Go to next slide"
               >
                 <IconArrowNarrowRight 
                   style={{
-                    width: '9.55px',
-                    height: '11.018px',
-                    color: 'var(--color-charcoal)',
+                    width: '16px',
+                    height: '16px',
+                    color: 'var(--color-primary)', // Brand color (#f51042) for arrows
+                    strokeWidth: 2.5,
                   }}
                 />
               </button>
