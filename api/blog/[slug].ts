@@ -377,9 +377,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
-      if (excerpt !== undefined && excerpt !== null && excerpt.length > 200) {
-        validationErrors.push('Excerpt must be 200 characters or less')
-      }
+      // Excerpt has no character limit - removed per user request
 
       if (image_url !== undefined && image_url !== null && image_url.length > 0) {
         try {

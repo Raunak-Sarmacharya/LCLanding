@@ -485,10 +485,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         validationErrors.push('Author name must be 200 characters or less')
       }
 
-      // Validate excerpt length if provided (200 character limit)
-      if (excerpt && excerpt.length > 200) {
-        validationErrors.push('Excerpt must be 200 characters or less')
-      }
+      // Excerpt has no character limit - removed per user request
 
       // Validate image_url if provided (should be a valid URL)
       if (image_url && image_url.length > 0) {

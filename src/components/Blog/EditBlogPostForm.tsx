@@ -71,10 +71,7 @@ export default function EditBlogPostForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target
-    // Enforce excerpt character limit (200 characters)
-    if (name === 'excerpt' && value.length > 200) {
-      return // Don't update if exceeds limit
-    }
+    // Excerpt has no character limit - removed per user request
     setFormData((prev) => ({ ...prev, [name]: value }))
     setError(null)
   }
@@ -313,7 +310,7 @@ export default function EditBlogPostForm() {
             <span className="text-[var(--color-charcoal)]/40 text-lg ml-2">(Optional)</span>
           </span>
           <span className="font-body text-sm text-[var(--color-charcoal)]/50">
-            {(formData.excerpt?.length || 0)}/200
+            {(formData.excerpt?.length || 0)} characters
           </span>
         </div>
         <textarea
@@ -321,12 +318,11 @@ export default function EditBlogPostForm() {
           value={formData.excerpt || ''}
           onChange={handleInputChange}
           rows={3}
-          maxLength={200}
           className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300 resize-none leading-relaxed"
-          placeholder="A brief description of your post (max 200 characters)..."
+          placeholder="A brief description of your post..."
         />
         <p className="font-body text-sm text-[var(--color-charcoal)]/40">
-          Keep it concise. This will appear on blog cards and should be 200 characters or less.
+          This will appear on blog cards. No character limit.
         </p>
       </div>
 
