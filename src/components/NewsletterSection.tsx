@@ -61,13 +61,13 @@ export default function NewsletterSection() {
         throw new Error(data.error || data.details || 'Failed to subscribe to newsletter')
       }
 
-      // Success
+      // Success - show verification message
       setIsSubmitting(false)
       setIsSuccess(true)
       setEmail('')
       
-      // Reset success state after 4 seconds
-      setTimeout(() => setIsSuccess(false), 4000)
+      // Reset success state after 8 seconds (longer for verification message)
+      setTimeout(() => setIsSuccess(false), 8000)
     } catch (err) {
       console.error('Newsletter subscription error:', err)
       setIsSubmitting(false)
@@ -267,18 +267,26 @@ export default function NewsletterSection() {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                          className="w-16 h-16 mx-auto mb-4 bg-[var(--color-sage)]/20 rounded-full flex items-center justify-center"
+                          className="w-16 h-16 mx-auto mb-4 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center"
                         >
-                          <svg className="w-8 h-8 text-[var(--color-sage)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
                         </motion.div>
                         <h3 className="font-heading text-2xl text-[var(--color-charcoal)] mb-2">
-                          You're In!
+                          Check Your Email! ✉️
                         </h3>
-                        <p className="font-body text-[var(--color-charcoal)]/60">
-                          Thanks for subscribing. Check your inbox for a welcome surprise! 🎉
+                        <p className="font-body text-[var(--color-charcoal)]/70 mb-3">
+                          We've sent a verification email to complete your subscription.
                         </p>
+                        <p className="font-body text-sm text-[var(--color-charcoal)]/60">
+                          Please click the verification link in the email to confirm your subscription and start receiving updates.
+                        </p>
+                        <div className="mt-6 pt-6 border-t border-[var(--color-charcoal)]/10">
+                          <p className="font-mono text-xs text-[var(--color-charcoal)]/50">
+                            Didn't receive the email? Check your spam folder or try again.
+                          </p>
+                        </div>
                       </motion.div>
                     ) : (
                       <form onSubmit={handleSubmit} className="space-y-6">

@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createSign } from 'crypto'
+import { createSign, randomBytes } from 'crypto'
+import { getSupabaseClient } from './middleware/supabase'
+import { sendVerificationEmail } from './utils/email'
 
 // Configure runtime
 export const config = {
@@ -134,6 +136,66 @@ function isValidEmail(email: string): boolean {
 }
 
 /**
+ * Generate a secure verification token
+ */
+function generateVerificationToken(): string {
+  return randomBytes(32).toString('base64url')
+}
+
+/**
+ * Store newsletter subscription with verification token in Supabase
+ */
+async function storeSubscriptionRequest(email: string, verificationToken: string): Promise<void> {
+  const supabase = getSupabaseClient()
+  
+  // Set expiration to 7 days from now
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + 7)
+  
+  // Check if email already exists
+  const { data: existing } = await supabase
+    .from('newsletter_subscriptions')
+    .select('email, verified')
+    .eq('email', email)
+    .single()
+  
+  if (existing) {
+    if (existing.verified) {
+      throw new Error('This email is already subscribed and verified')
+    } else {
+      // Update existing unverified subscription with new token
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .update({
+          verification_token: verificationToken,
+          expires_at: expiresAt.toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('email', email)
+      
+      if (error) {
+        throw new Error(`Failed to update subscription: ${error.message}`)
+      }
+      return
+    }
+  }
+  
+  // Insert new subscription
+  const { error } = await supabase
+    .from('newsletter_subscriptions')
+    .insert({
+      email,
+      verification_token: verificationToken,
+      verified: false,
+      expires_at: expiresAt.toISOString(),
+    })
+  
+  if (error) {
+    throw new Error(`Failed to store subscription: ${error.message}`)
+  }
+}
+
+/**
  * Add newsletter subscription to Google Sheet using direct API calls
  */
 async function addToSheet(email: string): Promise<void> {
@@ -253,39 +315,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid email format' })
     }
 
-    // Add to Google Sheet
+    // Generate verification token
+    const verificationToken = generateVerificationToken()
+    
+    // Get base URL for verification link
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.VERCEL_ENV === 'production'
+        ? 'https://localcook.shop'
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : 'https://localcook.shop'
+    
+    // Store subscription request in Supabase (unverified)
     try {
-      await addToSheet(trimmedEmail)
-    } catch (sheetError) {
-      console.error('[Newsletter API] Error adding to sheet:', sheetError)
+      await storeSubscriptionRequest(trimmedEmail, verificationToken)
+    } catch (dbError) {
+      console.error('[Newsletter API] Error storing subscription:', dbError)
       
-      // Check if it's a configuration error
-      if (sheetError instanceof Error) {
-        if (sheetError.message.includes('GOOGLE_SERVICE_ACCOUNT_KEY') || 
-            sheetError.message.includes('GOOGLE_SHEET_ID')) {
-          res.setHeader('Content-Type', 'application/json')
-          res.setHeader('Access-Control-Allow-Origin', '*')
-          return res.status(500).json({ 
-            error: 'Server configuration error',
-            details: 'Google Sheets integration is not properly configured'
-          })
-        }
+      // Check if it's a duplicate verified email
+      if (dbError instanceof Error && dbError.message.includes('already subscribed')) {
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(409).json({ 
+          error: 'Email already subscribed',
+          message: 'This email is already subscribed to our newsletter'
+        })
       }
-
+      
       res.setHeader('Content-Type', 'application/json')
       res.setHeader('Access-Control-Allow-Origin', '*')
       return res.status(500).json({ 
-        error: 'Failed to save subscription',
-        details: sheetError instanceof Error ? sheetError.message : 'Unknown error'
+        error: 'Failed to process subscription',
+        details: dbError instanceof Error ? dbError.message : 'Unknown error'
       })
     }
+    
+    // Send verification email
+    try {
+      await sendVerificationEmail(trimmedEmail, verificationToken, baseUrl)
+    } catch (emailError) {
+      console.error('[Newsletter API] Error sending verification email:', emailError)
+      
+      // Even if email fails, we've stored the subscription
+      // Log the error but don't fail the request
+      // The user can request a new verification email if needed
+      console.warn('[Newsletter API] Verification email failed, but subscription stored')
+    }
 
-    // Success response
+    // Success response - ask user to verify email
     res.setHeader('Content-Type', 'application/json')
     res.setHeader('Access-Control-Allow-Origin', '*')
     return res.status(200).json({ 
       success: true,
-      message: 'Successfully subscribed to newsletter'
+      message: 'Please check your email to verify your subscription',
+      requiresVerification: true
     })
 
   } catch (error) {

@@ -10,6 +10,9 @@
     },
     "api/newsletter.ts": {
       "maxDuration": 30
+    },
+    "api/verify-email.ts": {
+      "maxDuration": 30
     }
   },
   "rewrites": [

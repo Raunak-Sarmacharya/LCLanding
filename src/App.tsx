@@ -26,6 +26,7 @@ import BlogPostPage from './pages/BlogPostPage'
 import CreateBlogPostPage from './pages/CreateBlogPostPage'
 import EditBlogPostPage from './pages/EditBlogPostPage'
 import AdminLoginPage from './pages/AdminLoginPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -325,6 +326,7 @@ function App() {
           <Route path="/blog/:slug/edit" element={<EditBlogPostPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
         </Routes>
       )}
     </>
