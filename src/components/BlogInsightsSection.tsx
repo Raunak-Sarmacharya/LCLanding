@@ -1,5 +1,5 @@
 import { motion, useInView } from 'motion/react'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useLayoutEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useBlogPosts } from '../hooks/useBlog'
 import type { BlogPost } from '../lib/types'
@@ -79,11 +79,27 @@ function formatDate(dateString: string): string {
 export default function BlogInsightsSection() {
   const { posts, loading } = useBlogPosts()
   const sectionRef = useRef<HTMLElement>(null)
-  const cardRefs = useRef<(HTMLLIElement | null)[]>([])
+  // Always 5 cards: 2 left, 1 center, 2 right
+  const cardRefs = useRef<(HTMLLIElement | null)[]>(new Array(5).fill(null))
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
-  const [current, setCurrent] = useState(0)
+  // Use virtual index for infinite scroll (can go infinitely in either direction)
+  const [virtualIndex, setVirtualIndex] = useState(0)
   const xRefs = useRef<{ [key: number]: number }>({})
   const yRefs = useRef<{ [key: number]: number }>({})
+  const isInitialized = useRef(false)
+  const animationTimelineRef = useRef<gsap.core.Timeline | null>(null)
+  
+  // Convert virtual index to actual post index (for infinite scroll)
+  const getPostIndex = (virtualIdx: number): number => {
+    if (publishedPosts.length === 0) return 0
+    // Use modulo to map virtual index to actual post index
+    // Handle negative indices properly
+    const mod = ((virtualIdx % publishedPosts.length) + publishedPosts.length) % publishedPosts.length
+    return mod
+  }
+  
+  // Get the actual current post index (for reference if needed)
+  // const current = getPostIndex(virtualIndex)
 
   // Debug: Log posts to see what we're getting
   useEffect(() => {
@@ -102,111 +118,207 @@ export default function BlogInsightsSection() {
     .slice(0, 6) // Limit to 6 posts
 
   // Carousel navigation handlers with smooth GSAP animations
+  // Infinite scroll: always go in the same direction, never loop back
   
   const handlePreviousClick = () => {
-    const previous = current - 1
-    const newCurrent = previous < 0 ? publishedPosts.length - 1 : previous
-    animateToSlide(newCurrent)
+    // Decrement virtual index (infinite scroll - keeps going left)
+    const newVirtualIndex = virtualIndex - 1
+    animateToVirtualIndex(newVirtualIndex)
   }
 
   const handleNextClick = () => {
-    const next = current + 1
-    const newCurrent = next === publishedPosts.length ? 0 : next
-    animateToSlide(newCurrent)
+    // Increment virtual index (infinite scroll - keeps going right)
+    const newVirtualIndex = virtualIndex + 1
+    animateToVirtualIndex(newVirtualIndex)
   }
 
-  const handleSlideClick = (index: number) => {
-    if (current !== index) {
-      animateToSlide(index)
-    }
-  }
+  // handleSlideClick is now handled inline in the card onClick handler
+  // Removed separate function as cards now use animateToVirtualIndex directly
 
-  // Smooth animation to slide using GSAP with combined 3D transforms
-  const animateToSlide = (targetIndex: number) => {
-    // Animate all cards smoothly with combined 3D transforms
-    cardRefs.current.forEach((card, index) => {
-      if (!card) return
-      
-      const offset = index - targetIndex
-      const isActive = targetIndex === index
-      
-      // Calculate 3D transform values
-      const translateX = offset * 850
-      const translateZ = isActive ? 0 : -200 // Push inactive cards back
-      const rotateY = isActive ? 0 : offset * 15 // Rotate on Y-axis for carousel effect
-      const scale = isActive ? 1 : 0.85
-      const opacity = isActive ? 1 : 0.3
-      
-      // Use GSAP's individual transform properties for proper animation
-      gsap.to(card, {
-        x: translateX,
-        z: translateZ,
-        rotationY: rotateY,
-        scale: scale,
-        opacity: opacity,
-        zIndex: isActive ? 10 : Math.abs(offset),
-        duration: 1.2,
-        ease: 'power2.inOut', // Smoother easing
-        overwrite: true,
-        force3D: true, // Force GPU acceleration
-        transformOrigin: 'center center',
-      })
+  // Smooth animation to virtual index using GSAP Timeline
+  // This enables infinite scroll in either direction with smooth, organic transitions
+  const animateToVirtualIndex = (targetVirtualIndex: number) => {
+    // Capture current positions BEFORE any state changes
+    const currentPositions = cardRefs.current.map((card) => {
+      if (!card) return null
+      // Get current GSAP transform values
+      return {
+        x: (gsap.getProperty(card, 'x') as number) || 0,
+        z: (gsap.getProperty(card, 'z') as number) || 0,
+        rotationY: (gsap.getProperty(card, 'rotationY') as number) || 0,
+        scale: (gsap.getProperty(card, 'scale') as number) || 1,
+        opacity: (gsap.getProperty(card, 'opacity') as number) || 1,
+      }
     })
     
-    setCurrent(targetIndex)
-  }
-
-  // Initialize carousel positions on mount and when posts change
-  useEffect(() => {
-    if (publishedPosts.length === 0) return
+    // Update virtual index to get new content
+    setVirtualIndex(targetVirtualIndex)
     
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      cardRefs.current.forEach((card, index) => {
-        if (!card) return
+    // Use double requestAnimationFrame to ensure DOM has fully updated
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Kill any existing timeline to prevent conflicts
+        if (animationTimelineRef.current) {
+          animationTimelineRef.current.kill()
+          animationTimelineRef.current = null
+        }
         
-        const offset = index - current
-        const isActive = current === index
+        // Create a new timeline for coordinated, smooth animations
+        const tl = gsap.timeline({
+          defaults: {
+            ease: 'power2.inOut', // Smooth in-out easing for natural acceleration and deceleration
+            force3D: true, // Force GPU acceleration
+            transformOrigin: 'center center',
+          },
+          overwrite: 'auto', // Automatically handle conflicting animations smoothly
+        })
         
-        const translateX = offset * 850
-        const translateZ = isActive ? 0 : -200
-        const rotateY = isActive ? 0 : offset * 15
-        const scale = isActive ? 1 : 0.85
-        const opacity = isActive ? 1 : 0.3
+        // Store timeline reference for cleanup
+        animationTimelineRef.current = tl
         
-        // Set initial position using GSAP's individual transform properties
-        // Use immediate: true to set without animation
-        gsap.set(card, {
-          x: translateX,
-          z: translateZ,
-          rotationY: rotateY,
-          scale: scale,
-          opacity: opacity,
-          zIndex: isActive ? 10 : Math.abs(offset),
-          transformOrigin: 'center center',
-          force3D: true,
-          immediateRender: true,
+        // Animate all cards smoothly with fromTo and immediateRender: false to prevent jumps
+        // We always show 5 cards: 2 left, 1 center, 2 right
+        cardRefs.current.forEach((card, index) => {
+          if (!card || !currentPositions[index]) return
+          
+          // Calculate which virtual position this card represents
+          // Cards are rendered in order: [left2, left1, center, right1, right2]
+          // So index 0 = left2, index 1 = left1, index 2 = center, etc.
+          const offset = index - 2 // -2, -1, 0, 1, 2 (relative to center)
+          const isActive = offset === 0 // Only center card is active
+          
+          // Calculate target 3D transform values
+          // Reduced spacing from 850 to 750 to show more of faded cards on sides
+          const targetTranslateX = offset * 750
+          const targetTranslateZ = isActive ? 0 : -200 // Push inactive cards back
+          const targetRotateY = isActive ? 0 : offset * 15 // Rotate on Y-axis for carousel effect
+          const targetScale = isActive ? 1 : 0.85
+          const targetOpacity = isActive ? 1 : 0.3
+          
+          // Get saved current position
+          const current = currentPositions[index]!
+          
+          // Calculate stagger delay for organic, cascading flow
+          // Center card starts first, then adjacent cards, creating a smooth ripple effect
+          const staggerDelay = Math.abs(offset) * 0.06 // 0ms (center), 60ms, 120ms delays
+          
+          // Use fromTo with immediateRender: false to prevent visual jumps
+          // This ensures smooth transitions from current position to target
+          tl.fromTo(
+            card,
+            {
+              // Start from saved current position
+              x: current.x,
+              z: current.z,
+              rotationY: current.rotationY,
+              scale: current.scale,
+              opacity: current.opacity,
+              immediateRender: false, // Critical: prevents jump by not rendering "from" values immediately
+            },
+            {
+              // Animate to target position
+              x: targetTranslateX,
+              z: targetTranslateZ,
+              rotationY: targetRotateY,
+              scale: targetScale,
+              opacity: targetOpacity,
+              zIndex: isActive ? 10 : Math.abs(offset),
+              duration: 1.2, // Smooth duration for elegant transitions
+              clearProps: false, // Don't clear props after animation
+            },
+            staggerDelay // Stagger start times for cascading effect
+          )
         })
       })
-    }, 0)
-    
-    return () => clearTimeout(timer)
-  }, [publishedPosts.length, current])
+    })
+  }
 
-  // Mouse tracking for 3D effect on current card
-  useEffect(() => {
-    const animate = () => {
-      publishedPosts.forEach((_, index) => {
-        if (current === index) {
-          const card = cardRefs.current[index]
+  // Track previous posts length to detect when new posts are loaded
+  const prevPostsLength = useRef(publishedPosts.length)
+  
+  // Initialize carousel positions immediately on mount to prevent stacking
+  // Use useLayoutEffect to position cards before browser paint
+  // This ensures cards are positioned correctly on initial load
+  useLayoutEffect(() => {
+    if (publishedPosts.length === 0) return
+    
+    // Reset initialization if posts changed (new posts loaded)
+    if (prevPostsLength.current !== publishedPosts.length) {
+      isInitialized.current = false
+      prevPostsLength.current = publishedPosts.length
+    }
+    
+    // Only set initial positions if not yet initialized
+    // This prevents stacking on first render
+    if (!isInitialized.current) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      const frameId = requestAnimationFrame(() => {
+        // We always have 5 cards: indices 0-4 representing offsets -2, -1, 0, 1, 2
+        cardRefs.current.forEach((card, cardIndex) => {
           if (!card) return
           
-          const x = xRefs.current[index] || 0
-          const y = yRefs.current[index] || 0
-          card.style.setProperty("--x", `${x}px`)
-          card.style.setProperty("--y", `${y}px`)
+          const offset = cardIndex - 2 // Map cardIndex to offset: 0->-2, 1->-1, 2->0, 3->1, 4->2
+          const isActive = offset === 0 // Only center card (offset 0) is active
+          
+          // Reduced spacing from 850 to 750 to show more of faded cards on sides
+          const translateX = offset * 750
+          const translateZ = isActive ? 0 : -200
+          const rotateY = isActive ? 0 : offset * 15
+          const scale = isActive ? 1 : 0.85
+          const opacity = isActive ? 1 : 0.3
+          
+          // Set initial position using GSAP's set() with immediateRender
+          // This positions cards before the browser paints, preventing stacking
+          // Only runs once on initial mount or when posts change
+          gsap.set(card, {
+            x: translateX,
+            z: translateZ,
+            rotationY: rotateY,
+            scale: scale,
+            opacity: opacity,
+            zIndex: isActive ? 10 : Math.abs(offset),
+            transformOrigin: 'center center',
+            force3D: true,
+            immediateRender: true,
+          })
+        })
+        
+        isInitialized.current = true
+      })
+      
+      return () => cancelAnimationFrame(frameId)
+    }
+  }, [publishedPosts.length]) // Only re-run when posts change, not on virtualIndex changes
+
+  // Cleanup animations on unmount
+  useEffect(() => {
+    return () => {
+      // Kill any running animations when component unmounts
+      if (animationTimelineRef.current) {
+        animationTimelineRef.current.kill()
+        animationTimelineRef.current = null
+      }
+      // Kill all tweens on cards
+      cardRefs.current.forEach((card) => {
+        if (card) {
+          gsap.killTweensOf(card)
         }
       })
+    }
+  }, [])
+
+  // Mouse tracking for 3D effect on center card (cardIndex 2, offset 0)
+  useEffect(() => {
+    const animate = () => {
+      // Only the center card (index 2, offset 0) responds to mouse movement
+      const centerCardIndex = 2
+      const card = cardRefs.current[centerCardIndex]
+      if (card) {
+        const x = xRefs.current[centerCardIndex] || 0
+        const y = yRefs.current[centerCardIndex] || 0
+        card.style.setProperty("--x", `${x}px`)
+        card.style.setProperty("--y", `${y}px`)
+      }
       requestAnimationFrame(animate)
     }
 
@@ -214,7 +326,7 @@ export default function BlogInsightsSection() {
     return () => {
       cancelAnimationFrame(frameId)
     }
-  }, [current, publishedPosts.length])
+  }, [publishedPosts.length])
 
   // Generate a placeholder image URL based on post title (for now)
   const getImageUrl = (post: BlogPost) => {
@@ -306,7 +418,7 @@ export default function BlogInsightsSection() {
       />
 
       {/* Content Container */}
-      <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-clip pt-8 sm:pt-10 md:pt-12 pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>
+      <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-visible pt-8 sm:pt-10 md:pt-12 pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>
         {/* Premium Section Header - Matching AppPromo style */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -338,7 +450,7 @@ export default function BlogInsightsSection() {
         </motion.div>
 
         {/* Carousel Container with 3D Perspective - Matching Figma Design */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-visible">
           <div 
             className="relative w-full flex items-center justify-center" 
             style={{ 
@@ -357,30 +469,58 @@ export default function BlogInsightsSection() {
                 transformStyle: 'preserve-3d',
               }}
             >
-              {publishedPosts.map((post, index) => {
+              {/* Always render 5 cards: 2 left, 1 center, 2 right */}
+              {/* Cards are positioned at virtual indices: [virtualIndex-2, virtualIndex-1, virtualIndex, virtualIndex+1, virtualIndex+2] */}
+              {/* Use stable keys based on offset, not virtual position, to prevent React remounting during animation */}
+              {[-2, -1, 0, 1, 2].map((offset) => {
+                const virtualPos = virtualIndex + offset
+                const postIndex = getPostIndex(virtualPos)
+                const post = publishedPosts[postIndex]
+                
+                if (!post) return null
+                
                 const tags = extractTags(post.title, post.content)
                 const readingTime = calculateReadingTime(post.content)
                 const formattedDate = formatDate(post.created_at)
+                const cardIndex = offset + 2 // Map offset to card index: -2->0, -1->1, 0->2, 1->3, 2->4
 
                 const handleMouseMove = (event: React.MouseEvent) => {
-                  const el = cardRefs.current[index]
-                  if (!el || current !== index) return
+                  const el = cardRefs.current[cardIndex]
+                  if (!el || offset !== 0) return // Only center card (offset 0) responds to mouse
                   const r = el.getBoundingClientRect()
-                  xRefs.current[index] = event.clientX - (r.left + Math.floor(r.width / 2))
-                  yRefs.current[index] = event.clientY - (r.top + Math.floor(r.height / 2))
+                  xRefs.current[cardIndex] = event.clientX - (r.left + Math.floor(r.width / 2))
+                  yRefs.current[cardIndex] = event.clientY - (r.top + Math.floor(r.height / 2))
                 }
 
                 const handleMouseLeave = () => {
-                  xRefs.current[index] = 0
-                  yRefs.current[index] = 0
+                  xRefs.current[cardIndex] = 0
+                  yRefs.current[cardIndex] = 0
                 }
 
-                const isActive = current === index
+                const isActive = offset === 0 // Only center card is active
 
                 return (
                   <li
-                    key={post.id}
-                    ref={(el) => { cardRefs.current[index] = el }}
+                    key={`card-${offset}`} // Use stable offset-based key to prevent remounting during animation
+                    ref={(el) => { 
+                      cardRefs.current[cardIndex] = el
+                      // Set initial position immediately when element mounts
+                      // This ensures cards are positioned correctly on first render
+                      if (el) {
+                        // Reduced spacing from 850 to 750 to show more of faded cards on sides
+                        gsap.set(el, {
+                          x: offset * 750,
+                          z: isActive ? 0 : -200,
+                          rotationY: isActive ? 0 : offset * 15,
+                          scale: isActive ? 1 : 0.85,
+                          opacity: isActive ? 1 : 0.3,
+                          zIndex: isActive ? 10 : Math.abs(offset),
+                          transformOrigin: 'center center',
+                          force3D: true,
+                          immediateRender: true,
+                        })
+                      }
+                    }}
                     className="absolute flex flex-col items-center justify-center cursor-pointer"
                     style={{
                       width: '855px',
@@ -391,7 +531,10 @@ export default function BlogInsightsSection() {
                       willChange: 'transform, opacity',
                       pointerEvents: 'auto',
                     }}
-                    onClick={() => handleSlideClick(index)}
+                    onClick={() => {
+                      // Calculate target virtual index based on offset
+                      animateToVirtualIndex(virtualIndex + offset)
+                    }}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                   >
@@ -401,7 +544,8 @@ export default function BlogInsightsSection() {
                         transform: isActive
                           ? 'translate3d(calc(var(--x) / 30), calc(var(--y) / 30), 0)'
                           : 'none',
-                        transition: 'transform 0.15s ease-out',
+                        // Removed CSS transition to prevent conflicts with GSAP animations
+                        transition: 'none',
                       }}
                     >
                       <Link to={`/blog/${post.slug}`} className="block group w-full h-full">
@@ -428,7 +572,8 @@ export default function BlogInsightsSection() {
                               className="w-full h-full object-cover"
                               style={{
                                 opacity: isActive ? 1 : 0.7,
-                                transition: 'opacity 0.6s ease-in-out',
+                                // Removed CSS transition to prevent conflicts with GSAP animations
+                                transition: 'none',
                               }}
                               loading="lazy"
                             />
