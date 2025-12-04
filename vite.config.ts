@@ -13,6 +13,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    include: [
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+      '@tiptap/extension-mention',
+      '@tiptap/markdown',
+      '@tiptap/suggestion',
+      'tippy.js',
+    ],
+    exclude: ['@tiptap/pm'], // Exclude peer dependency that causes resolution issues
+  },
   build: {
     rollupOptions: {
       output: {
@@ -21,6 +32,14 @@ export default defineConfig({
           'vendor-gsap': ['gsap'],
           'vendor-motion': ['motion/react'],
           'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-tiptap': [
+            '@tiptap/react',
+            '@tiptap/starter-kit',
+            '@tiptap/extension-mention',
+            '@tiptap/markdown',
+            '@tiptap/suggestion',
+            'tippy.js',
+          ],
         },
       },
     },

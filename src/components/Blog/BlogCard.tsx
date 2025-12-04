@@ -16,6 +16,8 @@ export default function BlogCard({ post }: BlogCardProps) {
     })
   }
 
+  const tags = post.tags && Array.isArray(post.tags) ? post.tags.slice(0, 3) : []
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -39,6 +41,25 @@ export default function BlogCard({ post }: BlogCardProps) {
             {formatDate(post.created_at)}
           </time>
         </div>
+
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="flex gap-2 mb-3 flex-wrap">
+            {tags.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-2 py-1"
+                style={{
+                  background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
+                }}
+              >
+                <span className="font-mono text-xs uppercase tracking-wide text-[var(--color-charcoal)]">
+                  {tag}
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Title */}
         <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] mb-4 group-hover:text-[var(--color-primary)] transition-colors duration-300">

@@ -8,6 +8,7 @@ export interface BlogPost {
   published: boolean
   created_at: string
   updated_at: string
+  tags?: string[] | null
 }
 
 export interface CreateBlogPostInput {
@@ -16,5 +17,6 @@ export interface CreateBlogPostInput {
   content: string
   excerpt?: string
   author_name: string
+  tags?: string[]
 }
 

@@ -29,6 +29,7 @@ interface SanitizedPost {
   created_at: string
   updated_at: string
   published: boolean
+  tags?: string[] | null
 }
 
 // Helper function to get Supabase client with retry support
@@ -165,6 +166,26 @@ function sanitizePost(post: any): SanitizedPost | null {
     }
   }
 
+  // Sanitize tags - can be null or array
+  let tags: string[] | null = null
+  if (post.tags !== null && post.tags !== undefined) {
+    if (Array.isArray(post.tags)) {
+      tags = post.tags.map(t => String(t).trim()).filter(Boolean)
+    } else if (typeof post.tags === 'string') {
+      // Handle JSON string format
+      try {
+        const parsed = JSON.parse(post.tags)
+        if (Array.isArray(parsed)) {
+          tags = parsed.map(t => String(t).trim()).filter(Boolean)
+        }
+      } catch {
+        // If parsing fails, treat as single tag
+        const trimmed = post.tags.trim()
+        if (trimmed) tags = [trimmed]
+      }
+    }
+  }
+
   return {
     id: post.id.trim(),
     title: post.title.trim(),
@@ -174,6 +195,7 @@ function sanitizePost(post: any): SanitizedPost | null {
     created_at: createdAt,
     updated_at: updatedAt,
     published,
+    tags,
   }
 }
 
@@ -261,11 +283,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let queryResult: { data: PostRow[] | null; error: any }
       try {
         queryResult = await withRetry(async () => {
-          const result = await supabase
+          // Try to select tags, but if column doesn't exist, select without it
+          let result = await supabase
             .from('posts')
-            .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+            .select('id, title, slug, excerpt, author_name, created_at, updated_at, published, tags')
             .order('created_at', { ascending: false })
             .limit(100)
+
+          // If error is about missing column, retry without tags
+          if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
+            console.warn('[GET /api/blog] Tags column not found, fetching without tags')
+            result = await supabase
+              .from('posts')
+              .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+              .order('created_at', { ascending: false })
+              .limit(100)
+          }
 
           if (result.error) {
             throw new Error(result.error.message || 'Supabase query error')
@@ -426,6 +459,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const author_name = typeof body.author_name === 'string' ? body.author_name.trim() : ''
       const excerpt = body.excerpt && typeof body.excerpt === 'string' ? body.excerpt.trim() : null
       const providedSlug = body.slug && typeof body.slug === 'string' ? body.slug.trim() : null
+      const tags = body.tags && Array.isArray(body.tags) 
+        ? body.tags.map(t => typeof t === 'string' ? t.trim() : String(t).trim()).filter(Boolean)
+        : null
 
       // Validate required fields with detailed error messages
       const validationErrors: string[] = []
@@ -503,6 +539,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               excerpt: excerpt || null,
               author_name,
               published: true, // Guest posts are published immediately
+              tags: tags && tags.length > 0 ? tags : null,
             })
             .select()
             .single()

@@ -18,6 +18,7 @@ interface PostRow {
   published: boolean
   created_at: string
   updated_at: string
+  tags?: string[] | null
 }
 
 // Helper function to get Supabase client with timeout
@@ -149,6 +150,26 @@ function sanitizePost(post: any): PostRow | null {
     }
   }
 
+  // Sanitize tags - can be null or array
+  let tags: string[] | null = null
+  if (post.tags !== null && post.tags !== undefined) {
+    if (Array.isArray(post.tags)) {
+      tags = post.tags.map(t => String(t).trim()).filter(Boolean)
+    } else if (typeof post.tags === 'string') {
+      // Handle JSON string format
+      try {
+        const parsed = JSON.parse(post.tags)
+        if (Array.isArray(parsed)) {
+          tags = parsed.map(t => String(t).trim()).filter(Boolean)
+        }
+      } catch {
+        // If parsing fails, treat as single tag
+        const trimmed = post.tags.trim()
+        if (trimmed) tags = [trimmed]
+      }
+    }
+  }
+
   return {
     id: post.id.trim(),
     title: post.title.trim(),
@@ -159,6 +180,7 @@ function sanitizePost(post: any): PostRow | null {
     created_at: createdAt,
     updated_at: updatedAt,
     published,
+    tags,
   }
 }
 
@@ -243,11 +265,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let queryResult: { data: PostRow | null; error: any }
     try {
       queryResult = await withRetry(async () => {
-        const result = await supabase
+        // Try to select all columns including tags
+        let result = await supabase
           .from('posts')
           .select('*')
           .eq('slug', slug)
           .single()
+        
+        // If error is about missing tags column, select without it explicitly
+        if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
+          console.warn('[GET /api/blog/[slug]] Tags column not found, fetching without tags')
+          result = await supabase
+            .from('posts')
+            .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published')
+            .eq('slug', slug)
+            .single()
+        }
         
         if (result.error && result.error.code !== 'PGRST116') {
           // Don't throw on "not found" errors, but throw on other errors

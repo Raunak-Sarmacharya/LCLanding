@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { createBlogPost } from '../../lib/api'
 import { clearBlogPostsCache } from '../../hooks/useBlog'
 import type { CreateBlogPostInput } from '../../lib/types'
+import TiptapEditor from './TiptapEditor'
 
 export default function CreateBlogPostForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -15,7 +16,10 @@ export default function CreateBlogPostForm() {
     content: '',
     excerpt: '',
     author_name: '',
+    tags: [],
   })
+  const [tagsInput, setTagsInput] = useState('')
+  const [editorTags, setEditorTags] = useState<string[]>([])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,6 +28,7 @@ export default function CreateBlogPostForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
     setError(null)
   }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,12 +54,22 @@ export default function CreateBlogPostForm() {
         return
       }
 
+      // Parse tags from comma-separated input and merge with editor tags
+      const inputTags = tagsInput
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean)
+      
+      // Merge editor tags (from # mentions) with input tags, removing duplicates
+      const allTags = [...new Set([...editorTags, ...inputTags])]
+
       const post = await createBlogPost({
         title: formData.title.trim(),
         slug: formData.slug?.trim() || undefined,
         content: formData.content.trim(),
         excerpt: formData.excerpt?.trim() || undefined,
         author_name: formData.author_name.trim(),
+        tags: allTags.length > 0 ? allTags : undefined,
       })
 
       // Ensure we have a valid post response
@@ -240,23 +255,55 @@ export default function CreateBlogPostForm() {
         />
       </div>
 
-      {/* Content */}
+      {/* Tags (Optional) */}
       <div className="space-y-4">
         <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
-          Here is my blog post content:
+          Tags
+          <span className="text-[var(--color-charcoal)]/40 text-lg ml-2">(Optional)</span>
         </span>
-        <textarea
-          name="content"
-          value={formData.content}
-          onChange={handleInputChange}
-          required
-          rows={12}
-          className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300 resize-none leading-relaxed"
-          placeholder="Write your blog post here... Use double line breaks to create paragraphs."
+        <input
+          type="text"
+          value={tagsInput}
+          onChange={(e) => setTagsInput(e.target.value)}
+          className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300"
+          placeholder="Recipe, Cooking, Cuisine (comma-separated)"
         />
         <p className="font-body text-sm text-[var(--color-charcoal)]/40">
-          Use double line breaks (blank lines) to create paragraphs.
+          Enter tags separated by commas. These will appear on your blog post cards.
         </p>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-4">
+        <div>
+          <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block mb-2">
+            Here is my blog post content:
+          </span>
+          <p className="font-body text-sm text-[var(--color-charcoal)]/60 mb-4">
+            Use the toolbar to format your content. Headings will automatically appear in the "In this article" sidebar. Type <code className="bg-[var(--color-cream-dark)]/50 px-1.5 py-0.5 rounded text-[var(--color-primary)]">#</code> to add tags.
+          </p>
+        </div>
+        <TiptapEditor
+          content={formData.content}
+          onChange={(newContent) => {
+            setFormData((prev) => ({ ...prev, content: newContent }))
+            setError(null)
+          }}
+          tags={editorTags}
+          onTagsChange={setEditorTags}
+          placeholder="Start writing your blog post..."
+        />
+        <div className="space-y-2">
+          <p className="font-body text-sm text-[var(--color-charcoal)]/40">
+            • Use the heading buttons (H1, H2, H3) for main sections (appears in sidebar)
+          </p>
+          <p className="font-body text-sm text-[var(--color-charcoal)]/40">
+            • Type <code className="bg-[var(--color-cream-dark)]/50 px-1.5 py-0.5 rounded text-[var(--color-primary)]">#</code> followed by a tag name to add tags
+          </p>
+          <p className="font-body text-sm text-[var(--color-charcoal)]/40">
+            • Headings will automatically create a table of contents in the sidebar
+          </p>
+        </div>
       </div>
 
       {/* Submit Button */}

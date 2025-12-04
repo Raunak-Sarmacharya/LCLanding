@@ -9,8 +9,21 @@ gsap.registerPlugin(ScrollTrigger)
 // When hovered: logo moves from left to right of text, and text becomes bold
 function CloverButton({ href, children }: { href: string; children: React.ReactNode }) {
   const [isHovered, setIsHovered] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const textWidth = 240 // Approximate width of text "Explore Local Cooks for Chefs"
   const mobileTextWidth = 190 // Full text on mobile - "Explore Local Cooks for Chefs"
+  
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  const containerWidth = isMobile ? mobileTextWidth + 60 : textWidth + 60
   
   return (
     <motion.a
@@ -18,14 +31,15 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
       className="clover-link-btn inline-flex items-center cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{ minWidth: `${containerWidth}px` }}
     >
-      {/* Container with relative positioning - fits content on mobile */}
-      <div className="relative flex items-center h-10 sm:h-12 w-auto">
-        {/* Logo container - animates from left to right */}
+      {/* Container with relative positioning - fixed width like OrderNowButton */}
+      <div className="relative flex items-center h-10 sm:h-12" style={{ width: `${containerWidth}px` }}>
+        {/* Logo container - animates from left to right - absolute positioned */}
         <motion.div 
-          className="flex-shrink-0 z-10 flex items-center gap-1 sm:gap-2"
+          className="absolute flex-shrink-0 z-10 flex items-center gap-1 sm:gap-2"
           animate={{ 
-            x: isHovered ? (typeof window !== 'undefined' && window.innerWidth < 640 ? mobileTextWidth + 8 : textWidth + 16) : 0
+            x: isHovered ? (isMobile ? mobileTextWidth + 12 : textWidth + 12) : 0
           }}
           transition={{ 
             duration: 0.6,
@@ -77,10 +91,11 @@ function CloverButton({ href, children }: { href: string; children: React.ReactN
           </motion.div>
         </motion.div>
         
-        {/* Text - positioned after logo, animates with logo movement */}
+        {/* Text - animates from right to left, becomes bold - absolute positioned */}
         <motion.span
-          className="text-[11px] sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body ml-2"
+          className="absolute text-[11px] sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body"
           animate={{ 
+            x: isHovered ? 0 : (isMobile ? 48 : 60),
             fontWeight: isHovered ? 700 : 400
           }}
           transition={{ 

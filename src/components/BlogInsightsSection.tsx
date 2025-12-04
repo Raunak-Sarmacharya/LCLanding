@@ -28,42 +28,12 @@ function calculateReadingTime(content: string): number {
   return Math.max(1, Math.ceil(wordCount / 250))
 }
 
-// Helper function to extract tags from title/content
-function extractTags(title: string, content: string): string[] {
-  // Combine title and content for keyword extraction
-  const text = `${title} ${content}`.toLowerCase()
-  
-  // Common food/cooking related keywords
-  const keywords = [
-    'recipe', 'cooking', 'chef', 'cuisine', 'food', 'meal', 'dish',
-    'biryani', 'noodles', 'cake', 'shrimp', 'wrap', 'local', 'authentic',
-    'homemade', 'traditional', 'spice', 'flavor', 'taste', 'kitchen',
-    'restaurant', 'dining', 'culinary', 'gourmet', 'delicious'
-  ]
-  
-  const foundTags: string[] = []
-  
-  // Find matching keywords
-  keywords.forEach(keyword => {
-    if (text.includes(keyword) && foundTags.length < 3) {
-      // Capitalize first letter
-      const tag = keyword.charAt(0).toUpperCase() + keyword.slice(1)
-      if (!foundTags.includes(tag)) {
-        foundTags.push(tag)
-      }
-    }
-  })
-  
-  // If no tags found, extract first word from title as fallback
-  if (foundTags.length === 0) {
-    const firstWord = title.split(' ')[0]
-    if (firstWord.length > 2) {
-      foundTags.push(firstWord)
-    }
+// Helper function to get tags from post or return empty array
+function getTags(post: BlogPost): string[] {
+  if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
+    return post.tags.slice(0, 3) // Limit to 3 tags for display
   }
-  
-  // Limit to 2-3 tags
-  return foundTags.slice(0, 3)
+  return []
 }
 
 // Helper function to format date
@@ -89,18 +59,6 @@ export default function BlogInsightsSection() {
   const isInitialized = useRef(false)
   const animationTimelineRef = useRef<gsap.core.Timeline | null>(null)
   
-  // Convert virtual index to actual post index (for infinite scroll)
-  const getPostIndex = (virtualIdx: number): number => {
-    if (publishedPosts.length === 0) return 0
-    // Use modulo to map virtual index to actual post index
-    // Handle negative indices properly
-    const mod = ((virtualIdx % publishedPosts.length) + publishedPosts.length) % publishedPosts.length
-    return mod
-  }
-  
-  // Get the actual current post index (for reference if needed)
-  // const current = getPostIndex(virtualIndex)
-
   // Debug: Log posts to see what we're getting
   useEffect(() => {
     console.log('[BlogInsightsSection] Posts received:', posts.length)
@@ -116,6 +74,18 @@ export default function BlogInsightsSection() {
   const publishedPosts = posts
     .filter(post => post.published !== false) // Show if true or undefined
     .slice(0, 6) // Limit to 6 posts
+  
+  // Convert virtual index to actual post index (for infinite scroll)
+  const getPostIndex = (virtualIdx: number): number => {
+    if (publishedPosts.length === 0) return 0
+    // Use modulo to map virtual index to actual post index
+    // Handle negative indices properly
+    const mod = ((virtualIdx % publishedPosts.length) + publishedPosts.length) % publishedPosts.length
+    return mod
+  }
+  
+  // Get the actual current post index (for reference if needed)
+  // const current = getPostIndex(virtualIndex)
 
   // Carousel navigation handlers with smooth GSAP animations
   // Infinite scroll: always go in the same direction, never loop back
@@ -479,7 +449,7 @@ export default function BlogInsightsSection() {
                 
                 if (!post) return null
                 
-                const tags = extractTags(post.title, post.content)
+                const tags = getTags(post)
                 const readingTime = calculateReadingTime(post.content)
                 const formattedDate = formatDate(post.created_at)
                 const cardIndex = offset + 2 // Map offset to card index: -2->0, -1->1, 0->2, 1->3, 2->4
