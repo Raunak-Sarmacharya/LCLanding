@@ -537,18 +537,180 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
 }
 
 /**
+ * Generate slug from title
+ */
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+}
+
+/**
+ * Ensure unique slug by checking database
+ */
+async function ensureUniqueSlug(baseSlug: string, supabase: any): Promise<string> {
+  let slug = baseSlug
+  let counter = 1
+  const maxAttempts = 100
+
+  while (counter <= maxAttempts) {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('Error checking slug uniqueness:', error?.message)
+    }
+
+    if (!data) {
+      return slug
+    }
+
+    slug = `${baseSlug}-${counter}`
+    counter++
+  }
+
+  // Fallback: append timestamp
+  return `${baseSlug}-${Date.now()}`
+}
+
+/**
+ * Create a blog post directly in Supabase (for local development)
+ */
+async function createBlogPostFromSupabase(input: CreateBlogPostInput): Promise<BlogPost> {
+  const startTime = Date.now()
+  console.log('[createBlogPost] Using direct Supabase connection (development mode)')
+  
+  try {
+    const supabase = await getSupabaseClient()
+    
+    // Verify user is authenticated
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required. Please log in as an admin.')
+    }
+
+    // Generate slug if not provided
+    let slug: string
+    if (input.slug && input.slug.trim()) {
+      slug = input.slug.trim()
+    } else {
+      const baseSlug = generateSlug(input.title)
+      slug = await ensureUniqueSlug(baseSlug, supabase)
+    }
+
+    // Prepare insert data
+    const insertData: any = {
+      title: input.title.trim(),
+      slug,
+      content: input.content.trim(),
+      excerpt: input.excerpt?.trim() || null,
+      author_name: input.author_name.trim(),
+      published: true,
+    }
+
+    // Try to include tags if provided, but handle gracefully if column doesn't exist
+    if (input.tags && input.tags.length > 0) {
+      insertData.tags = input.tags
+    }
+
+    // Insert new post - try with tags first
+    let result = await supabase
+      .from('posts')
+      .insert(insertData)
+      .select()
+      .single()
+
+    // If error is about missing tags column, retry without tags
+    if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
+      console.warn('[createBlogPost] Tags column not found, inserting without tags')
+      const { tags, ...dataWithoutTags } = insertData
+      result = await supabase
+        .from('posts')
+        .insert(dataWithoutTags)
+        .select()
+        .single()
+    }
+
+    const { data, error } = result
+
+    if (error) {
+      console.error('[createBlogPost] Supabase insert error:', error)
+      throw new Error(error.message || 'Failed to create blog post in database')
+    }
+
+    if (!data) {
+      throw new Error('No data returned from database')
+    }
+
+    // Validate and format response
+    if (!data.id || !data.title || !data.slug || !data.author_name) {
+      console.error('[createBlogPost] Invalid post data returned:', data)
+      throw new Error('Invalid data returned from database')
+    }
+
+    const post: BlogPost = {
+      id: String(data.id).trim(),
+      title: String(data.title).trim(),
+      slug: String(data.slug).trim(),
+      content: data.content ? String(data.content).trim() : '',
+      excerpt: data.excerpt ? String(data.excerpt).trim() : null,
+      author_name: String(data.author_name).trim(),
+      created_at: data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString(),
+      updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
+      published: data.published !== undefined ? Boolean(data.published) : true,
+      tags: Array.isArray(data.tags) ? data.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
+    }
+
+    const totalTime = Date.now() - startTime
+    console.log(`[createBlogPost] Successfully created post in Supabase in ${totalTime}ms`)
+    return post
+  } catch (error) {
+    const totalTime = Date.now() - startTime
+    console.error(`[createBlogPost] Error in development mode after ${totalTime}ms:`, error)
+    throw error
+  }
+}
+
+/**
  * Create a new blog post (admin only)
+ * 
+ * In development mode, calls Supabase directly to bypass API routes.
+ * In production, uses API routes for better security and server-side processing.
  */
 export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPost> {
   const startTime = Date.now()
+  
+  // In development, call Supabase directly to avoid API route issues
+  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+    try {
+      console.log('[createBlogPost] Development mode: Using direct Supabase connection')
+      const post = await createBlogPostFromSupabase(input)
+      const totalTime = Date.now() - startTime
+      console.log(`[createBlogPost] Operation completed in ${totalTime}ms`)
+      return post
+    } catch (error) {
+      const totalTime = Date.now() - startTime
+      console.error(`[createBlogPost] Error in development mode after ${totalTime}ms:`, error)
+      // Fallback to API route if direct connection fails
+      console.log('[createBlogPost] Falling back to API route...')
+    }
+  }
+
+  // Production mode or fallback: use API routes
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout (same as GET)
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
   try {
     console.log('[createBlogPost] Starting request')
 
     // Get auth token from Supabase session
-    // Supabase stores sessions in localStorage, so we can create a client and get the session
     let authToken: string | null = null
     try {
       const { createClient } = await import('@supabase/supabase-js')
@@ -556,7 +718,6 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
       if (supabaseUrl && supabaseAnonKey) {
-        // Create client with session persistence enabled
         const supabase = createClient(supabaseUrl, supabaseAnonKey, {
           auth: {
             autoRefreshToken: true,
@@ -565,7 +726,6 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
           }
         })
 
-        // Get the current session - Supabase reads from localStorage automatically
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
         if (sessionError) {
@@ -574,7 +734,6 @@ export async function createBlogPost(input: CreateBlogPostInput): Promise<BlogPo
 
         authToken = session?.access_token || null
 
-        // If no token, wait a brief moment and retry (session might be setting up after login)
         if (!authToken) {
           await new Promise(resolve => setTimeout(resolve, 200))
           const { data: { session: retrySession } } = await supabase.auth.getSession()

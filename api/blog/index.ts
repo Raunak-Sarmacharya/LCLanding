@@ -458,6 +458,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const content = typeof body.content === 'string' ? body.content.trim() : ''
       const author_name = typeof body.author_name === 'string' ? body.author_name.trim() : ''
       const excerpt = body.excerpt && typeof body.excerpt === 'string' ? body.excerpt.trim() : null
+      const image_url = body.image_url && typeof body.image_url === 'string' ? body.image_url.trim() : null
       const providedSlug = body.slug && typeof body.slug === 'string' ? body.slug.trim() : null
       const tags = body.tags && Array.isArray(body.tags) 
         ? body.tags.map(t => typeof t === 'string' ? t.trim() : String(t).trim()).filter(Boolean)
@@ -484,8 +485,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         validationErrors.push('Author name must be 200 characters or less')
       }
 
-      if (excerpt && excerpt.length > 1000) {
-        validationErrors.push('Excerpt must be 1,000 characters or less')
+      // Validate excerpt length if provided (200 character limit)
+      if (excerpt && excerpt.length > 200) {
+        validationErrors.push('Excerpt must be 200 characters or less')
+      }
+
+      // Validate image_url if provided (should be a valid URL)
+      if (image_url && image_url.length > 0) {
+        try {
+          new URL(image_url)
+        } catch {
+          validationErrors.push('Image URL must be a valid URL')
+        }
+        if (image_url.length > 2000) {
+          validationErrors.push('Image URL must be 2000 characters or less')
+        }
       }
 
       if (providedSlug) {
@@ -540,6 +554,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               author_name,
               published: true, // Guest posts are published immediately
               tags: tags && tags.length > 0 ? tags : null,
+              image_url: image_url || null,
             })
             .select()
             .single()

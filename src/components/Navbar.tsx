@@ -213,7 +213,7 @@ export default function Navbar() {
           borderBottom: isMobileMenuOpen ? 'none' : (isScrolled ? '1px solid rgba(0, 0, 0, 0.04)' : '1px solid transparent'),
         }}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between w-full box-border">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between w-full box-border min-w-0 overflow-hidden">
           {/* Logo - Using actual LocalCooks logo - HIDDEN when mobile menu is open */}
           <a 
             href={location.pathname === '/' ? '#home' : '/'}
@@ -226,12 +226,12 @@ export default function Navbar() {
                 setIsMobileMenuOpen(false)
               }
             }}
-            className={`flex items-center gap-3 group transition-opacity duration-300 ${
+            className={`flex items-center gap-2 lg:gap-3 group transition-opacity duration-300 flex-shrink-0 min-w-0 ${
               isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
             <motion.div 
-              className="w-12 h-12 flex items-center justify-center"
+              className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center flex-shrink-0"
               whileHover={{ scale: 1.05, rotate: 3 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -241,19 +241,19 @@ export default function Navbar() {
                 className="w-full h-full object-contain drop-shadow-lg"
               />
             </motion.div>
-            <span className="font-display text-3xl tracking-tight text-[var(--color-primary)]">
+            <span className="font-display text-2xl lg:text-3xl tracking-tight text-[var(--color-primary)] whitespace-nowrap">
               LocalCooks
             </span>
           </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6 2xl:gap-8 min-w-0 flex-shrink">
             {navLinks.map((link) => (
               'isRoute' in link && link.isRoute ? (
                 <Link
                   key={link.name}
                   to={link.href}
-                  className={`font-body transition-colors duration-300 relative group ${
+                  className={`font-body text-sm xl:text-base transition-colors duration-300 relative group whitespace-nowrap ${
                     location.pathname === link.href 
                       ? 'text-[var(--color-primary)]' 
                       : 'text-[var(--color-charcoal)] hover:text-[var(--color-primary)]'
@@ -277,7 +277,7 @@ export default function Navbar() {
                       handleNavClick(e, link.href)
                     }
                   }}
-                  className="font-body text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 relative group"
+                  className="font-body text-sm xl:text-base text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 relative group whitespace-nowrap"
                 >
                   {link.name}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--color-primary)] group-hover:w-full transition-all duration-300" />
@@ -287,11 +287,11 @@ export default function Navbar() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-shrink-0">
             {isAdmin && (
               <button
                 onClick={handleLogout}
-                className="font-body text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300"
+                className="font-body text-xs xl:text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300 whitespace-nowrap"
               >
                 Logout
               </button>
@@ -300,16 +300,16 @@ export default function Navbar() {
               href="https://local-cooks-community.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300"
+              className="font-mono text-xs xl:text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300 whitespace-nowrap"
             >
               For Chefs
             </a>
             <a
               href="https://localcook.shop/app/index.php"
-              className="btn-primary bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-6 py-3 rounded-full font-body font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20 flex items-center gap-2"
+              className="btn-primary bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-4 py-2.5 xl:px-6 xl:py-3 rounded-full font-body text-xs xl:text-sm font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20 flex items-center gap-1.5 xl:gap-2 whitespace-nowrap"
             >
               {/* Delivery truck icon from Pretty Patty */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 xl:w-5 xl:h-5">
                 <path d="M16.4 17.6C16.4 19.4778 17.8775 21 19.7 21C21.5225 21 23 19.4778 23 17.6C23 15.7222 21.5225 14.2 19.7 14.2C17.8775 14.2 16.4 15.7222 16.4 17.6ZM16.4 17.6L10.9 17.5997M10.9 17.5997V15.7452C10.9 13.4136 10.9 12.249 10.2554 11.5245C9.6108 10.8 8.5746 10.8 6.5 10.8H5.84C5.4319 10.8 5.2273 10.8 5.0546 10.8148C4.01011 10.9072 3.02922 11.4154 2.28838 12.248C1.54754 13.0807 1.09536 14.1831 1.0132 15.357C1 15.5511 1 15.7823 1 16.2398C1 16.3547 1 16.4128 1.0033 16.4598C1.02373 16.7535 1.1368 17.0293 1.32214 17.2376C1.50747 17.4459 1.75289 17.573 2.0142 17.596C2.07942 17.5994 2.14471 17.6006 2.21 17.5997H10.9ZM4.3 7.39972H9.8M2.1 4H7.6M12 4H12.5421C13.7772 4 14.3942 4 14.8901 4.38122C15.387 4.76117 15.6631 5.44713 16.2145 6.81903L19.1867 14.2M18.3068 11.65L19.006 11.01C19.276 10.7626 19.4115 10.6402 19.5049 10.4783C19.5689 10.3689 19.6185 10.2475 19.6517 10.1187C19.7 9.92875 19.7 9.72093 19.7 9.30528C19.7 8.51733 19.7 8.12462 19.5645 7.8301C19.4735 7.6325 19.3417 7.46873 19.1826 7.3558C18.9464 7.1875 18.6282 7.1875 17.9947 7.1875H16.62M9.25 17.6C9.25 18.5017 8.90232 19.3665 8.28345 20.0042C7.66458 20.6418 6.82521 21 5.95 21C5.07479 21 4.23542 20.6418 3.61655 20.0042C2.99768 19.3665 2.65 18.5017 2.65 17.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
               Order Now

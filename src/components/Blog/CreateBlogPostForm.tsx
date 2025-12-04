@@ -17,6 +17,7 @@ export default function CreateBlogPostForm() {
     excerpt: '',
     author_name: '',
     tags: [],
+    image_url: '',
   })
   const [tagsInput, setTagsInput] = useState('')
   const [editorTags, setEditorTags] = useState<string[]>([])
@@ -25,6 +26,10 @@ export default function CreateBlogPostForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target
+    // Enforce excerpt character limit (200 characters)
+    if (name === 'excerpt' && value.length > 200) {
+      return // Don't update if exceeds limit
+    }
     setFormData((prev) => ({ ...prev, [name]: value }))
     setError(null)
   }
@@ -70,6 +75,7 @@ export default function CreateBlogPostForm() {
         excerpt: formData.excerpt?.trim() || undefined,
         author_name: formData.author_name.trim(),
         tags: allTags.length > 0 ? allTags : undefined,
+        image_url: formData.image_url?.trim() || undefined,
       })
 
       // Ensure we have a valid post response
@@ -241,18 +247,59 @@ export default function CreateBlogPostForm() {
 
       {/* Excerpt (Optional) */}
       <div className="space-y-4">
-        <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
-          Short description
-          <span className="text-[var(--color-charcoal)]/40 text-lg ml-2">(Optional)</span>
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
+            Short description
+            <span className="text-[var(--color-charcoal)]/40 text-lg ml-2">(Optional)</span>
+          </span>
+          <span className="font-body text-sm text-[var(--color-charcoal)]/50">
+            {formData.excerpt?.length || 0}/200
+          </span>
+        </div>
         <textarea
           name="excerpt"
           value={formData.excerpt}
           onChange={handleInputChange}
-          rows={2}
+          rows={3}
+          maxLength={200}
           className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300 resize-none leading-relaxed"
-          placeholder="A brief description of your post..."
+          placeholder="A brief description of your post (max 200 characters)..."
         />
+        <p className="font-body text-sm text-[var(--color-charcoal)]/40">
+          Keep it concise. This will appear on blog cards and should be 200 characters or less.
+        </p>
+      </div>
+
+      {/* Blog Image URL (Optional) */}
+      <div className="space-y-4">
+        <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
+          Blog Image URL
+          <span className="text-[var(--color-charcoal)]/40 text-lg ml-2">(Optional)</span>
+        </span>
+        <input
+          type="url"
+          name="image_url"
+          value={formData.image_url}
+          onChange={handleInputChange}
+          className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300"
+          placeholder="https://example.com/image.jpg"
+        />
+        <p className="font-body text-sm text-[var(--color-charcoal)]/40">
+          Enter a URL to an image for your blog post. If left empty, a placeholder image will be generated automatically.
+        </p>
+        {/* Preview image if URL is provided */}
+        {formData.image_url && formData.image_url.trim() && (
+          <div className="mt-4 rounded-lg overflow-hidden border border-[var(--color-charcoal)]/10">
+            <img 
+              src={formData.image_url} 
+              alt="Preview" 
+              className="w-full h-auto max-h-[300px] object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Tags (Optional) */}

@@ -51,7 +51,9 @@ export default function BlogInsightsSection() {
   const sectionRef = useRef<HTMLElement>(null)
   // Always 5 cards: 2 left, 1 center, 2 right
   const cardRefs = useRef<(HTMLLIElement | null)[]>(new Array(5).fill(null))
-  const isInView = useInView(sectionRef, { once: true, margin: '-50px' })
+  // Use once: true but with a more lenient margin to ensure it triggers even when GSAP wrapper is animating
+  // The margin of -150px means it triggers earlier, giving time for wrapper animation to complete
+  const isInView = useInView(sectionRef, { once: true, margin: '-150px', amount: 0.1 })
   // Use virtual index for infinite scroll (can go infinitely in either direction)
   const [virtualIndex, setVirtualIndex] = useState(0)
   const xRefs = useRef<{ [key: number]: number }>({})
@@ -93,12 +95,14 @@ export default function BlogInsightsSection() {
   const handlePreviousClick = () => {
     // Decrement virtual index (infinite scroll - keeps going left)
     const newVirtualIndex = virtualIndex - 1
+    console.log('[BlogInsights] Previous clicked, animating to:', newVirtualIndex)
     animateToVirtualIndex(newVirtualIndex)
   }
 
   const handleNextClick = () => {
     // Increment virtual index (infinite scroll - keeps going right)
     const newVirtualIndex = virtualIndex + 1
+    console.log('[BlogInsights] Next clicked, animating to:', newVirtualIndex)
     animateToVirtualIndex(newVirtualIndex)
   }
 
@@ -106,101 +110,95 @@ export default function BlogInsightsSection() {
   // Removed separate function as cards now use animateToVirtualIndex directly
 
   // Smooth animation to virtual index using GSAP Timeline
-  // This enables infinite scroll in either direction with smooth, organic transitions
+  // Effortel-style smooth carousel animation with premium easing
   const animateToVirtualIndex = (targetVirtualIndex: number) => {
-    // Capture current positions BEFORE any state changes
-    const currentPositions = cardRefs.current.map((card) => {
-      if (!card) return null
-      // Get current GSAP transform values
-      return {
-        x: (gsap.getProperty(card, 'x') as number) || 0,
-        z: (gsap.getProperty(card, 'z') as number) || 0,
-        rotationY: (gsap.getProperty(card, 'rotationY') as number) || 0,
-        scale: (gsap.getProperty(card, 'scale') as number) || 1,
-        opacity: (gsap.getProperty(card, 'opacity') as number) || 1,
-      }
+    // Calculate direction of movement
+    const direction = targetVirtualIndex > virtualIndex ? -1 : 1
+    // Responsive slide distance based on screen size
+    const isMobile = window.innerWidth < 640
+    const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024
+    // Increased slide distance on mobile to prevent overlapping taller cards
+    const slideDistance = isMobile ? 360 : isTablet ? 550 : 750 // Responsive card width spacing
+    
+    // Kill any existing timeline to prevent conflicts
+    if (animationTimelineRef.current) {
+      animationTimelineRef.current.kill()
+      animationTimelineRef.current = null
+    }
+    
+    // Create a new timeline with premium easing for Effortel-like smoothness
+    const tl = gsap.timeline({
+      defaults: {
+        force3D: true, // Force GPU acceleration for smooth 60fps
+        transformOrigin: 'center center',
+      },
+      overwrite: true, // Kill any conflicting animations
     })
     
-    // Update virtual index to get new content
+    // Store timeline reference for cleanup
+    animationTimelineRef.current = tl
+    
+    console.log('[BlogInsights] Starting animation to virtual index:', targetVirtualIndex)
+    console.log('[BlogInsights] Direction:', direction)
+    
+    // Phase 1: Update content immediately for faster transition
     setVirtualIndex(targetVirtualIndex)
     
-    // Use double requestAnimationFrame to ensure DOM has fully updated
+    // Phase 2: Wait for DOM update, then animate cards sliding in
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        // Kill any existing timeline to prevent conflicts
-        if (animationTimelineRef.current) {
-          animationTimelineRef.current.kill()
-          animationTimelineRef.current = null
-        }
-        
-        // Create a new timeline for coordinated, smooth animations
-        const tl = gsap.timeline({
-          defaults: {
-            ease: 'power2.inOut', // Smooth in-out easing for natural acceleration and deceleration
-            force3D: true, // Force GPU acceleration
-            transformOrigin: 'center center',
-          },
-          overwrite: 'auto', // Automatically handle conflicting animations smoothly
-        })
-        
-        // Store timeline reference for cleanup
-        animationTimelineRef.current = tl
-        
-        // Animate all cards smoothly with fromTo and immediateRender: false to prevent jumps
-        // We always show 5 cards: 2 left, 1 center, 2 right
         cardRefs.current.forEach((card, index) => {
-          if (!card || !currentPositions[index]) return
+          if (!card) return
           
-          // Calculate which virtual position this card represents
-          // Cards are rendered in order: [left2, left1, center, right1, right2]
-          // So index 0 = left2, index 1 = left1, index 2 = center, etc.
-          const offset = index - 2 // -2, -1, 0, 1, 2 (relative to center)
-          const isActive = offset === 0 // Only center card is active
+          const offset = index - 2
+          const isActive = offset === 0
+          const targetX = offset * slideDistance
           
-          // Calculate target 3D transform values
-          // Reduced spacing from 850 to 750 to show more of faded cards on sides
-          const targetTranslateX = offset * 750
-          const targetTranslateZ = isActive ? 0 : -200 // Push inactive cards back
-          const targetRotateY = isActive ? 0 : offset * 15 // Rotate on Y-axis for carousel effect
-          const targetScale = isActive ? 1 : 0.85
-          const targetOpacity = isActive ? 1 : 0.3
+          // Set cards to opposite side immediately (ready to slide in)
+          gsap.set(card, {
+            x: targetX - (direction * slideDistance),
+            z: isActive ? 0 : (isMobile ? -100 : -200),
+            rotationY: isActive ? 0 : (isMobile ? offset * 8 : offset * 15),
+            scale: isActive ? 1 : (isMobile ? 0.9 : 0.85),
+            opacity: 0.1, // All cards start with same low opacity
+            zIndex: isActive ? 10 : Math.abs(offset),
+          })
           
-          // Get saved current position
-          const current = currentPositions[index]!
+          // Calculate stagger timing based on distance from center for more dynamic effect
+          const distanceFromCenter = Math.abs(offset)
+          const baseStagger = distanceFromCenter * 0.04 // Stagger based on distance for natural flow
           
-          // Calculate stagger delay for organic, cascading flow
-          // Center card starts first, then adjacent cards, creating a smooth ripple effect
-          const staggerDelay = Math.abs(offset) * 0.06 // 0ms (center), 60ms, 120ms delays
-          
-          // Use fromTo with immediateRender: false to prevent visual jumps
-          // This ensures smooth transitions from current position to target
-          tl.fromTo(
+          // Animate cards sliding into position - enhanced smooth, coordinated timing
+          // Split transform and opacity for better control and smoother transitions
+          tl.to(
             card,
             {
-              // Start from saved current position
-              x: current.x,
-              z: current.z,
-              rotationY: current.rotationY,
-              scale: current.scale,
-              opacity: current.opacity,
-              immediateRender: false, // Critical: prevents jump by not rendering "from" values immediately
+              x: targetX,
+              z: isActive ? 0 : (isMobile ? -100 : -200),
+              rotationY: isActive ? 0 : (isMobile ? offset * 8 : offset * 15),
+              scale: isActive ? 1 : (isMobile ? 0.9 : 0.85),
+              ease: 'power3.out', // Enhanced easing for smoother deceleration
+              duration: isActive ? 0.9 : 0.75, // Slightly longer for active card, smoother feel
             },
+            isActive ? 0 : baseStagger // Active card starts immediately, others stagger naturally
+          )
+          
+          // Separate opacity animation for smoother fade-in effect
+          tl.to(
+            card,
             {
-              // Animate to target position
-              x: targetTranslateX,
-              z: targetTranslateZ,
-              rotationY: targetRotateY,
-              scale: targetScale,
-              opacity: targetOpacity,
-              zIndex: isActive ? 10 : Math.abs(offset),
-              duration: 1.2, // Smooth duration for elegant transitions
-              clearProps: false, // Don't clear props after animation
+              opacity: isActive ? 1 : 0.3,
+              ease: isActive ? 'power2.inOut' : 'power2.out', // Different easing for active vs inactive
+              duration: isActive ? 0.7 : 0.6, // Active card fades in more smoothly
             },
-            staggerDelay // Stagger start times for cascading effect
+            isActive ? 0.1 : baseStagger + 0.05 // Opacity starts slightly after transform for layered effect
           )
         })
       })
     })
+    
+    // Play the timeline
+    tl.play()
   }
 
   // Track previous posts length to detect when new posts are loaded
@@ -230,11 +228,15 @@ export default function BlogInsightsSection() {
           const offset = cardIndex - 2 // Map cardIndex to offset: 0->-2, 1->-1, 2->0, 3->1, 4->2
           const isActive = offset === 0 // Only center card (offset 0) is active
           
-          // Reduced spacing from 850 to 750 to show more of faded cards on sides
-          const translateX = offset * 750
-          const translateZ = isActive ? 0 : -200
-          const rotateY = isActive ? 0 : offset * 15
-          const scale = isActive ? 1 : 0.85
+          // Responsive spacing based on screen size - increased on mobile to prevent overlapping
+          const isMobile = window.innerWidth < 640
+          const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024
+          const slideDistance = isMobile ? 360 : isTablet ? 550 : 750 // Increased from 320 to 360 for taller cards
+          
+          const translateX = offset * slideDistance
+          const translateZ = isActive ? 0 : (isMobile ? -100 : -200)
+          const rotateY = isActive ? 0 : (isMobile ? offset * 8 : offset * 15)
+          const scale = isActive ? 1 : (isMobile ? 0.9 : 0.85)
           const opacity = isActive ? 1 : 0.3
           
           // Set initial position using GSAP's set() with immediateRender
@@ -298,10 +300,12 @@ export default function BlogInsightsSection() {
     }
   }, [publishedPosts.length])
 
-  // Generate a placeholder image URL based on post title (for now)
+  // Get image URL - use post image_url if available, otherwise generate placeholder
   const getImageUrl = (post: BlogPost) => {
-    // You can replace this with actual image URLs from your blog posts
-    // For now, using a placeholder service
+    if (post.image_url && post.image_url.trim()) {
+      return post.image_url
+    }
+    // Generate placeholder image if no image_url provided
     const seed = post.id || post.slug
     return `https://picsum.photos/seed/${seed}/600/400`
   }
@@ -388,22 +392,22 @@ export default function BlogInsightsSection() {
       />
 
       {/* Content Container */}
-      <div className="relative max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 w-full box-border overflow-x-visible pt-8 sm:pt-10 md:pt-12 pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>
-        {/* Premium Section Header - Matching AppPromo style */}
+      <div className="relative max-w-[1400px] mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-6 w-full box-border overflow-x-visible pt-6 xs:pt-8 sm:pt-10 md:pt-12 pb-16 xs:pb-20 sm:pb-24 md:pb-28" style={{ zIndex: 2 }}>
+        {/* Premium Section Header - Matching AppPromo style with smooth animations */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-8 sm:mb-10 md:mb-12"
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="mb-6 xs:mb-8 sm:mb-10 md:mb-12"
         >
           {/* Label - Matching AppPromo pattern */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-4 sm:mb-6"
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="mb-3 xs:mb-4 sm:mb-6"
           >
-            <span className="inline-block font-mono text-xs sm:text-sm text-white/60 uppercase tracking-[0.3em]">
+            <span className="inline-block font-mono text-[10px] xs:text-xs sm:text-sm text-white/60 uppercase tracking-[0.3em]">
               From Our Kitchen
             </span>
           </motion.div>
@@ -411,9 +415,9 @@ export default function BlogInsightsSection() {
           {/* Main Title - Elegant and Premium */}
           <motion.h2
             initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="font-heading text-[clamp(2rem,6vw,4.5rem)] sm:text-[clamp(2.5rem,7vw,5rem)] text-white leading-[0.9] tracking-tight"
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            transition={{ duration: 0.9, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="font-heading text-[clamp(1.75rem,5vw,2.5rem)] xs:text-[clamp(2rem,6vw,4.5rem)] sm:text-[clamp(2.5rem,7vw,5rem)] text-white leading-[0.9] tracking-tight"
           >
             Food <span className="font-display text-[var(--color-butter)] italic">Stories</span>
           </motion.h2>
@@ -427,7 +431,8 @@ export default function BlogInsightsSection() {
               perspective: '1500px', // Increased perspective for more dramatic effect
               perspectiveOrigin: 'center center',
               transformStyle: 'preserve-3d', 
-              minHeight: '500px',
+              minHeight: 'clamp(400px, 95vw, 500px)', // Increased for taller cards on mobile
+              paddingBottom: 'clamp(20px, 5vw, 40px)', // Extra space at bottom for taller cards
               position: 'relative',
             }}
           >
@@ -477,12 +482,16 @@ export default function BlogInsightsSection() {
                       // Set initial position immediately when element mounts
                       // This ensures cards are positioned correctly on first render
                       if (el) {
-                        // Reduced spacing from 850 to 750 to show more of faded cards on sides
+                        // Responsive spacing based on screen size
+                        const isMobile = window.innerWidth < 640
+                        const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024
+                        const slideDistance = isMobile ? 360 : isTablet ? 550 : 750
+                        
                         gsap.set(el, {
-                          x: offset * 750,
-                          z: isActive ? 0 : -200,
-                          rotationY: isActive ? 0 : offset * 15,
-                          scale: isActive ? 1 : 0.85,
+                          x: offset * slideDistance,
+                          z: isActive ? 0 : (isMobile ? -100 : -200),
+                          rotationY: isActive ? 0 : (isMobile ? offset * 8 : offset * 15),
+                          scale: isActive ? 1 : (isMobile ? 0.9 : 0.85),
                           opacity: isActive ? 1 : 0.3,
                           zIndex: isActive ? 10 : Math.abs(offset),
                           transformOrigin: 'center center',
@@ -491,15 +500,16 @@ export default function BlogInsightsSection() {
                         })
                       }
                     }}
-                    className="absolute flex flex-col items-center justify-center cursor-pointer"
+                    className="absolute flex flex-col items-center justify-center cursor-pointer h-auto sm:h-[clamp(200px,42vw,363px)] min-h-[clamp(350px,90vw,450px)] sm:min-h-[clamp(200px,42vw,363px)]"
                     style={{
-                      width: '855px',
-                      height: '363px',
+                      width: 'clamp(280px, 85vw, 855px)',
                       transformOrigin: 'center center',
                       transformStyle: 'preserve-3d',
                       backfaceVisibility: 'hidden',
                       willChange: 'transform, opacity',
                       pointerEvents: 'auto',
+                      // Prevent overlapping by ensuring proper spacing
+                      marginBottom: '0',
                     }}
                     onClick={() => {
                       // Calculate target virtual index based on offset
@@ -519,20 +529,18 @@ export default function BlogInsightsSection() {
                       }}
                     >
                       <Link to={`/blog/${post.slug}`} className="block group w-full h-full">
-                        {/* Card structure matching website color scheme - white/cream theme */}
+                        {/* Card structure - Responsive: Mobile (image top) / Desktop (image left) */}
                         <div 
-                          className="relative rounded-[14.48px] border border-[var(--color-charcoal)]/10 overflow-hidden flex h-full shadow-brand"
+                          className="relative rounded-[10px] xs:rounded-[12px] sm:rounded-[14.48px] border border-[var(--color-charcoal)]/10 overflow-hidden flex flex-col md:flex-row h-full min-h-full shadow-brand"
                           style={{ 
                             background: 'white',
-                            padding: '3.417px',
+                            padding: 'clamp(3px, 0.5vw, 3.417px)',
                           }}
                         >
-                          {/* Left side - Image Container (matching Figma: 559.78px width) */}
+                          {/* Image Container - Full width on mobile (top), fixed width on desktop (left) */}
                           <div 
-                            className="relative flex-shrink-0 overflow-hidden rounded-[10.86px]" 
+                            className="relative flex-shrink-0 overflow-hidden rounded-[8px] xs:rounded-[10px] sm:rounded-[10.86px] md:rounded-[10.86px] w-full h-[clamp(200px,50vw,280px)] md:h-full md:w-[clamp(250px,40%,450px)]" 
                             style={{ 
-                              width: '559.78px', 
-                              height: '100%',
                               background: 'var(--color-cream-dark)',
                             }}
                           >
@@ -549,22 +557,57 @@ export default function BlogInsightsSection() {
                             />
                           </div>
 
-                          {/* Right side - Text Container (matching Figma: 288.39px width) */}
+                          {/* Text Container - Full width on mobile (below image), remaining space on desktop (right) */}
                           <div 
-                            className="relative flex-shrink-0 flex flex-col" 
+                            className="relative flex-shrink-0 flex flex-col w-full md:w-auto md:flex-1 p-4 xs:p-5 sm:p-5 md:p-[clamp(16px,3.4vw,28.956px)] md:pr-[clamp(20px,5.1vw,43.434px)] md:pb-[clamp(16px,4.1vw,28.956px)] md:pl-[clamp(16px,4.1vw,34.747px)] min-h-0 md:min-h-full" 
                             style={{ 
-                              width: '288.39px', 
-                              height: '100%', 
-                              padding: '28.956px 43.434px 28.956px 34.747px', 
-                              gap: '21.7px',
+                              gap: 'clamp(10px, 2vw, 21.7px)',
                               background: 'transparent',
+                              overflow: 'visible',
                             }}
                           >
+                            {/* Meta Info at top right - Date and Reading Time - Responsive positioning */}
+                            <div className="absolute top-4 xs:top-5 md:top-[clamp(16px,3.4vw,28.956px)] right-4 xs:right-5 md:right-[clamp(20px,5.1vw,43.434px)] flex flex-col items-end gap-1 xs:gap-[clamp(2px, 0.1vw, 0.81px)] z-10">
+                              <div className="flex gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)] items-center" style={{ opacity: 0.6 }}>
+                                <span 
+                                  className="font-mono"
+                                  style={{
+                                    fontSize: 'clamp(10px, 1.4vw, 11.5px)',
+                                    lineHeight: 'clamp(14px, 2vw, 18px)',
+                                    color: 'var(--color-charcoal)',
+                                  }}
+                                >
+                                  {readingTime}
+                                </span>
+                                <span 
+                                  className="font-mono"
+                                  style={{
+                                    fontSize: 'clamp(10px, 1.4vw, 12px)',
+                                    lineHeight: 'clamp(14px, 2vw, 18px)',
+                                    color: 'var(--color-charcoal)',
+                                  }}
+                                >
+                                  min
+                                </span>
+                              </div>
+                              <div 
+                                className="font-mono text-right"
+                                style={{
+                                  fontSize: 'clamp(10px, 1.5vw, 12px)',
+                                  lineHeight: 'clamp(14px, 2vw, 18px)',
+                                  color: 'var(--color-charcoal)',
+                                  opacity: 0.6,
+                                }}
+                              >
+                                {formattedDate}
+                              </div>
+                            </div>
+
                             {/* Tags - Matching website color scheme */}
                             {tags.length > 0 && (
-                              <div className="flex gap-[3.61px] items-start flex-shrink-0">
+                              <div className="flex gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)] items-start flex-shrink-0 mb-1 xs:mb-0">
                                 <span 
-                                  className="border border-[var(--color-charcoal)]/20 rounded-[3.62px] px-[5.734px] py-[4.286px]"
+                                  className="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2.5 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1.5 xs:py-[clamp(3px, 0.5vw, 4.286px)]"
                                   style={{ 
                                     background: 'var(--color-butter)',
                                   }}
@@ -572,8 +615,8 @@ export default function BlogInsightsSection() {
                                   <span 
                                     className="font-mono uppercase tracking-[-0.463px]"
                                     style={{
-                                      fontSize: '8.9px',
-                                      lineHeight: '11.58px',
+                                      fontSize: 'clamp(9px, 1.2vw, 8.9px)',
+                                      lineHeight: 'clamp(12px, 1.6vw, 11.58px)',
                                       color: 'var(--color-charcoal)',
                                     }}
                                   >
@@ -582,7 +625,7 @@ export default function BlogInsightsSection() {
                                 </span>
                                 {tags.length > 1 && (
                                   <span 
-                                    className="border border-[var(--color-charcoal)]/20 rounded-[3.62px] px-[5.734px] py-[3.61px] flex items-center gap-[3.61px]"
+                                    className="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1 xs:py-[clamp(2px, 0.4vw, 3.61px)] flex items-center gap-1.5 xs:gap-[clamp(2px, 0.4vw, 3.61px)]"
                                     style={{
                                       background: 'var(--color-cream-dark)',
                                     }}
@@ -590,8 +633,8 @@ export default function BlogInsightsSection() {
                                     <span 
                                       className="font-mono uppercase tracking-[-0.463px]"
                                       style={{
-                                        fontSize: '11.6px',
-                                        lineHeight: '11.58px',
+                                        fontSize: 'clamp(10px, 1.5vw, 11.6px)',
+                                        lineHeight: 'clamp(12px, 1.6vw, 11.58px)',
                                         color: 'var(--color-charcoal)',
                                       }}
                                     >
@@ -600,8 +643,8 @@ export default function BlogInsightsSection() {
                                     <span 
                                       className="font-mono uppercase tracking-[-0.463px]"
                                       style={{
-                                        fontSize: '11.6px',
-                                        lineHeight: '11.58px',
+                                        fontSize: 'clamp(10px, 1.5vw, 11.6px)',
+                                        lineHeight: 'clamp(12px, 1.6vw, 11.58px)',
                                         color: 'var(--color-charcoal)',
                                       }}
                                     >
@@ -613,53 +656,39 @@ export default function BlogInsightsSection() {
                             )}
 
                             {/* Title - matching website typography */}
-                            <div className="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
+                            <div className="flex-1 flex flex-col justify-start sm:justify-center my-2 xs:my-0" style={{ minHeight: 'auto' }}>
                               <h3 
-                                className="font-heading leading-[27.07px] tracking-[-0.985px] line-clamp-4 group-hover:text-[var(--color-primary)] transition-colors duration-300"
+                                className="font-heading leading-tight sm:leading-[clamp(18px, 3.2vw, 27.07px)] tracking-[-0.5px] sm:tracking-[-0.985px] group-hover:text-[var(--color-primary)] transition-colors duration-300 break-words line-clamp-2 xs:line-clamp-3 sm:line-clamp-4"
                                 style={{
-                                  fontSize: '24px',
+                                  fontSize: 'clamp(18px, 4vw, 24px)',
                                   color: 'var(--color-charcoal)',
+                                  wordBreak: 'break-word',
+                                  overflowWrap: 'break-word',
                                 }}
                               >
                                 {post.title}
                               </h3>
                             </div>
 
-                            {/* Meta Info at bottom - matching website style */}
-                            <div className="flex flex-col gap-[0.81px] flex-shrink-0 mt-auto">
-                              <div className="flex gap-[3.61px] items-center" style={{ opacity: 0.6 }}>
-                                <span 
-                                  className="font-mono"
+                            {/* Short Description/Excerpt - Always show full excerpt */}
+                            {post.excerpt && (
+                              <div className="flex-shrink-0 mb-2 xs:mb-3 sm:mb-4">
+                                <p
+                                  className="font-body leading-relaxed"
                                   style={{
-                                    fontSize: '12.3px',
-                                    lineHeight: '21.72px',
+                                    fontSize: 'clamp(13px, 1.9vw, 15px)',
+                                    lineHeight: 'clamp(20px, 2.8vw, 24px)',
                                     color: 'var(--color-charcoal)',
+                                    opacity: 0.75,
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word',
+                                    whiteSpace: 'normal',
                                   }}
                                 >
-                                  {readingTime}
-                                </span>
-                                <span 
-                                  className="font-mono"
-                                  style={{
-                                    fontSize: '13.9px',
-                                    lineHeight: '21.72px',
-                                    color: 'var(--color-charcoal)',
-                                  }}
-                                >
-                                  min
-                                </span>
+                                  {post.excerpt}
+                                </p>
                               </div>
-                              <div 
-                                className="font-mono"
-                                style={{
-                                  fontSize: '13.8px',
-                                  lineHeight: '21.72px',
-                                  color: 'var(--color-charcoal)',
-                                }}
-                              >
-                                {formattedDate}
-                              </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </Link>
@@ -670,23 +699,21 @@ export default function BlogInsightsSection() {
             </ul>
           </div>
 
-          {/* Navigation Controls - Aligned to left edge of centered card */}
-          <div className="flex items-center mt-6" style={{ justifyContent: 'flex-start' }}>
+          {/* Navigation Controls - Aligned to left edge of centered card - Responsive */}
+          <div className="flex items-center justify-center sm:justify-start mt-4 xs:mt-5 sm:mt-6 px-4 sm:px-0">
             {/* Unified container overlay - subtle warm tone complementing white buttons */}
             <div
-              className="flex gap-1.5 items-center"
+              className="flex gap-2 xs:gap-2.5 sm:gap-1.5 items-center"
               style={{
-                // Align to left edge of centered card (855px wide)
-                // Account for container max-width (1400px) and centering
-                // On screens wider than 1400px: (1400px - 855px) / 2 = 272.5px
-                // On smaller screens: (100% - 855px) / 2, but clamped to account for padding
-                marginLeft: 'clamp(0.5rem, calc((100% - 855px) / 2), calc((1400px - 855px) / 2))',
+                // Responsive alignment - center on mobile, align to card on larger screens
+                marginLeft: '0',
+                marginRight: '0',
                 // Unified container: subtle warm cream background that complements white buttons
                 // Using low opacity to maintain visibility on dark background while being subtle
                 background: 'rgba(255, 237, 213, 0.12)', // Warm butter/cream with low opacity
                 border: '1px solid rgba(255, 237, 213, 0.2)', // Subtle warm border
-                borderRadius: '14px', // Slightly larger than button radius for visual harmony
-                padding: '4px', // Small padding to create gap between container and buttons
+                borderRadius: 'clamp(12px, 1.8vw, 14px)', // Slightly larger than button radius for visual harmony
+                padding: 'clamp(6px, 1.2vw, 4px)', // Better padding on mobile for touch targets
                 backdropFilter: 'blur(8px)',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
               }}
@@ -696,9 +723,10 @@ export default function BlogInsightsSection() {
                 onClick={handlePreviousClick}
                 className="flex items-center justify-center relative transition-all duration-200 hover:shadow-lg active:scale-95"
                 style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '12px',
+                  width: 'clamp(48px, 6.5vw, 52px)',
+                  height: 'clamp(48px, 6.5vw, 52px)',
+                  borderRadius: 'clamp(12px, 1.6vw, 12px)',
+                  padding: '0',
                   // White background matching other buttons on the website
                   background: 'white',
                   // Subtle border matching website's white button style (charcoal with low opacity)
@@ -721,8 +749,8 @@ export default function BlogInsightsSection() {
                 <div style={{ transform: 'rotate(180deg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <IconArrowNarrowRight 
                     style={{
-                      width: '16px',
-                      height: '16px',
+                      width: 'clamp(14px, 1.9vw, 16px)',
+                      height: 'clamp(14px, 1.9vw, 16px)',
                       color: 'var(--color-primary)', // Brand color (#f51042) for arrows
                       strokeWidth: 2.5,
                     }}
@@ -735,9 +763,10 @@ export default function BlogInsightsSection() {
                 onClick={handleNextClick}
                 className="flex items-center justify-center relative transition-all duration-200 hover:shadow-lg active:scale-95"
                 style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '12px',
+                  width: 'clamp(48px, 6.5vw, 52px)',
+                  height: 'clamp(48px, 6.5vw, 52px)',
+                  borderRadius: 'clamp(12px, 1.6vw, 12px)',
+                  padding: '0',
                   // White background matching other buttons on the website
                   background: 'white',
                   // Subtle border matching website's white button style (charcoal with low opacity)
@@ -759,8 +788,8 @@ export default function BlogInsightsSection() {
               >
                 <IconArrowNarrowRight 
                   style={{
-                    width: '16px',
-                    height: '16px',
+                    width: 'clamp(14px, 1.9vw, 16px)',
+                    height: 'clamp(14px, 1.9vw, 16px)',
                     color: 'var(--color-primary)', // Brand color (#f51042) for arrows
                     strokeWidth: 2.5,
                   }}

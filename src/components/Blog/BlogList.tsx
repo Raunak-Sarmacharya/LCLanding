@@ -18,7 +18,7 @@ export default function BlogList({ posts }: BlogListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-8">
       {posts.map((post, index) => (
         <motion.div
           key={post.id}
