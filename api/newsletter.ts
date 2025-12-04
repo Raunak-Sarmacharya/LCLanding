@@ -147,8 +147,33 @@ async function addToSheet(email: string): Promise<void> {
   // Get current timestamp
   const timestamp = new Date().toISOString()
 
+  // Construct range for Google Sheets API append operation
+  // For append, we can use: SheetName!A:B or just SheetName!A1 (starting cell)
+  // Sheet names with special characters should be single-quoted
+  // Try using A1 notation which is more reliable
+  let range: string
+  // Quote sheet name if it contains spaces or starts/ends with special chars
+  const needsQuotes = sheetName.includes(' ') || /^[^a-zA-Z0-9_]|[^a-zA-Z0-9_]$/.test(sheetName)
+  
+  if (needsQuotes) {
+    range = `'${sheetName}'!A1`
+  } else {
+    range = `${sheetName}!A1`
+  }
+  
+  // URL-encode the range for the API path
+  const encodedRange = encodeURIComponent(range)
+  
   // Append row to sheet using Google Sheets API v4
-  const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A:B:append?valueInputOption=USER_ENTERED`
+  // Format: POST /v4/spreadsheets/{spreadsheetId}/values/{range}:append
+  const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedRange}:append?valueInputOption=USER_ENTERED`
+  
+  console.log('[Newsletter API] Appending to sheet:', {
+    spreadsheetId,
+    sheetName,
+    range,
+    encodedRange
+  })
 
   const response = await fetch(apiUrl, {
     method: 'POST',
