@@ -143,8 +143,17 @@ export async function sendVerificationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
+            h1 {font-family: Georgia, serif !important;}
           </style>
           <![endif]-->
+          <!-- Google Fonts for email clients that support web fonts -->
+          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <style type="text/css">
+            /* Fallback for email clients that don't support web fonts */
+            @media only screen and (max-width: 600px) {
+              .email-container { width: 100% !important; }
+            }
+          </style>
         </head>
         <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
           <!-- Wrapper -->
@@ -152,12 +161,12 @@ export async function sendVerificationEmail(
             <tr>
               <td align="center" style="padding: 40px 20px;">
                 <!-- Main Container -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
                   
                   <!-- Header -->
                   <tr>
                     <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
-                      <h1 style="margin: 0; font-family: 'Lobster', cursive; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
                         Welcome to LocalCooks.
                       </h1>
                     </td>
@@ -295,78 +304,104 @@ export async function sendContactVerificationEmail(
     subject: 'Please verify your contact form submission',
     html: `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <title>Verify Your Contact Form - LocalCooks</title>
+          <!--[if mso]>
+          <style type="text/css">
+            body, table, td {font-family: Arial, sans-serif !important;}
+            h1 {font-family: Georgia, serif !important;}
+          </style>
+          <![endif]-->
+          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
-        <body style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; background-color: #FFF9F5; margin: 0; padding: 0;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <!-- Header with brand gradient -->
-            <div style="background: linear-gradient(135deg, #f51042 0%, #ff4d6d 50%, #FF8A7A 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 10px 40px -10px rgba(245, 16, 66, 0.3);">
-              <h1 style="color: white; margin: 0; font-size: 32px; font-family: 'Lobster', cursive; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Verify Your Message 📧</h1>
-            </div>
-            
-            <!-- Main content with cream background -->
-            <div style="background: #FFF9F5; padding: 40px 30px; border: 1px solid rgba(245, 16, 66, 0.1); border-top: none; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-              <p style="font-size: 18px; margin-bottom: 20px; color: #1A1A1A; font-weight: 500;">
-                Thank you for reaching out to LocalCooks! We're excited to hear from you. 🍽️
-              </p>
-              
-              <p style="font-size: 16px; margin-bottom: 30px; color: #333333; line-height: 1.7;">
-                To ensure we can respond to your message, please verify your email address by clicking the link below:
-              </p>
-              
-              <!-- Verification link -->
-              <div style="text-align: center; margin: 40px 0;">
-                <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 15px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1); margin: 0;">
-                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline; font-size: 14px;">${verificationUrl}</a>
-                </p>
-              </div>
-              
-              <!-- Why verify section -->
-              <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(245, 16, 66, 0.1);">
-                <p style="font-size: 16px; color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">
-                  Why verify? 🤔
-                </p>
-                <ul style="font-size: 15px; color: #333333; padding-left: 20px; margin: 0; line-height: 1.8;">
-                  <li style="margin-bottom: 8px;">Ensures we have your correct email address to respond</li>
-                  <li style="margin-bottom: 8px;">Protects you from spam and unauthorized submissions</li>
-                  <li style="margin-bottom: 8px;">Helps us maintain a high-quality contact list</li>
-                  <li>Complies with email best practices</li>
-                </ul>
-              </div>
-              
-              <p style="font-size: 13px; color: #999; margin-top: 30px; text-align: center; padding: 15px; background: #FFF0E8; border-radius: 8px;">
-                ⏰ This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
-              </p>
-            </div>
-            
-            <!-- Footer -->
-            <div style="text-align: center; margin-top: 30px; padding: 25px 20px; color: #999; font-size: 12px;">
-              <p style="margin: 0; color: #666;">© ${new Date().getFullYear()} LocalCooks. All rights reserved.</p>
-              <p style="margin: 15px 0 0 0;">
-                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500; margin: 0 10px;">Visit our website</a> | 
-                <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500; margin: 0 10px;">Contact Support</a>
-              </p>
-            </div>
-          </div>
+        <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
+                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                        Verify Your Message
+                      </h1>
+                    </td>
+                  </tr>
+                  
+                  <!-- Main Content -->
+                  <tr>
+                    <td style="padding: 40px 48px;">
+                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                        Thank you for reaching out to LocalCooks. We're excited to hear from you.
+                      </p>
+                      
+                      <p style="margin: 0 0 32px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                        To ensure we can respond to your message, please verify your email address by clicking the button below.
+                      </p>
+                      
+                      <!-- CTA Button -->
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr>
+                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
+                                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                    Verify Email Address
+                                  </a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <p style="margin: 32px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 13px; line-height: 1.6; color: #666666; text-align: center; padding: 16px; background-color: #FFF9F5; border-radius: 6px;">
+                        This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                        <span style="color: #CCCCCC; margin: 0 8px;">|</span>
+                        <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
+                      </p>
+                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                        © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `,
     text: `
       Verify Your Contact Form Submission
       
-      Thank you for reaching out to LocalCooks! To ensure we can respond to your message, please verify your email address by clicking the link below:
+      Thank you for reaching out to LocalCooks. We're excited to hear from you.
+      
+      To ensure we can respond to your message, please verify your email address by clicking the link below:
       
       ${verificationUrl}
       
-      This verification link will expire in 7 days.
+      This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
       
-      If you didn't submit a contact form, you can safely ignore this email.
-      
-      © ${new Date().getFullYear()} ${config.org}. All rights reserved.
+      © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+      Visit our website: ${baseUrl}
+      Contact Support: ${config.unsubscribeEmail}
     `,
   }
 
@@ -421,75 +456,103 @@ export async function sendContactConfirmationEmail(
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
     to: email,
-    subject: 'We received your message! 🎉',
+    subject: 'We received your message',
     html: `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <title>Message Received - LocalCooks</title>
+          <!--[if mso]>
+          <style type="text/css">
+            body, table, td {font-family: Arial, sans-serif !important;}
+            h1 {font-family: Georgia, serif !important;}
+          </style>
+          <![endif]-->
+          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
-        <body style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; background-color: #FFF9F5; margin: 0; padding: 0;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <!-- Header with celebration gradient -->
-            <div style="background: linear-gradient(135deg, #f51042 0%, #E5A84B 50%, #FF8A7A 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 10px 40px -10px rgba(245, 16, 66, 0.3);">
-              <h1 style="color: white; margin: 0; font-size: 36px; font-family: 'Lobster', cursive; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Message Received! 🎉</h1>
-              <p style="color: white; margin: 10px 0 0 0; font-size: 18px; opacity: 0.95;">Hi ${name}!</p>
-            </div>
-            
-            <!-- Main content with cream background -->
-            <div style="background: #FFF9F5; padding: 40px 30px; border: 1px solid rgba(245, 16, 66, 0.1); border-top: none; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-              <p style="font-size: 18px; margin-bottom: 25px; color: #1A1A1A; font-weight: 500; line-height: 1.7;">
-                Great news! Your email has been verified and we've received your message. 🎊
-              </p>
-              
-              <p style="font-size: 17px; margin-bottom: 20px; color: #1A1A1A; font-weight: 600;">
-                What happens next?
-              </p>
-              
-              <!-- Next steps list -->
-              <div style="background: #FFEDD5; padding: 25px; border-radius: 12px; border-left: 4px solid #f51042; margin-bottom: 30px;">
-                <ul style="font-size: 16px; color: #1A1A1A; padding-left: 0; margin: 0; list-style: none;">
-                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #f51042; font-size: 20px;">📬</span>
-                    We'll review your message carefully
-                  </li>
-                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #E5A84B; font-size: 20px;">⏱️</span>
-                    Expect a response within 24 hours
-                  </li>
-                  <li style="padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #FF8A7A; font-size: 20px;">💬</span>
-                    We'll get back to you at this email address
-                  </li>
-                </ul>
-              </div>
-              
-              <!-- CTA Button -->
-              <div style="text-align: center; margin: 40px 0;">
-                <a href="${baseUrl}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
-                  Visit LocalCooks 🚀
-                </a>
-              </div>
-            </div>
-            
-            <!-- Footer -->
-            <div style="text-align: center; margin-top: 30px; padding: 25px 20px; color: #999; font-size: 12px;">
-              <p style="margin: 0; color: #666;">© ${new Date().getFullYear()} LocalCooks. All rights reserved.</p>
-              <p style="margin: 15px 0 0 0;">
-                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-              </p>
-            </div>
-          </div>
+        <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
+                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                        Message Received
+                      </h1>
+                      <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
+                        Hi ${name},
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Main Content -->
+                  <tr>
+                    <td style="padding: 40px 48px;">
+                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                        Great news! Your email has been verified and we've received your message.
+                      </p>
+                      
+                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.6; color: #1A1A1A;">
+                        What happens next?
+                      </p>
+                      
+                      <!-- Next steps list -->
+                      <div style="background-color: #FFF9F5; padding: 24px; border-radius: 6px; border-left: 3px solid #f51042; margin-bottom: 32px;">
+                        <ul style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #1A1A1A; padding-left: 20px; margin: 0; line-height: 1.8;">
+                          <li style="margin-bottom: 12px;">We'll review your message carefully</li>
+                          <li style="margin-bottom: 12px;">Expect a response within 24 hours</li>
+                          <li>We'll get back to you at this email address</li>
+                        </ul>
+                      </div>
+                      
+                      <!-- CTA Button -->
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr>
+                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
+                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                    Visit LocalCooks
+                                  </a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                      </p>
+                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                        © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `,
     text: `
-      Message Received! 🎉
+      Message Received
       
-      Hi ${name}!
+      Hi ${name},
       
       Great news! Your email has been verified and we've received your message.
       
@@ -500,7 +563,7 @@ export async function sendContactConfirmationEmail(
       
       Visit us at: ${baseUrl}
       
-      © ${new Date().getFullYear()} ${config.org}. All rights reserved.
+      © ${new Date().getFullYear()} LocalCooks. All rights reserved.
     `,
   }
 
@@ -554,83 +617,110 @@ export async function sendWelcomeEmail(
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
     to: email,
-    subject: 'Welcome to LocalCooks! 🎉',
+    subject: 'Welcome to LocalCooks',
     html: `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <title>Welcome to LocalCooks</title>
+          <!--[if mso]>
+          <style type="text/css">
+            body, table, td {font-family: Arial, sans-serif !important;}
+            h1 {font-family: Georgia, serif !important;}
+          </style>
+          <![endif]-->
+          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
-        <body style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; background-color: #FFF9F5; margin: 0; padding: 0;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <!-- Header with celebration gradient -->
-            <div style="background: linear-gradient(135deg, #f51042 0%, #E5A84B 50%, #FF8A7A 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 10px 40px -10px rgba(245, 16, 66, 0.3);">
-              <h1 style="color: white; margin: 0; font-size: 36px; font-family: 'Lobster', cursive; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">You're All Set! 🎉</h1>
-              <p style="color: white; margin: 10px 0 0 0; font-size: 18px; opacity: 0.95;">Welcome to the LocalCooks family!</p>
-            </div>
-            
-            <!-- Main content with cream background -->
-            <div style="background: #FFF9F5; padding: 40px 30px; border: 1px solid rgba(245, 16, 66, 0.1); border-top: none; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-              <p style="font-size: 18px; margin-bottom: 25px; color: #1A1A1A; font-weight: 500; line-height: 1.7;">
-                Great news! Your email has been verified and you're now subscribed to the LocalCooks newsletter. 🎊
-              </p>
-              
-              <p style="font-size: 17px; margin-bottom: 20px; color: #1A1A1A; font-weight: 600;">
-                You'll now receive:
-              </p>
-              
-              <!-- Benefits list with icons -->
-              <div style="background: #FFEDD5; padding: 25px; border-radius: 12px; border-left: 4px solid #f51042; margin-bottom: 30px;">
-                <ul style="font-size: 16px; color: #1A1A1A; padding-left: 0; margin: 0; list-style: none;">
-                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #f51042; font-size: 20px;">👨‍🍳</span>
-                    Updates about new chefs joining our platform
-                  </li>
-                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #E5A84B; font-size: 20px;">💰</span>
-                    Exclusive deals and special offers
-                  </li>
-                  <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #FF8A7A; font-size: 20px;">📜</span>
-                    Authentic recipes from your neighborhood
-                  </li>
-                  <li style="padding-left: 30px; position: relative;">
-                    <span style="position: absolute; left: 0; color: #f51042; font-size: 20px;">💬</span>
-                    Tips and stories from our community
-                  </li>
-                </ul>
-              </div>
-              
-              <!-- CTA Button -->
-              <div style="text-align: center; margin: 40px 0;">
-                <a href="${baseUrl}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
-                  Explore LocalCooks 🚀
-                </a>
-              </div>
-              
-              <!-- Unsubscribe info -->
-              <p style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 25px; border-top: 2px solid rgba(245, 16, 66, 0.1); line-height: 1.7;">
-                If you ever want to unsubscribe, just reply to this email or contact us at 
-                <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">${config.unsubscribeEmail}</a>
-              </p>
-            </div>
-            
-            <!-- Footer -->
-            <div style="text-align: center; margin-top: 30px; padding: 25px 20px; color: #999; font-size: 12px;">
-              <p style="margin: 0; color: #666;">© ${new Date().getFullYear()} LocalCooks. All rights reserved.</p>
-              <p style="margin: 15px 0 0 0;">
-                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-              </p>
-            </div>
-          </div>
+        <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
+                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                        You're All Set
+                      </h1>
+                      <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
+                        Welcome to the LocalCooks family
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Main Content -->
+                  <tr>
+                    <td style="padding: 40px 48px;">
+                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                        Great news! Your email has been verified and you're now subscribed to the LocalCooks newsletter.
+                      </p>
+                      
+                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.6; color: #1A1A1A;">
+                        You'll now receive:
+                      </p>
+                      
+                      <!-- Benefits list -->
+                      <div style="background-color: #FFF9F5; padding: 24px; border-radius: 6px; border-left: 3px solid #f51042; margin-bottom: 32px;">
+                        <ul style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #1A1A1A; padding-left: 20px; margin: 0; line-height: 1.8;">
+                          <li style="margin-bottom: 12px;">Updates about new chefs joining our platform</li>
+                          <li style="margin-bottom: 12px;">Exclusive deals and special offers</li>
+                          <li style="margin-bottom: 12px;">Authentic recipes from your neighborhood</li>
+                          <li>Tips and stories from our community</li>
+                        </ul>
+                      </div>
+                      
+                      <!-- CTA Button -->
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr>
+                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
+                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                    Explore LocalCooks
+                                  </a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <!-- Unsubscribe info -->
+                      <p style="margin: 32px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #666666; padding-top: 24px; border-top: 1px solid #E5E5E5;">
+                        If you ever want to unsubscribe, just reply to this email or contact us at 
+                        <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">${config.unsubscribeEmail}</a>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                      </p>
+                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                        © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `,
     text: `
-      You're All Set! 🎉
+      You're All Set
+      
+      Welcome to the LocalCooks family!
       
       Great news! Your email has been verified and you're now subscribed to the LocalCooks newsletter.
       
@@ -644,7 +734,7 @@ export async function sendWelcomeEmail(
       
       If you ever want to unsubscribe, just reply to this email or contact us at ${config.unsubscribeEmail}
       
-      © ${new Date().getFullYear()} ${config.org}. All rights reserved.
+      © ${new Date().getFullYear()} LocalCooks. All rights reserved.
     `,
   }
 
