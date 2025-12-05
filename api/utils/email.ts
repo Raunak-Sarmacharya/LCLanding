@@ -236,7 +236,7 @@ export async function sendVerificationEmail(
                         — The LocalCooks Team
                       </p>
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                        <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
                         <span style="color: #E0E0E0; margin: 0 10px;">|</span>
                         <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
                       </p>
@@ -265,7 +265,7 @@ export async function sendVerificationEmail(
       — The LocalCooks Team
       
       © ${new Date().getFullYear()} LocalCooks. All rights reserved.
-      Visit our website: ${baseUrl}
+      Visit our website: www.localcooks.ca
       Contact Support: ${config.unsubscribeEmail}
     `,
   }
@@ -427,7 +427,7 @@ export async function sendContactVerificationEmail(
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                        <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
                         <span style="color: #E0E0E0; margin: 0 10px;">|</span>
                         <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
                       </p>
@@ -456,7 +456,7 @@ export async function sendContactVerificationEmail(
       This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
       
       © ${new Date().getFullYear()} LocalCooks. All rights reserved.
-      Visit our website: ${baseUrl}
+      Visit our website: www.localcooks.ca
       Contact Support: ${config.unsubscribeEmail}
     `,
   }
@@ -605,7 +605,7 @@ export async function sendContactConfirmationEmail(
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
                                 <td align="center" style="background-color: #f51042; border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 16, 66, 0.25);">
-                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                  <a href="https://www.localcooks.ca" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
                                     Visit LocalCooks
                                   </a>
                                 </td>
@@ -621,7 +621,7 @@ export async function sendContactConfirmationEmail(
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
               </p>
                       <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
@@ -648,7 +648,7 @@ export async function sendContactConfirmationEmail(
       - Expect a response within 24 hours
       - We'll get back to you at this email address
       
-      Visit us at: ${baseUrl}
+      Visit us at: www.localcooks.ca
       
       © ${new Date().getFullYear()} LocalCooks. All rights reserved.
     `,
@@ -798,7 +798,7 @@ export async function sendWelcomeEmail(
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
                                 <td align="center" style="background-color: #f51042; border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 16, 66, 0.25);">
-                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                  <a href="https://www.localcooks.ca" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
                                     Explore LocalCooks
                                   </a>
                                 </td>
@@ -820,7 +820,7 @@ export async function sendWelcomeEmail(
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
               </p>
                       <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
@@ -848,7 +848,7 @@ export async function sendWelcomeEmail(
       - Authentic recipes from your neighborhood
       - Tips and stories from our community
       
-      Visit us at: ${baseUrl}
+      Visit us at: www.localcooks.ca
       
       If you ever want to unsubscribe, just reply to this email or contact us at ${config.unsubscribeEmail}
       
