@@ -167,11 +167,13 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         // Mobile-optimized for natural, smooth touch feel like prettypatty.ch
         // CRITICAL: On mobile with syncTouch: false, set lerp to 1 (no smoothing) for perfect 1:1 finger tracking
         // This eliminates jitter by ensuring native scrolling is completely unmodified
-        lerp: isMobile ? 1 : 0.08, // lerp: 1 = instant, no smoothing (perfect for native scrolling on mobile)
+        lerp: isMobile ? 1 : 0.1, // lerp: 1 = instant, no smoothing (perfect for native scrolling on mobile)
+        // Desktop: Increased from 0.08 to 0.1 for better responsiveness during fast drag scrolling
+        // This reduces lag while maintaining smooth feel
         // Duration for momentum scrolling after touch release
-        duration: isMobile ? 1.2 : 1.5, // Slightly longer on mobile for smoother momentum
+        duration: isMobile ? 1.2 : 1.3, // Desktop: Reduced from 1.5 to 1.3 for snappier response
         smoothWheel: true,
-        wheelMultiplier: isMobile ? 1.0 : 0.85,
+        wheelMultiplier: isMobile ? 1.0 : 0.9, // Desktop: Increased from 0.85 to 0.9 for better scroll responsiveness
         // Premium mobile scroll sensitivity - matches effortel.com configuration
         // Lenis default touchMultiplier is 1.0, which is what premium sites use for native scrolling
         // With syncTouch: false, native scrolling is used, so this value aligns with standard behavior
@@ -182,13 +184,19 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         // Native scrolling is what makes top websites feel responsive on mobile
         syncTouch: isMobile ? false : true, // false on mobile = native scrolling (fast & natural), true on desktop = smooth scrolling
         // syncTouchLerp only applies when syncTouch is true (desktop only)
-        syncTouchLerp: isMobile ? 0.075 : 0.05, // Only used on desktop when syncTouch is true
+        syncTouchLerp: isMobile ? 0.075 : 0.06, // Desktop: Slightly increased from 0.05 to 0.06 for smoother touch inertia
         // touchInertiaExponent only applies when syncTouch is true (desktop only)
-        touchInertiaExponent: isMobile ? 1.5 : 1.7, // Only used on desktop when syncTouch is true
-        // Custom easing curve for smooth deceleration (optimized)
+        touchInertiaExponent: isMobile ? 1.5 : 1.6, // Desktop: Reduced from 1.7 to 1.6 for smoother deceleration
+        // Custom easing curve for smooth deceleration (optimized for desktop)
         easing: (t: number) => {
-          // Optimized easing: smooth acceleration and deceleration
-          return t === 1 ? 1 : 1 - Math.pow(2, -8 * t)
+          // Desktop: Optimized easing with smoother deceleration curve
+          // Uses ease-out cubic for natural, responsive feel without lag
+          if (isMobile) {
+            // Mobile keeps original easing (though it's not used with lerp: 1)
+            return t === 1 ? 1 : 1 - Math.pow(2, -8 * t)
+          }
+          // Desktop: Ease-out cubic for smoother, more responsive deceleration
+          return t === 1 ? 1 : 1 - Math.pow(1 - t, 3)
         },
         // Allow overscroll for more natural mobile feel
         overscroll: isMobile ? true : false,
