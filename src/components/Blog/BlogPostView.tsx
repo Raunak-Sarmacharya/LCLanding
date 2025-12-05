@@ -7,6 +7,166 @@ import { useLenis } from '../../contexts/LenisContext'
 import { useAuth } from '../../hooks/useAuth'
 import { calculateReadingTime, formatDate } from '../../lib/blogUtils'
 
+/**
+ * Render markdown formatting in text
+ * Converts **bold**, *italic*, `code`, [links](url) to React elements
+ * Handles nested formatting (e.g., **bold with *italic* inside**)
+ */
+function renderMarkdownText(text: string, depth: number = 0): React.ReactNode[] {
+  if (!text || depth > 3) return [text] // Prevent infinite recursion
+
+  const parts: React.ReactNode[] = []
+  let key = 0
+
+  interface Match {
+    start: number
+    end: number
+    type: 'code' | 'link' | 'bold' | 'italic'
+    content: string
+    url?: string
+  }
+
+  const matches: Match[] = []
+
+  // Process inline code first (highest priority - no formatting inside)
+  const codeRegex = /`([^`]+)`/g
+  let codeMatch
+  while ((codeMatch = codeRegex.exec(text)) !== null) {
+    matches.push({
+      start: codeMatch.index,
+      end: codeMatch.index + codeMatch[0].length,
+      type: 'code',
+      content: codeMatch[1],
+    })
+  }
+
+  // Process links [text](url) - but skip if inside code
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+  let linkMatch
+  while ((linkMatch = linkRegex.exec(text)) !== null) {
+    const isInsideCode = matches.some(
+      (m) => m.type === 'code' && linkMatch!.index >= m.start && linkMatch!.index < m.end
+    )
+    if (!isInsideCode) {
+      matches.push({
+        start: linkMatch.index,
+        end: linkMatch.index + linkMatch[0].length,
+        type: 'link',
+        content: linkMatch[1],
+        url: linkMatch[2],
+      })
+    }
+  }
+
+  // Process bold **text** or __text__ - but skip if inside code or link
+  const boldRegex = /\*\*([^*]+)\*\*|__([^_]+)__/g
+  let boldMatch
+  while ((boldMatch = boldRegex.exec(text)) !== null) {
+    const isInsideOther = matches.some(
+      (m) => (m.type === 'code' || m.type === 'link') && boldMatch!.index >= m.start && boldMatch!.index < m.end
+    )
+    if (!isInsideOther) {
+      matches.push({
+        start: boldMatch.index,
+        end: boldMatch.index + boldMatch[0].length,
+        type: 'bold',
+        content: boldMatch[1] || boldMatch[2],
+      })
+    }
+  }
+
+  // Process italic *text* or _text_ - but skip if inside code, link, or bold
+  const italicRegex = /(?<!\*)\*([^*]+)\*(?!\*)|(?<!_)_([^_]+)_(?!_)/g
+  let italicMatch
+  while ((italicMatch = italicRegex.exec(text)) !== null) {
+    const isInsideOther = matches.some(
+      (m) => (m.type === 'code' || m.type === 'link' || m.type === 'bold') && 
+             italicMatch!.index >= m.start && italicMatch!.index < m.end
+    )
+    if (!isInsideOther) {
+      matches.push({
+        start: italicMatch.index,
+        end: italicMatch.index + italicMatch[0].length,
+        type: 'italic',
+        content: italicMatch[1] || italicMatch[2],
+      })
+    }
+  }
+
+  // Sort matches by position and remove overlaps (keep higher priority)
+  const sortedMatches = matches
+    .sort((a, b) => a.start - b.start)
+    .filter((match, index, arr) => {
+      // Remove if this match overlaps with a higher priority match
+      return !arr.some((other, otherIndex) => {
+        if (otherIndex >= index) return false
+        const priority = { code: 4, link: 3, bold: 2, italic: 1 }
+        if (priority[other.type] > priority[match.type]) {
+          return match.start < other.end && match.end > other.start
+        }
+        return false
+      })
+    })
+
+  let lastIndex = 0
+
+  sortedMatches.forEach((match) => {
+    // Add text before match
+    if (match.start > lastIndex) {
+      const beforeText = text.substring(lastIndex, match.start)
+      if (beforeText) {
+        parts.push(beforeText)
+      }
+    }
+
+    // For bold/italic, recursively process nested formatting
+    const content = (match.type === 'bold' || match.type === 'italic') && depth < 2
+      ? renderMarkdownText(match.content, depth + 1)
+      : match.content
+
+    switch (match.type) {
+      case 'code':
+        parts.push(
+          <code
+            key={key++}
+            className="bg-[var(--color-cream-dark)]/50 px-1.5 py-0.5 rounded text-[var(--color-primary)] font-mono text-sm"
+          >
+            {content}
+          </code>
+        )
+        break
+      case 'link':
+        parts.push(
+          <a
+            key={key++}
+            href={match.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--color-primary)] hover:underline"
+          >
+            {content}
+          </a>
+        )
+        break
+      case 'bold':
+        parts.push(<strong key={key++}>{content}</strong>)
+        break
+      case 'italic':
+        parts.push(<em key={key++}>{content}</em>)
+        break
+    }
+
+    lastIndex = match.end
+  })
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex))
+  }
+
+  return parts.length > 0 ? parts : [text]
+}
+
 interface BlogPostViewProps {
   post: BlogPost
 }
@@ -789,7 +949,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                         key={index}
                         className="font-body text-base xs:text-lg sm:text-xl text-[var(--color-charcoal)] leading-relaxed mb-6 xs:mb-7 sm:mb-8 whitespace-pre-line"
                       >
-                        {block.content.trim()}
+                        {renderMarkdownText(block.content.trim())}
                       </p>
                     )
                   }

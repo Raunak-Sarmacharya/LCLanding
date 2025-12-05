@@ -172,20 +172,22 @@ export default function TiptapEditor({ content, onChange, placeholder: _placehol
       Markdown,
     ],
     content: content || '',
+    // Set contentType to markdown to ensure initial content is parsed as markdown
+    contentType: 'markdown',
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[400px] px-4 py-3',
       },
     },
     onUpdate: ({ editor }) => {
-      // Get content as markdown to maintain compatibility
+      // Get content as markdown using the proper API
       try {
-        // Use the markdown extension's serializer if available
-        const markdown = (editor.storage.markdown as any)?.serializer?.serialize(editor.state.doc) || editor.getHTML()
+        // Use getMarkdown() method which is the proper way to serialize to markdown
+        const markdown = editor.getMarkdown()
         onChange(markdown)
       } catch (error) {
-        // Fallback to HTML if markdown storage is not available
-        console.warn('Markdown storage not available, using HTML:', error)
+        // Fallback to HTML if markdown is not available
+        console.warn('Markdown serialization not available, using HTML:', error)
         onChange(editor.getHTML())
       }
     },
@@ -194,19 +196,30 @@ export default function TiptapEditor({ content, onChange, placeholder: _placehol
 
   // Update editor content when prop changes (but not on every keystroke)
   useEffect(() => {
-    if (editor) {
+    if (editor && content !== undefined) {
       try {
-        const currentContent = (editor.storage.markdown as any)?.serializer?.serialize(editor.state.doc) || editor.getHTML()
-        if (content && content !== currentContent) {
-          // Try markdown first, fallback to HTML
-          try {
-            editor.commands.setContent(content || '', { emitUpdate: false })
-          } catch {
-            editor.commands.setContent(content || '', { emitUpdate: false })
-          }
+        // Get current content as markdown for comparison
+        const currentContent = editor.getMarkdown()
+        
+        // Only update if content has actually changed
+        if (content !== currentContent) {
+          // Set content as markdown to ensure proper parsing
+          // This handles both markdown and HTML content correctly
+          editor.commands.setContent(content || '', { 
+            contentType: 'markdown',
+            emitUpdate: false 
+          })
         }
       } catch (error) {
-        console.warn('Error updating editor content:', error)
+        // If markdown parsing fails, try as HTML
+        try {
+          const currentContent = editor.getHTML()
+          if (content !== currentContent) {
+            editor.commands.setContent(content || '', { emitUpdate: false })
+          }
+        } catch (htmlError) {
+          console.warn('Error updating editor content:', error, htmlError)
+        }
       }
     }
   }, [content, editor])
