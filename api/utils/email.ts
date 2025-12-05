@@ -131,81 +131,107 @@ export async function sendVerificationEmail(
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
     to: email,
-    subject: 'Please verify your email address',
+    subject: 'LocalCooks Newsletter – One step to complete your signup',
     html: `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Verify Your Email - LocalCooks</title>
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <title>Complete Your Signup - LocalCooks</title>
+          <!--[if mso]>
+          <style type="text/css">
+            body, table, td {font-family: Arial, sans-serif !important;}
+          </style>
+          <![endif]-->
         </head>
-        <body style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; background-color: #FFF9F5; margin: 0; padding: 0;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <!-- Header with brand gradient -->
-            <div style="background: linear-gradient(135deg, #f51042 0%, #ff4d6d 50%, #FF8A7A 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 10px 40px -10px rgba(245, 16, 66, 0.3);">
-              <h1 style="color: white; margin: 0; font-size: 32px; font-family: 'Lobster', cursive; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Welcome to LocalCooks! 👨‍🍳</h1>
-            </div>
-            
-            <!-- Main content with cream background -->
-            <div style="background: #FFF9F5; padding: 40px 30px; border: 1px solid rgba(245, 16, 66, 0.1); border-top: none; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-              <p style="font-size: 18px; margin-bottom: 20px; color: #1A1A1A; font-weight: 500;">
-                Thank you for subscribing to our newsletter! We're excited to have you join our community of food lovers. 🍽️
-              </p>
-              
-              <p style="font-size: 16px; margin-bottom: 30px; color: #333333; line-height: 1.7;">
-                To complete your subscription and start receiving updates about new chefs, exclusive deals, and authentic recipes, please verify your email address by clicking the link below:
-              </p>
-              
-              <!-- Verification link -->
-              <div style="text-align: center; margin: 40px 0;">
-                <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 15px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1); margin: 0;">
-                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline; font-size: 14px;">${verificationUrl}</a>
-                </p>
-              </div>
-              
-              <!-- Why verify section -->
-              <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(245, 16, 66, 0.1);">
-                <p style="font-size: 16px; color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">
-                  Why verify? 🤔
-                </p>
-                <ul style="font-size: 15px; color: #333333; padding-left: 20px; margin: 0; line-height: 1.8;">
-                  <li style="margin-bottom: 8px;">Ensures we have your correct email address</li>
-                  <li style="margin-bottom: 8px;">Protects you from spam and unauthorized subscriptions</li>
-                  <li style="margin-bottom: 8px;">Helps us maintain a high-quality subscriber list</li>
-                  <li>Complies with email marketing best practices</li>
-                </ul>
-              </div>
-              
-              <p style="font-size: 13px; color: #999; margin-top: 30px; text-align: center; padding: 15px; background: #FFF0E8; border-radius: 8px;">
-                ⏰ This verification link will expire in 7 days. If you didn't request this subscription, you can safely ignore this email.
-              </p>
-            </div>
-            
-            <!-- Footer -->
-            <div style="text-align: center; margin-top: 30px; padding: 25px 20px; color: #999; font-size: 12px;">
-              <p style="margin: 0; color: #666;">© ${new Date().getFullYear()} LocalCooks. All rights reserved.</p>
-              <p style="margin: 15px 0 0 0;">
-                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500; margin: 0 10px;">Visit our website</a> | 
-                <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500; margin: 0 10px;">Contact Support</a>
-              </p>
-            </div>
-          </div>
+        <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+          <!-- Wrapper -->
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <!-- Main Container -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
+                      <h1 style="margin: 0; font-family: 'Lobster', cursive; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                        Welcome to LocalCooks.
+                      </h1>
+                    </td>
+                  </tr>
+                  
+                  <!-- Main Content -->
+                  <tr>
+                    <td style="padding: 40px 48px;">
+                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                        Please confirm your email to start receiving our newsletter.
+                      </p>
+                      
+                      <!-- CTA Button -->
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr>
+                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
+                                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                    Confirm Email Address
+                                  </a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <!-- Benefits -->
+                      <p style="margin: 32px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                        You'll be the first to know when new chefs join, exclusive deals drop, and fresh recipes go live.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
+                      <p style="margin: 0 0 16px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #666666; text-align: center;">
+                        — The LocalCooks Team
+                      </p>
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                        <span style="color: #CCCCCC; margin: 0 8px;">|</span>
+                        <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
+                      </p>
+                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                        © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `,
     text: `
-      Welcome to LocalCooks!
-      
-      Thank you for subscribing to our newsletter! To complete your subscription, please verify your email address by clicking the link below:
-      
+      Welcome to LocalCooks.
+
+      Please confirm your email to start receiving our newsletter.
+
       ${verificationUrl}
-      
-      This verification link will expire in 7 days.
-      
-      If you didn't request this subscription, you can safely ignore this email.
-      
-      © ${new Date().getFullYear()} ${config.org}. All rights reserved.
+
+      You'll be the first to know when new chefs join, exclusive deals drop, and fresh recipes go live.
+
+      — The LocalCooks Team
+
+      © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+      Visit our website: ${baseUrl}
+      Contact Support: ${config.unsubscribeEmail}
     `,
   }
 
