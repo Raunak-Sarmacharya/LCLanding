@@ -295,6 +295,13 @@ export default function CanadaMap() {
         ease: 'power2.out'
       }, 0.42)
 
+      // Show scroll hint again in Phase 2 - appears with Phase 2 text
+      tl.to(scrollHintRef.current, {
+        autoAlpha: 1,
+        duration: 0.12,
+        ease: 'power2.out'
+      }, 0.42)
+
       // ========================================
       // TRANSITION TO PHASE 3: Live in St. John's (snap point at 1.0)
       // ========================================
@@ -306,6 +313,13 @@ export default function CanadaMap() {
       tl.to(text2Ref.current, {
         autoAlpha: 0,
         y: -30,
+        duration: 0.1,
+        ease: 'power2.in'
+      }, 0.64)
+
+      // Hide scroll hint when Phase 2 ends - before Phase 3 appears
+      tl.to(scrollHintRef.current, {
+        autoAlpha: 0,
         duration: 0.1,
         ease: 'power2.in'
       }, 0.64)

@@ -175,8 +175,8 @@ const mobileCardsData = [
     id: 'logistics',
     type: 'info',
     badge: 'We Handle Logistics',
-    title: 'Delivery. Payments. Customer support.',
-    description: 'You focus on cooking. We handle the rest—full earnings transparency included.',
+    title: 'You Cook. We Handle Everything Else.',
+    description: 'Delivery. Payments. Support. Marketing.\n\nFull transparency. Zero hassle. Your food, your earnings, your way',
     bgColor: 'bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)]',
     textColor: 'text-white',
     hasPattern: true,
@@ -712,12 +712,12 @@ export default function FeaturedChefs() {
                   <div>
                     <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">We Handle Logistics</span>
                     <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
-                      Delivery. Payments. Customer support.
+                      You Cook. We Handle Everything Else.
                     </h4>
                   </div>
                   
-                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
-                    You focus on cooking. We handle the rest—full earnings transparency included.
+                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight whitespace-pre-line">
+                    Delivery. Payments. Support. Marketing.{'\n\n'}Full transparency. Zero hassle. Your food, your earnings, your way
                   </p>
                 </div>
               </div>
