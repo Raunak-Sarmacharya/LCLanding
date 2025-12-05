@@ -14,7 +14,7 @@ const features = [
       </svg>
     ),
     title: 'Empowering Local Chefs',
-    description: 'We bridge the gap between your neighborhood and the world, connecting you with chefs who bring their unique, home-cooked flavors directly to your table.',
+    description: 'Your grandmother\'s secret recipe. The dish coworkers beg you to bring to every potluck. That talent deserves to earn. We handle visibility, payments, and logistics—so chefs can focus on what they love: cooking incredible food.',
   },
   {
     icon: (
@@ -23,7 +23,7 @@ const features = [
       </svg>
     ),
     title: 'A World of Flavors',
-    description: 'Explore an extensive selection of authentic dishes, each crafted by passionate local chefs, offering you a culinary journey through diverse cultures and traditions.',
+    description: 'Every dish is someone\'s story—a recipe passed through generations, a taste of a place you\'ve never been, a meal made with pride you can actually taste. This isn\'t takeout. It\'s a seat at the world\'s best home kitchens.',
   },
   {
     icon: (
@@ -32,7 +32,7 @@ const features = [
       </svg>
     ),
     title: 'Supporting Community Growth',
-    description: 'Every order through Local Cooks helps uplift local chefs, enriching your community\'s food scene while fostering cultural diversity and economic empowerment.',
+    description: 'Every order changes a life. Your dinner becomes a chef\'s income, their confidence, their chance to build something real. You\'re not just eating well—you\'re betting on someone\'s dream.',
   },
 ]
 
@@ -151,9 +151,7 @@ export default function About() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="font-body text-sm sm:text-base md:text-lg text-[var(--color-charcoal-light)] leading-relaxed mb-6 sm:mb-8"
             >
-              <span className="font-display text-[var(--color-primary)] text-lg sm:text-xl">Local Cooks</span> was born from a simple belief: everyone deserves access to authentic, 
-              homemade meals that tell a story. We're not just a delivery platform – we're a 
-              bridge connecting passionate home chefs with food lovers in their community.
+              <span className="font-display text-[var(--color-primary)] text-lg sm:text-xl">Local Cooks</span> exists because talent shouldn't need a restaurant to be tasted. We're the marketplace where passionate home-based chefs and customers who crave real food finally find each other—no chains, no algorithms, just people cooking for people.
             </motion.p>
 
             {/* Pills container - MOBILE: 2x2 symmetric grid, DESKTOP: flex wrap */}
