@@ -218,8 +218,10 @@ async function storeSubscriptionRequest(email: string, verificationToken: string
 
 /**
  * Add newsletter subscription to Google Sheet using direct API calls
+ * Note: Currently unused but kept for potential future use
  */
-async function addToSheet(email: string): Promise<void> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function _addToSheet(email: string): Promise<void> {
   const serviceAccount = getServiceAccount()
   const spreadsheetId = process.env.GOOGLE_SHEET_ID!
   const sheetName = process.env.GOOGLE_SHEET_NAME || 'Sheet1'

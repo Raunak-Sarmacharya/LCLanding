@@ -179,7 +179,7 @@ function sanitizePost(post: any): SanitizedPost | null {
   let tags: string[] | null = null
   if (post.tags !== null && post.tags !== undefined) {
     if (Array.isArray(post.tags)) {
-      tags = post.tags.map(t => String(t).trim()).filter(Boolean)
+      tags = post.tags.map((t: any) => String(t).trim()).filter(Boolean)
     } else if (typeof post.tags === 'string') {
       // Handle JSON string format
       try {
@@ -290,7 +290,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Execute query with retry logic
-      let queryResult: { data: PostRow[] | null; error: any }
+      let queryResult: { data: (PostRow & { tags?: any })[] | null; error: any }
       try {
         queryResult = await withRetry(async () => {
           // Try to select tags, but if column doesn't exist, select without it
@@ -304,18 +304,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // If error is about missing column, retry without tags
           if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
             console.warn('[GET /api/blog] Tags column not found, fetching without tags')
-            result = await supabase
+            const resultWithoutTags = await supabase
               .from('posts')
               .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published')
               .order('created_at', { ascending: false })
               .limit(100)
+            
+            // Return normalized result with tags as optional
+            if (resultWithoutTags.error) {
+              throw new Error(resultWithoutTags.error.message || 'Supabase query error')
+            }
+            
+            return {
+              data: resultWithoutTags.data ? resultWithoutTags.data.map((post: any) => ({ ...post, tags: undefined })) : null,
+              error: resultWithoutTags.error
+            } as { data: (PostRow & { tags?: any })[] | null; error: any }
           }
 
           if (result.error) {
             throw new Error(result.error.message || 'Supabase query error')
           }
 
-          return result
+          return result as { data: (PostRow & { tags?: any })[] | null; error: any }
         }, 3, 500)
       } catch (queryError) {
         const executionTime = Date.now() - startTime
