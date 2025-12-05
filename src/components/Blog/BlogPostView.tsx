@@ -752,12 +752,13 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                 </p>
               ) : (
                 contentBlocks.map((block, index) => {
-                  if (block.type === 'heading') {
+                  if (block.type === 'heading' && block.level !== undefined) {
                     // Create heading element using React.createElement to avoid JSX namespace issues
-                    const HeadingTag = `h${block.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                    const level = block.level as 1 | 2 | 3 | 4 | 5 | 6
+                    const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
                     
                     // Define heading hierarchy with distinct sizes and weights
-                    const headingStyles: Record<number, { fontSize: string; fontWeight: number }> = {
+                    const headingStyles: Record<1 | 2 | 3 | 4 | 5 | 6, { fontSize: string; fontWeight: number }> = {
                       1: { fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700 },      // H1: Largest, boldest
                       2: { fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 700 },  // H2: Large, bold
                       3: { fontSize: 'clamp(1.25rem, 3.5vw, 1.875rem)', fontWeight: 600 }, // H3: Medium, semi-bold
@@ -766,7 +767,9 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                       6: { fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 600 },     // H6: Smallest, semi-bold
                     }
                     
-                    const style = headingStyles[block.level] || headingStyles[3]
+                    // Ensure level is within valid range (1-6), default to 3 if invalid
+                    const validLevel = (level >= 1 && level <= 6) ? level : 3
+                    const style = headingStyles[validLevel]
                     
                     const headingProps = {
                       key: block.id || index,
