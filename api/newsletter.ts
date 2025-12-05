@@ -165,6 +165,8 @@ function generateVerificationToken(): string {
 
 /**
  * Store newsletter subscription with verification token in Supabase
+ * Following double opt-in best practices: only store unverified subscriptions temporarily
+ * They will be marked as verified ONLY after clicking the verification link
  */
 async function storeSubscriptionRequest(email: string, verificationToken: string): Promise<void> {
   const supabase = getSupabaseClient()
@@ -173,47 +175,101 @@ async function storeSubscriptionRequest(email: string, verificationToken: string
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + 7)
   
-  // Check if email already exists
-  const { data: existing } = await supabase
+  // Check if email already exists - use maybeSingle() to handle 0 or 1 rows gracefully
+  const { data: existing, error: fetchError } = await supabase
     .from('newsletter_subscriptions')
-    .select('email, verified')
+    .select('email, verified, verification_token, expires_at')
     .eq('email', email)
-    .single()
+    .maybeSingle()
   
-  if (existing) {
-    if (existing.verified) {
-      throw new Error('This email is already subscribed and verified')
-    } else {
-      // Update existing unverified subscription with new token
-      const { error } = await supabase
+  // Handle database errors
+  if (fetchError) {
+    console.error('[Newsletter API] Error checking existing subscription:', fetchError)
+    throw new Error(`Database error: ${fetchError.message}`)
+  }
+  
+  // If email exists and is already verified, reject
+  if (existing && existing.verified === true) {
+    throw new Error('This email is already subscribed and verified')
+  }
+  
+  // If email exists but is NOT verified, update with new token and reset expiration
+  // This allows users to request a new verification email if they didn't receive the first one
+  if (existing && existing.verified === false) {
+    const { error: updateError } = await supabase
+      .from('newsletter_subscriptions')
+      .update({
+        verification_token: verificationToken,
+        expires_at: expiresAt.toISOString(),
+        updated_at: new Date().toISOString(),
+        // CRITICAL: Explicitly ensure verified remains false - never auto-verify
+        verified: false,
+        verified_at: null,
+      })
+      .eq('email', email)
+      .eq('verified', false) // Extra safety: only update if still unverified
+    
+    if (updateError) {
+      console.error('[Newsletter API] Error updating unverified subscription:', updateError)
+      throw new Error(`Failed to update subscription: ${updateError.message}`)
+    }
+    
+    console.log('[Newsletter API] Updated existing unverified subscription with new token:', email)
+    // Return successfully - user will receive new verification email
+    return
+  }
+  
+  // Email doesn't exist - insert new unverified subscription
+  // CRITICAL: verified must be explicitly false and never auto-set to true
+  const { error: insertError } = await supabase
+    .from('newsletter_subscriptions')
+    .insert({
+      email,
+      verification_token: verificationToken,
+      verified: false, // Explicitly false - can ONLY be set to true via verify-email endpoint
+      verified_at: null, // Explicitly null
+      expires_at: expiresAt.toISOString(),
+    })
+  
+  if (insertError) {
+    // Handle unique constraint violation (race condition)
+    if (insertError.code === '23505') {
+      // Email was inserted by another request - check if it's verified
+      const { data: raceCheck } = await supabase
+        .from('newsletter_subscriptions')
+        .select('verified')
+        .eq('email', email)
+        .maybeSingle()
+      
+      if (raceCheck?.verified === true) {
+        throw new Error('This email is already subscribed and verified')
+      }
+      
+      // If unverified, update with new token
+      const { error: updateError } = await supabase
         .from('newsletter_subscriptions')
         .update({
           verification_token: verificationToken,
           expires_at: expiresAt.toISOString(),
           updated_at: new Date().toISOString(),
+          verified: false, // Ensure it stays false
+          verified_at: null,
         })
         .eq('email', email)
+        .eq('verified', false)
       
-      if (error) {
-        throw new Error(`Failed to update subscription: ${error.message}`)
+      if (updateError) {
+        throw new Error(`Failed to handle race condition: ${updateError.message}`)
       }
+      
       return
     }
+    
+    console.error('[Newsletter API] Error inserting subscription:', insertError)
+    throw new Error(`Failed to store subscription: ${insertError.message}`)
   }
   
-  // Insert new subscription
-  const { error } = await supabase
-    .from('newsletter_subscriptions')
-    .insert({
-      email,
-      verification_token: verificationToken,
-      verified: false,
-      expires_at: expiresAt.toISOString(),
-    })
-  
-  if (error) {
-    throw new Error(`Failed to store subscription: ${error.message}`)
-  }
+  console.log('[Newsletter API] Created new unverified subscription:', email)
 }
 
 /**
@@ -356,7 +412,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Access-Control-Allow-Origin', '*')
         return res.status(409).json({ 
           error: 'Email already subscribed',
-          message: 'This email is already subscribed to our newsletter'
+          message: 'This email is already subscribed to our newsletter. Please check your email for the verification link if you haven\'t verified yet.'
+        })
+      }
+      
+      // Check if it's an unverified email trying to resubscribe
+      if (dbError instanceof Error && dbError.message.includes('unverified')) {
+        // This shouldn't happen with our new logic, but handle it gracefully
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        return res.status(200).json({ 
+          success: true,
+          message: 'Please check your email to verify your subscription',
+          requiresVerification: true
         })
       }
       

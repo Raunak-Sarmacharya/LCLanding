@@ -227,19 +227,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const supabase = getSupabaseClient()
 
     // Find subscription by verification token
+    // Use maybeSingle() to handle cases where token doesn't exist
     const { data: subscription, error: fetchError } = await supabase
       .from('newsletter_subscriptions')
       .select('*')
       .eq('verification_token', token)
-      .single()
+      .maybeSingle()
 
-    if (fetchError || !subscription) {
-      console.error('[Verify Email API] Subscription not found:', fetchError)
+    if (fetchError) {
+      console.error('[Verify Email API] Database error finding subscription:', fetchError)
+      return res.redirect(302, '/verify-email?error=server_error')
+    }
+
+    if (!subscription) {
+      console.error('[Verify Email API] Subscription not found for token')
       return res.redirect(302, '/verify-email?error=invalid_token')
     }
 
     // Check if already verified
-    if (subscription.verified) {
+    if (subscription.verified === true) {
+      console.log('[Verify Email API] Email already verified:', subscription.email)
       return res.redirect(302, '/verify-email?success=true&already_verified=true')
     }
 
@@ -247,10 +254,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const expiresAt = new Date(subscription.expires_at)
     const now = new Date()
     if (now > expiresAt) {
+      console.log('[Verify Email API] Token expired for:', subscription.email)
       return res.redirect(302, '/verify-email?error=expired_token')
     }
 
-    // Mark as verified
+    // CRITICAL: Mark as verified ONLY here - this is the ONLY place verified can be set to true
+    // Use explicit WHERE clause to ensure we only update if still unverified (prevents race conditions)
     const { error: updateError } = await supabase
       .from('newsletter_subscriptions')
       .update({
@@ -258,6 +267,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         verified_at: new Date().toISOString(),
       })
       .eq('verification_token', token)
+      .eq('verified', false) // Extra safety: only update if still unverified
 
     if (updateError) {
       console.error('[Verify Email API] Error updating subscription:', updateError)
