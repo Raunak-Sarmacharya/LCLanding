@@ -160,6 +160,8 @@ export async function sendVerificationEmail(
               <!-- CTA Button with brand colors -->
               <div style="text-align: center; margin: 40px 0;">
                 <a href="${verificationUrl}" 
+                   target="_blank"
+                   rel="noopener noreferrer"
                    style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
                   Verify Email Address ✨
                 </a>
@@ -170,7 +172,7 @@ export async function sendVerificationEmail(
                 Or copy and paste this link into your browser:
               </p>
               <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1);">
-                <a href="${verificationUrl}" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
+                <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
               </p>
               
               <!-- Why verify section -->
@@ -304,6 +306,8 @@ export async function sendContactVerificationEmail(
               <!-- CTA Button with brand colors -->
               <div style="text-align: center; margin: 40px 0;">
                 <a href="${verificationUrl}" 
+                   target="_blank"
+                   rel="noopener noreferrer"
                    style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
                   Verify Email Address ✨
                 </a>
@@ -314,7 +318,7 @@ export async function sendContactVerificationEmail(
                 Or copy and paste this link into your browser:
               </p>
               <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1);">
-                <a href="${verificationUrl}" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
+                <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
               </p>
               
               <!-- Why verify section -->
