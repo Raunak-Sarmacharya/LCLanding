@@ -143,7 +143,7 @@ function BlogPostPageContent() {
 
           {/* Post Content */}
           {!loading && !error && post && (
-            <div className="animate-section">
+            <div>
               <BlogPostView post={post} />
             </div>
           )}

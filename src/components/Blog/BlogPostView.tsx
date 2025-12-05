@@ -697,7 +697,14 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                           ? 'clamp(0.875rem, 1.2vw, 0.95rem)'
                           : heading.level === 2
                             ? 'clamp(0.8rem, 1.1vw, 0.9rem)'
-                            : 'clamp(0.75rem, 1vw, 0.85rem)',
+                            : heading.level === 3
+                              ? 'clamp(0.75rem, 1vw, 0.85rem)'
+                              : heading.level === 4
+                                ? 'clamp(0.7rem, 0.95vw, 0.8rem)'
+                                : heading.level === 5
+                                  ? 'clamp(0.65rem, 0.9vw, 0.75rem)'
+                                  : 'clamp(0.6rem, 0.85vw, 0.7rem)',
+                        fontWeight: heading.level <= 2 ? 600 : 500,
                         lineHeight: 1.5,
                       }}
                     >
@@ -748,17 +755,26 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                   if (block.type === 'heading') {
                     // Create heading element using React.createElement to avoid JSX namespace issues
                     const HeadingTag = `h${block.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                    
+                    // Define heading hierarchy with distinct sizes and weights
+                    const headingStyles: Record<number, { fontSize: string; fontWeight: number }> = {
+                      1: { fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700 },      // H1: Largest, boldest
+                      2: { fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 700 },  // H2: Large, bold
+                      3: { fontSize: 'clamp(1.25rem, 3.5vw, 1.875rem)', fontWeight: 600 }, // H3: Medium, semi-bold
+                      4: { fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: 600 },  // H4: Small-medium, semi-bold
+                      5: { fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: 600 },   // H5: Small, semi-bold
+                      6: { fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 600 },     // H6: Smallest, semi-bold
+                    }
+                    
+                    const style = headingStyles[block.level] || headingStyles[3]
+                    
                     const headingProps = {
                       key: block.id || index,
                       id: block.id,
                       className: "blog-heading font-heading text-[var(--color-charcoal)] mt-10 xs:mt-12 sm:mt-14 md:mt-16 mb-6 xs:mb-7 sm:mb-8 first:mt-0 scroll-mt-20 xs:scroll-mt-22 sm:scroll-mt-24",
                       style: {
-                        fontSize: block.level === 1
-                          ? 'clamp(1.75rem, 4vw, 2.5rem)'
-                          : block.level === 2
-                            ? 'clamp(1.5rem, 3.5vw, 2rem)'
-                            : 'clamp(1.25rem, 3vw, 1.75rem)',
-                        fontWeight: 700,
+                        fontSize: style.fontSize,
+                        fontWeight: style.fontWeight,
                         lineHeight: 1.2,
                       },
                       children: block.content,
@@ -766,16 +782,12 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
                     return React.createElement(HeadingTag, headingProps)
                   } else {
                     return (
-                      <motion.p
+                      <p
                         key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-50px' }}
-                        transition={{ duration: 0.5, delay: index * 0.05 }}
                         className="font-body text-base xs:text-lg sm:text-xl text-[var(--color-charcoal)] leading-relaxed mb-6 xs:mb-7 sm:mb-8 whitespace-pre-line"
                       >
                         {block.content.trim()}
-                      </motion.p>
+                      </p>
                     )
                   }
                 })
