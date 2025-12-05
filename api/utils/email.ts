@@ -146,13 +146,13 @@ export async function sendVerificationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            .logo-heading {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important; text-align: center !important;}
           </style>
           <![endif]-->
           <!--[if !mso]><!-->
           <style type="text/css">
-            /* Import Google Fonts - more reliable than @font-face in email clients */
-            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            /* Import Instrument Sans for body text - web-safe Georgia for headings */
+            @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
             /* Responsive design */
             @media only screen and (max-width: 600px) {
               .email-container { width: 100% !important; max-width: 100% !important; }
@@ -176,16 +176,16 @@ export async function sendVerificationEmail(
                   
                   <!-- Logo Header -->
                   <tr>
-                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: center; border-bottom: 1px solid #F0F0F0;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          <td align="center" style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
                           </td>
                         </tr>
                         <tr>
-                          <td style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                          <td align="center" style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
                               Welcome to LocalCooks.
                             </h1>
                           </td>
@@ -336,12 +336,13 @@ export async function sendContactVerificationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            .logo-heading {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important; text-align: center !important;}
           </style>
           <![endif]-->
           <!--[if !mso]><!-->
           <style type="text/css">
-            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            /* Import Instrument Sans for body text - web-safe Georgia for headings */
+            @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
             @media only screen and (max-width: 600px) {
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
@@ -362,16 +363,16 @@ export async function sendContactVerificationEmail(
                   
                   <!-- Logo Header -->
                   <tr>
-                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: center; border-bottom: 1px solid #F0F0F0;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          <td align="center" style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
                           </td>
                         </tr>
                         <tr>
-                          <td style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                          <td align="center" style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
                               Verify Your Message
                             </h1>
                           </td>
@@ -517,12 +518,13 @@ export async function sendContactConfirmationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            .logo-heading {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important; text-align: center !important;}
           </style>
           <![endif]-->
           <!--[if !mso]><!-->
           <style type="text/css">
-            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            /* Import Instrument Sans for body text - web-safe Georgia for headings */
+            @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
             @media only screen and (max-width: 600px) {
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
@@ -543,19 +545,19 @@ export async function sendContactConfirmationEmail(
                   
                   <!-- Logo Header -->
                   <tr>
-                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: center; border-bottom: 1px solid #F0F0F0;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          <td align="center" style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
                           </td>
                         </tr>
                         <tr>
-                          <td style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                          <td align="center" style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
                               Message Received
                             </h1>
-                            <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
+                            <p style="margin: 12px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
                               Hi ${name},
                             </p>
                           </td>
@@ -704,12 +706,13 @@ export async function sendWelcomeEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            .logo-heading {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important; text-align: center !important;}
           </style>
           <![endif]-->
           <!--[if !mso]><!-->
           <style type="text/css">
-            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            /* Import Instrument Sans for body text - web-safe Georgia for headings */
+            @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
             @media only screen and (max-width: 600px) {
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
@@ -730,19 +733,19 @@ export async function sendWelcomeEmail(
                   
                   <!-- Logo Header -->
                   <tr>
-                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: center; border-bottom: 1px solid #F0F0F0;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          <td align="center" style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
                           </td>
                         </tr>
                         <tr>
-                          <td style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                          <td align="center" style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
                               You're All Set
                             </h1>
-                            <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
+                            <p style="margin: 12px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
                               Welcome to the LocalCooks family
                             </p>
                           </td>
