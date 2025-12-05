@@ -24,6 +24,7 @@ interface SanitizedPost {
   id: string
   title: string
   slug: string
+  content: string // Include content for accurate reading time calculation
   excerpt: string | null
   author_name: string
   created_at: string
@@ -158,6 +159,14 @@ function sanitizePost(post: any): SanitizedPost | null {
     }
   }
 
+  // Sanitize content - required for accurate reading time calculation
+  let content = ''
+  if (post.content !== null && post.content !== undefined) {
+    if (typeof post.content === 'string' && post.content.trim().length > 0) {
+      content = post.content.trim()
+    }
+  }
+
   // Sanitize excerpt - can be null
   let excerpt: string | null = null
   if (post.excerpt !== null && post.excerpt !== undefined) {
@@ -190,6 +199,7 @@ function sanitizePost(post: any): SanitizedPost | null {
     id: post.id.trim(),
     title: post.title.trim(),
     slug: post.slug.trim(),
+    content, // Include content for accurate reading time calculation
     excerpt,
     author_name: post.author_name.trim(),
     created_at: createdAt,
@@ -284,9 +294,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         queryResult = await withRetry(async () => {
           // Try to select tags, but if column doesn't exist, select without it
+          // Include content for accurate reading time calculation
           let result = await supabase
             .from('posts')
-            .select('id, title, slug, excerpt, author_name, created_at, updated_at, published, tags')
+            .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags')
             .order('created_at', { ascending: false })
             .limit(100)
 
@@ -295,7 +306,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.warn('[GET /api/blog] Tags column not found, fetching without tags')
             result = await supabase
               .from('posts')
-              .select('id, title, slug, excerpt, author_name, created_at, updated_at, published, tags')
+              .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published')
               .order('created_at', { ascending: false })
               .limit(100)
           }

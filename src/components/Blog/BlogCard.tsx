@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../lib/types'
 import { useAuth } from '../../hooks/useAuth'
+import { formatDate, getTags, calculateReadingTime } from '../../lib/blogUtils'
 
 interface BlogCardProps {
   post: BlogPost
@@ -10,15 +11,6 @@ interface BlogCardProps {
 export default function BlogCard({ post }: BlogCardProps) {
   const { isAdmin } = useAuth()
   
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
   // Get image URL - use post image_url if available, otherwise generate placeholder
   const getImageUrl = (post: BlogPost) => {
     if (post.image_url && post.image_url.trim()) {
@@ -29,7 +21,8 @@ export default function BlogCard({ post }: BlogCardProps) {
     return `https://picsum.photos/seed/${seed}/600/400`
   }
 
-  const tags = post.tags && Array.isArray(post.tags) ? post.tags.slice(0, 3) : []
+  const tags = getTags(post)
+  const readingTime = calculateReadingTime(post)
 
   return (
     <motion.article
@@ -55,10 +48,14 @@ export default function BlogCard({ post }: BlogCardProps) {
 
         {/* Content */}
         <div className="p-4 xs:p-5 sm:p-6 md:p-8">
-          {/* Author and Date */}
+          {/* Author, Date, and Reading Time */}
           <div className="mb-3 xs:mb-4 flex items-center gap-2 xs:gap-2.5 sm:gap-3 flex-wrap text-xs xs:text-sm">
             <span className="font-body text-[var(--color-primary)] font-semibold">
               {post.author_name}
+            </span>
+            <span className="text-[var(--color-charcoal)]/30">•</span>
+            <span className="font-mono text-[10px] xs:text-xs text-[var(--color-charcoal)]/50">
+              {readingTime} min read
             </span>
             <span className="text-[var(--color-charcoal)]/30">•</span>
             <time

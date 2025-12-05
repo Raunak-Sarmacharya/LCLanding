@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../lib/types'
 import { useLenis } from '../../contexts/LenisContext'
 import { useAuth } from '../../hooks/useAuth'
+import { calculateReadingTime, formatDate } from '../../lib/blogUtils'
 
 interface BlogPostViewProps {
   post: BlogPost
@@ -37,23 +38,6 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
     top: number
   }>({ isFixed: false, left: 0, top: 96 }) // 96px = 6rem default top
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
-  // Calculate reading time (250 words per minute)
-  const calculateReadingTime = (content: string): number => {
-    if (!content || content.trim().length === 0) {
-      return 3 // Default to 3 minutes if content is not available
-    }
-    const wordCount = content.trim().split(/\s+/).length
-    return Math.max(1, Math.ceil(wordCount / 250))
-  }
 
   // Get image URL - use post image_url if available, otherwise generate placeholder
   const getImageUrl = (post: BlogPost) => {
@@ -569,7 +553,7 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
 
   const tags = post.tags && Array.isArray(post.tags) ? post.tags : []
-  const readingTime = calculateReadingTime(post.content)
+  const readingTime = calculateReadingTime(post)
 
   // Ensure aside container has minimum height for sticky positioning to work
   useEffect(() => {

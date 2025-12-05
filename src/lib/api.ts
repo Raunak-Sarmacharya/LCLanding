@@ -42,9 +42,10 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
     const supabase = await getSupabaseClient()
     
     // Try to select with tags, but handle gracefully if column doesn't exist
+    // Include content for accurate reading time calculation
     let result = await supabase
       .from('posts')
-      .select('id, title, slug, excerpt, author_name, created_at, updated_at, published, tags')
+      .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags')
       .order('created_at', { ascending: false })
       .limit(100)
 
@@ -56,7 +57,7 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
       console.warn('[getBlogPosts] Tags column not found, fetching without tags')
       const retryResult = await supabase
         .from('posts')
-        .select('id, title, slug, excerpt, author_name, created_at, updated_at, published')
+        .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published')
         .order('created_at', { ascending: false })
         .limit(100)
       
@@ -88,7 +89,7 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
           id: String(post.id).trim(),
           title: String(post.title).trim(),
           slug: String(post.slug).trim(),
-          content: '', // List view doesn't include content (matching API behavior)
+          content: post.content ? String(post.content).trim() : '', // Include content for accurate reading time
           excerpt: post.excerpt ? String(post.excerpt).trim() : null,
           author_name: String(post.author_name).trim(),
           created_at: post.created_at ? new Date(post.created_at).toISOString() : new Date().toISOString(),

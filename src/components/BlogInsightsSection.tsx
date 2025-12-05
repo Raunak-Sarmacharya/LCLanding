@@ -5,6 +5,7 @@ import { useBlogPosts } from '../hooks/useBlog'
 import type { BlogPost } from '../lib/types'
 import { IconArrowNarrowRight } from '@tabler/icons-react'
 import gsap from 'gsap'
+import { calculateReadingTime, getTags, formatDate } from '../lib/blogUtils'
 
 /**
  * Blog Insights Section - Horizontal Scrollable Blog Cards
@@ -17,34 +18,6 @@ import gsap from 'gsap'
  * - Tags, title, reading time, and date on right side
  * - Responsive for mobile and desktop
  */
-
-// Helper function to calculate reading time (250 words per minute)
-function calculateReadingTime(content: string): number {
-  // Handle empty content (list view doesn't include content)
-  if (!content || content.trim().length === 0) {
-    return 3 // Default to 3 minutes if content is not available
-  }
-  const wordCount = content.trim().split(/\s+/).length
-  return Math.max(1, Math.ceil(wordCount / 250))
-}
-
-// Helper function to get tags from post or return empty array
-function getTags(post: BlogPost): string[] {
-  if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
-    return post.tags.slice(0, 3) // Limit to 3 tags for display
-  }
-  return []
-}
-
-// Helper function to format date
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
 
 export default function BlogInsightsSection() {
   const { posts, loading } = useBlogPosts()
@@ -495,7 +468,7 @@ export default function BlogInsightsSection() {
                 if (!post) return null
                 
                 const tags = getTags(post)
-                const readingTime = calculateReadingTime(post.content)
+                const readingTime = calculateReadingTime(post)
                 const formattedDate = formatDate(post.created_at)
                 const cardIndex = offset + 2 // Map offset to card index: -2->0, -1->1, 0->2, 1->3, 2->4
 
@@ -643,55 +616,29 @@ export default function BlogInsightsSection() {
                               </div>
                             </div>
 
-                            {/* Tags - Matching website color scheme */}
+                            {/* Tags - Matching website color scheme - Show ALL tags */}
                             {tags.length > 0 && (
-                              <div className="flex gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)] items-start flex-shrink-0 mb-1 xs:mb-0">
-                                <span 
-                                  className="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2.5 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1.5 xs:py-[clamp(3px, 0.5vw, 4.286px)]"
-                                  style={{ 
-                                    background: 'var(--color-butter)',
-                                  }}
-                                >
+                              <div className="flex gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)] items-start flex-shrink-0 mb-1 xs:mb-0 flex-wrap">
+                                {tags.map((tag, tagIndex) => (
                                   <span 
-                                    className="font-mono uppercase tracking-[-0.463px]"
-                                    style={{
-                                      fontSize: 'clamp(9px, 1.2vw, 8.9px)',
-                                      lineHeight: 'clamp(12px, 1.6vw, 11.58px)',
-                                      color: 'var(--color-charcoal)',
-                                    }}
-                                  >
-                                    {tags[0]}
-                                  </span>
-                                </span>
-                                {tags.length > 1 && (
-                                  <span 
-                                    className="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1 xs:py-[clamp(2px, 0.4vw, 3.61px)] flex items-center gap-1.5 xs:gap-[clamp(2px, 0.4vw, 3.61px)]"
-                                    style={{
-                                      background: 'var(--color-cream-dark)',
+                                    key={tagIndex}
+                                    className="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2.5 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1.5 xs:py-[clamp(3px, 0.5vw, 4.286px)]"
+                                    style={{ 
+                                      background: tagIndex === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
                                     }}
                                   >
                                     <span 
                                       className="font-mono uppercase tracking-[-0.463px]"
                                       style={{
-                                        fontSize: 'clamp(10px, 1.5vw, 11.6px)',
+                                        fontSize: 'clamp(9px, 1.2vw, 8.9px)',
                                         lineHeight: 'clamp(12px, 1.6vw, 11.58px)',
                                         color: 'var(--color-charcoal)',
                                       }}
                                     >
-                                      +
-                                    </span>
-                                    <span 
-                                      className="font-mono uppercase tracking-[-0.463px]"
-                                      style={{
-                                        fontSize: 'clamp(10px, 1.5vw, 11.6px)',
-                                        lineHeight: 'clamp(12px, 1.6vw, 11.58px)',
-                                        color: 'var(--color-charcoal)',
-                                      }}
-                                    >
-                                      {tags.length - 1}
+                                      {tag}
                                     </span>
                                   </span>
-                                )}
+                                ))}
                               </div>
                             )}
 

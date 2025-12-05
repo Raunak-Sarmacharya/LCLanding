@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { BlogPost } from '../../lib/types'
+import { calculateReadingTime } from '../../lib/blogUtils'
 
 interface BlogStatsProps {
   posts: BlogPost[]
@@ -8,12 +9,10 @@ interface BlogStatsProps {
 
 export default function BlogStats({ posts, filteredPosts }: BlogStatsProps) {
   const stats = useMemo(() => {
-    // Calculate total reading time (assuming 250 words per minute)
-    const totalWords = posts.reduce((acc, post) => {
-      if (!post.content) return acc
-      return acc + post.content.trim().split(/\s+/).length
+    // Calculate total reading time using shared utility
+    const totalReadingTime = posts.reduce((acc, post) => {
+      return acc + calculateReadingTime(post)
     }, 0)
-    const totalReadingTime = Math.ceil(totalWords / 250)
 
     // Count unique authors
     const uniqueAuthors = new Set(posts.map(post => post.author_name))
