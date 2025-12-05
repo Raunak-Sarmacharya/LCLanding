@@ -128,6 +128,9 @@ export async function sendVerificationEmail(
   const encodedToken = encodeURIComponent(verificationToken)
   const verificationUrl = `${baseUrl}/api/verify-email?token=${encodedToken}`
   
+  // Construct logo URL - use absolute URL for email
+  const logoUrl = `${baseUrl}/logo-lc.png`
+  
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
     to: email,
@@ -143,17 +146,25 @@ export async function sendVerificationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            h1 {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important;}
           </style>
           <![endif]-->
-          <!-- Google Fonts for email clients that support web fonts -->
-          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <!--[if !mso]><!-->
           <style type="text/css">
-            /* Fallback for email clients that don't support web fonts */
+            /* Import Google Fonts - more reliable than @font-face in email clients */
+            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            /* Responsive design */
             @media only screen and (max-width: 600px) {
-              .email-container { width: 100% !important; }
+              .email-container { width: 100% !important; max-width: 100% !important; }
+              .email-padding { padding: 32px 24px !important; }
+              .logo-container { padding: 32px 24px 24px 24px !important; }
+              .logo-img { width: 120px !important; height: auto !important; }
+              .heading-text { font-size: 28px !important; }
+              .body-text { font-size: 15px !important; }
+              .button-text { font-size: 15px !important; padding: 14px 32px !important; }
             }
           </style>
+          <!--<![endif]-->
         </head>
         <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
           <!-- Wrapper -->
@@ -161,32 +172,43 @@ export async function sendVerificationEmail(
             <tr>
               <td align="center" style="padding: 40px 20px;">
                 <!-- Main Container -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
                   
-                  <!-- Header -->
+                  <!-- Logo Header -->
                   <tr>
-                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
-                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
-                        Welcome to LocalCooks.
-                      </h1>
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                              Welcome to LocalCooks.
+                            </h1>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   
                   <!-- Main Content -->
                   <tr>
-                    <td style="padding: 40px 48px;">
-                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                    <td class="email-padding" style="padding: 48px 48px;">
+                      <p class="body-text" style="margin: 0 0 32px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #1A1A1A;">
                         Please confirm your email to start receiving our newsletter.
                       </p>
                       
                       <!-- CTA Button -->
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
-                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
-                                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                <td align="center" style="background-color: #f51042; border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 16, 66, 0.25);">
+                                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
                                     Confirm Email Address
                                   </a>
                                 </td>
@@ -197,7 +219,7 @@ export async function sendVerificationEmail(
                       </table>
                       
                       <!-- Benefits -->
-                      <p style="margin: 32px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                      <p class="body-text" style="margin: 40px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #1A1A1A;">
                         You'll be the first to know when new chefs join, exclusive deals drop, and fresh recipes go live.
                       </p>
                     </td>
@@ -205,16 +227,16 @@ export async function sendVerificationEmail(
                   
                   <!-- Footer -->
                   <tr>
-                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
-                      <p style="margin: 0 0 16px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #666666; text-align: center;">
+                    <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #666666; text-align: center;">
                         — The LocalCooks Team
                       </p>
-                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
                         <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-                        <span style="color: #CCCCCC; margin: 0 8px;">|</span>
+                        <span style="color: #E0E0E0; margin: 0 10px;">|</span>
                         <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
                       </p>
-                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
                     </td>
@@ -297,6 +319,7 @@ export async function sendContactVerificationEmail(
   // URL-encode the token to handle any special characters
   const encodedToken = encodeURIComponent(verificationToken)
   const verificationUrl = `${baseUrl}/api/verify-contact?token=${encodedToken}`
+  const logoUrl = `${baseUrl}/logo-lc.png`
   
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
@@ -313,45 +336,69 @@ export async function sendContactVerificationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            h1 {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important;}
           </style>
           <![endif]-->
-          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <!--[if !mso]><!-->
+          <style type="text/css">
+            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            @media only screen and (max-width: 600px) {
+              .email-container { width: 100% !important; max-width: 100% !important; }
+              .email-padding { padding: 32px 24px !important; }
+              .logo-container { padding: 32px 24px 24px 24px !important; }
+              .logo-img { width: 120px !important; height: auto !important; }
+              .heading-text { font-size: 28px !important; }
+              .body-text { font-size: 15px !important; }
+              .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+          </style>
+          <!--<![endif]-->
         </head>
         <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
             <tr>
               <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
                   
-                  <!-- Header -->
+                  <!-- Logo Header -->
                   <tr>
-                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
-                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
-                        Verify Your Message
-                      </h1>
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                              Verify Your Message
+                            </h1>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   
                   <!-- Main Content -->
                   <tr>
-                    <td style="padding: 40px 48px;">
-                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                    <td class="email-padding" style="padding: 48px 48px;">
+                      <p class="body-text" style="margin: 0 0 32px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #1A1A1A;">
                         Thank you for reaching out to LocalCooks. We're excited to hear from you.
                       </p>
                       
-                      <p style="margin: 0 0 32px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                      <p class="body-text" style="margin: 0 0 40px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #1A1A1A;">
                         To ensure we can respond to your message, please verify your email address by clicking the button below.
                       </p>
                       
                       <!-- CTA Button -->
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
-                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
-                                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                <td align="center" style="background-color: #f51042; border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 16, 66, 0.25);">
+                                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
                                     Verify Email Address
                                   </a>
                                 </td>
@@ -361,7 +408,7 @@ export async function sendContactVerificationEmail(
                         </tr>
                       </table>
                       
-                      <p style="margin: 32px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 13px; line-height: 1.6; color: #666666; text-align: center; padding: 16px; background-color: #FFF9F5; border-radius: 6px;">
+                      <p class="body-text" style="margin: 40px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 13px; line-height: 1.6; color: #666666; text-align: center; padding: 16px; background-color: #FFF9F5; border-radius: 6px;">
                         This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
                       </p>
                     </td>
@@ -369,13 +416,13 @@ export async function sendContactVerificationEmail(
                   
                   <!-- Footer -->
                   <tr>
-                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
-                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                    <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
                         <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-                        <span style="color: #CCCCCC; margin: 0 8px;">|</span>
+                        <span style="color: #E0E0E0; margin: 0 10px;">|</span>
                         <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
                       </p>
-                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
                     </td>
@@ -453,6 +500,8 @@ export async function sendContactConfirmationEmail(
     throw new Error(helpfulMessage)
   }
   
+  const logoUrl = `${baseUrl}/logo-lc.png`
+  
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
     to: email,
@@ -468,37 +517,61 @@ export async function sendContactConfirmationEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            h1 {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important;}
           </style>
           <![endif]-->
-          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <!--[if !mso]><!-->
+          <style type="text/css">
+            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            @media only screen and (max-width: 600px) {
+              .email-container { width: 100% !important; max-width: 100% !important; }
+              .email-padding { padding: 32px 24px !important; }
+              .logo-container { padding: 32px 24px 24px 24px !important; }
+              .logo-img { width: 120px !important; height: auto !important; }
+              .heading-text { font-size: 28px !important; }
+              .body-text { font-size: 15px !important; }
+              .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+          </style>
+          <!--<![endif]-->
         </head>
         <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
             <tr>
               <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
                   
-                  <!-- Header -->
+                  <!-- Logo Header -->
                   <tr>
-                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
-                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
-                        Message Received
-                      </h1>
-                      <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
-                        Hi ${name},
-                      </p>
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                              Message Received
+                            </h1>
+                            <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
+                              Hi ${name},
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   
                   <!-- Main Content -->
                   <tr>
-                    <td style="padding: 40px 48px;">
-                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                    <td class="email-padding" style="padding: 48px 48px;">
+                      <p class="body-text" style="margin: 0 0 32px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #1A1A1A;">
                         Great news! Your email has been verified and we've received your message.
                       </p>
                       
-                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.6; color: #1A1A1A;">
+                      <p class="body-text" style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.7; color: #1A1A1A;">
                         What happens next?
                       </p>
                       
@@ -512,13 +585,13 @@ export async function sendContactConfirmationEmail(
                       </div>
                       
                       <!-- CTA Button -->
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
-                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
-                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                <td align="center" style="background-color: #f51042; border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 16, 66, 0.25);">
+                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
                                     Visit LocalCooks
                                   </a>
                                 </td>
@@ -532,11 +605,11 @@ export async function sendContactConfirmationEmail(
                   
                   <!-- Footer -->
                   <tr>
-                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
-                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                    <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
                         <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
                       </p>
-                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
                     </td>
@@ -614,6 +687,8 @@ export async function sendWelcomeEmail(
     throw new Error(helpfulMessage)
   }
   
+  const logoUrl = `${baseUrl}/logo-lc.png`
+  
   const mailOptions = {
     from: `"${config.org}" <${config.user}>`,
     to: email,
@@ -629,37 +704,61 @@ export async function sendWelcomeEmail(
           <!--[if mso]>
           <style type="text/css">
             body, table, td {font-family: Arial, sans-serif !important;}
-            h1 {font-family: Georgia, serif !important;}
+            .logo-heading {font-family: Georgia, serif !important;}
           </style>
           <![endif]-->
-          <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <!--[if !mso]><!-->
+          <style type="text/css">
+            @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+            @media only screen and (max-width: 600px) {
+              .email-container { width: 100% !important; max-width: 100% !important; }
+              .email-padding { padding: 32px 24px !important; }
+              .logo-container { padding: 32px 24px 24px 24px !important; }
+              .logo-img { width: 120px !important; height: auto !important; }
+              .heading-text { font-size: 28px !important; }
+              .body-text { font-size: 15px !important; }
+              .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+          </style>
+          <!--<![endif]-->
         </head>
         <body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5;">
             <tr>
               <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
                   
-                  <!-- Header -->
+                  <!-- Logo Header -->
                   <tr>
-                    <td style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #E5E5E5;">
-                      <h1 style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
-                        You're All Set
-                      </h1>
-                      <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
-                        Welcome to the LocalCooks family
-                      </p>
+                    <td class="logo-container" style="padding: 48px 48px 32px 48px; text-align: left; border-bottom: 1px solid #F0F0F0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td style="padding: 0;">
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 0 28px 0;" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 0;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: 'Lobster', Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: -0.5px;">
+                              You're All Set
+                            </h1>
+                            <p style="margin: 8px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666;">
+                              Welcome to the LocalCooks family
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   
                   <!-- Main Content -->
                   <tr>
-                    <td style="padding: 40px 48px;">
-                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A;">
+                    <td class="email-padding" style="padding: 48px 48px;">
+                      <p class="body-text" style="margin: 0 0 32px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #1A1A1A;">
                         Great news! Your email has been verified and you're now subscribed to the LocalCooks newsletter.
                       </p>
                       
-                      <p style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.6; color: #1A1A1A;">
+                      <p class="body-text" style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.7; color: #1A1A1A;">
                         You'll now receive:
                       </p>
                       
@@ -674,13 +773,13 @@ export async function sendWelcomeEmail(
                       </div>
                       
                       <!-- CTA Button -->
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
-                                <td align="center" style="background-color: #f51042; border-radius: 6px; box-shadow: 0 2px 4px rgba(245, 16, 66, 0.2);">
-                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 6px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                <td align="center" style="background-color: #f51042; border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 16, 66, 0.25);">
+                                  <a href="${baseUrl}" target="_blank" rel="noopener noreferrer" class="button-text" style="display: inline-block; padding: 16px 40px; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; color: #FFFFFF; text-decoration: none; border-radius: 8px; -webkit-text-size-adjust: none; mso-hide: all;">
                                     Explore LocalCooks
                                   </a>
                                 </td>
@@ -691,7 +790,7 @@ export async function sendWelcomeEmail(
                       </table>
                       
                       <!-- Unsubscribe info -->
-                      <p style="margin: 32px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #666666; padding-top: 24px; border-top: 1px solid #E5E5E5;">
+                      <p class="body-text" style="margin: 40px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.7; color: #666666; padding-top: 32px; border-top: 1px solid #F0F0F0;">
                         If you ever want to unsubscribe, just reply to this email or contact us at 
                         <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">${config.unsubscribeEmail}</a>
                       </p>
@@ -700,11 +799,11 @@ export async function sendWelcomeEmail(
                   
                   <!-- Footer -->
                   <tr>
-                    <td style="padding: 32px 48px 48px 48px; border-top: 1px solid #E5E5E5;">
-                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999999; text-align: center;">
+                    <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
                         <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
                       </p>
-                      <p style="margin: 16px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #999999; text-align: center;">
+                      <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
                     </td>
