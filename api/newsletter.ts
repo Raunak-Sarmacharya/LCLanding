@@ -196,7 +196,7 @@ async function storeSubscriptionRequest(email: string, verificationToken: string
   // If email exists but is NOT verified, update with new token and reset expiration
   // This allows users to request a new verification email if they didn't receive the first one
   if (existing && existing.verified === false) {
-    const { error: updateError } = await supabase
+    const { data: updateData, error: updateError, count } = await supabase
       .from('newsletter_subscriptions')
       .update({
         verification_token: verificationToken,
@@ -208,10 +208,19 @@ async function storeSubscriptionRequest(email: string, verificationToken: string
       })
       .eq('email', email)
       .eq('verified', false) // Extra safety: only update if still unverified
+      .select()
+      .maybeSingle()
     
     if (updateError) {
       console.error('[Newsletter API] Error updating unverified subscription:', updateError)
       throw new Error(`Failed to update subscription: ${updateError.message}`)
+    }
+    
+    // BUG FIX: Check if update actually matched any rows
+    // If subscription became verified concurrently, update matches 0 rows
+    if (!updateData) {
+      console.log('[Newsletter API] Subscription became verified concurrently, cannot update:', email)
+      throw new Error('This email is already subscribed and verified')
     }
     
     console.log('[Newsletter API] Updated existing unverified subscription with new token:', email)
@@ -235,18 +244,30 @@ async function storeSubscriptionRequest(email: string, verificationToken: string
     // Handle unique constraint violation (race condition)
     if (insertError.code === '23505') {
       // Email was inserted by another request - check if it's verified
-      const { data: raceCheck } = await supabase
+      const { data: raceCheck, error: raceCheckError } = await supabase
         .from('newsletter_subscriptions')
         .select('verified')
         .eq('email', email)
         .maybeSingle()
       
-      if (raceCheck?.verified === true) {
+      // BUG FIX: Check for errors in the race condition query
+      if (raceCheckError) {
+        console.error('[Newsletter API] Error checking race condition:', raceCheckError)
+        throw new Error(`Database error during race condition check: ${raceCheckError.message}`)
+      }
+      
+      if (!raceCheck) {
+        // This shouldn't happen if we just got a unique constraint violation, but handle it
+        console.error('[Newsletter API] Race condition: email not found after unique constraint violation')
+        throw new Error('Unexpected database state during subscription')
+      }
+      
+      if (raceCheck.verified === true) {
         throw new Error('This email is already subscribed and verified')
       }
       
       // If unverified, update with new token
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from('newsletter_subscriptions')
         .update({
           verification_token: verificationToken,
@@ -257,9 +278,17 @@ async function storeSubscriptionRequest(email: string, verificationToken: string
         })
         .eq('email', email)
         .eq('verified', false)
+        .select()
+        .maybeSingle()
       
       if (updateError) {
         throw new Error(`Failed to handle race condition: ${updateError.message}`)
+      }
+      
+      // BUG FIX: Verify update actually matched a row
+      if (!updateData) {
+        console.log('[Newsletter API] Race condition: subscription became verified during update')
+        throw new Error('This email is already subscribed and verified')
       }
       
       return

@@ -260,7 +260,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // CRITICAL: Mark as verified ONLY here - this is the ONLY place verified can be set to true
     // Use explicit WHERE clause to ensure we only update if still unverified (prevents race conditions)
-    const { error: updateError } = await supabase
+    const { data: updateData, error: updateError } = await supabase
       .from('newsletter_subscriptions')
       .update({
         verified: true,
@@ -268,12 +268,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
       .eq('verification_token', token)
       .eq('verified', false) // Extra safety: only update if still unverified
+      .select()
+      .maybeSingle()
 
     if (updateError) {
       console.error('[Verify Email API] Error updating subscription:', updateError)
       return res.redirect(302, '/verify-email?error=verification_failed')
     }
 
+    // BUG FIX: Check if update actually matched any rows
+    // If subscription became verified concurrently, update matches 0 rows
+    if (!updateData) {
+      console.log('[Verify Email API] Subscription already verified concurrently, redirecting to success')
+      // Subscription was already verified by another request - treat as success
+      return res.redirect(302, '/verify-email?success=true&already_verified=true')
+    }
+
+    // Only proceed with post-verification actions if we actually verified the subscription
     // Add to Google Sheet
     try {
       await addToSheet(subscription.email)
