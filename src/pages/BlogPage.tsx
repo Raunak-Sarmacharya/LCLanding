@@ -75,8 +75,8 @@ function BlogPageContent() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
       <BlogMetaTags
-        title="Blog - LocalCooks"
-        description="Discover stories, recipes, and insights from our community of home chefs."
+        title="Beyond the Plate - LocalCooks"
+        description="Explore the people, partnerships, and product updates shaping Local Cooks—and why better local food access matters."
       />
       <Navbar />
 
@@ -92,9 +92,11 @@ function BlogPageContent() {
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
               <div>
                 <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[var(--color-charcoal)] mb-4 leading-tight">
-                  Stay Ahead of <br />
-                  Competition with LocalCooks
+                  Beyond the <span className="font-heading italic text-[var(--color-primary)]">Plate</span>
                 </h1>
+                <p className="font-body text-base sm:text-lg md:text-xl text-[var(--color-charcoal)]/70 leading-relaxed max-w-2xl mt-4">
+                  Explore the people, partnerships, and product updates shaping Local Cooks—and why better local food access matters.
+                </p>
               </div>
               {isAdmin && (
                 <motion.div

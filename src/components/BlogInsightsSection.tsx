@@ -415,9 +415,8 @@ export default function BlogInsightsSection() {
                 className="font-heading text-[clamp(1.75rem,8vw,2.5rem)] xs:text-[clamp(2rem,8vw,3rem)] sm:text-[clamp(2.5rem,7vw,4rem)] md:text-[clamp(3rem,6.5vw,4.5rem)] lg:text-[clamp(4rem,6vw,5.5rem)] text-white leading-[0.9] xs:leading-[0.88] sm:leading-[0.86] md:leading-[0.85] tracking-tight mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-4"
                 style={{ visibility: 'visible', wordBreak: 'break-word', overflowWrap: 'break-word' }}
               >
-                Food <span className="font-display text-[var(--color-butter)] italic">Stories</span>
-                <br className="hidden xs:block" />
-                <span className="font-display text-white/90 block xs:inline">From Local Chefs</span>
+                Beyond the <br className="hidden xs:block" />
+                <span className="font-display text-[var(--color-butter)] italic">Plate</span>
               </motion.h2>
             </div>
 
@@ -429,7 +428,7 @@ export default function BlogInsightsSection() {
                 transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="font-body text-base sm:text-lg md:text-xl text-white/70 leading-relaxed max-w-md"
               >
-                Discover authentic recipes, cooking tips, and stories from passionate local chefs in your community.
+                Explore the people, partnerships, and product updates shaping Local Cooks—and why better local food access matters.
               </motion.p>
             </div>
           </div>
