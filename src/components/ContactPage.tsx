@@ -473,6 +473,26 @@ function ContactPageContent() {
                       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                       className="space-y-12 overflow-hidden"
                     >
+
+                                            {/* Experience Field */}
+                                            <div className="space-y-4">
+                        <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
+                          Here is my message:
+                        </span>
+                        <p className="font-body text-base text-[var(--color-charcoal)]/50 -mt-2">
+                          Tell us why you're reaching out — whether it's a question, feedback, partnership idea, or just to say hello.
+                        </p>
+                        <textarea
+                          name="experience"
+                          value={formData.experience}
+                          onChange={handleInputChange}
+                          required
+                          rows={6}
+                          className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300 resize-none leading-relaxed"
+                          placeholder=""
+                        />
+                      </div>
+                      
                       {/* Cooking Description */}
                       <div className="space-y-4">
                         <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
@@ -492,24 +512,7 @@ function ContactPageContent() {
                         />
                       </div>
 
-                      {/* Experience Field */}
-                      <div className="space-y-4">
-                        <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
-                          Here is a bit about my cooking experience:
-                        </span>
-                        <p className="font-body text-base text-[var(--color-charcoal)]/50 -mt-2">
-                          Tell us about yourself and your culinary journey. What excites you about Local Cooks? What questions do you have for us?
-                        </p>
-                        <textarea
-                          name="experience"
-                          value={formData.experience}
-                          onChange={handleInputChange}
-                          required
-                          rows={6}
-                          className="w-full bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-3 px-1 font-body text-lg text-[var(--color-charcoal)] transition-colors duration-300 resize-none leading-relaxed"
-                          placeholder=""
-                        />
-                      </div>
+
 
                       {/* How did you find us */}
                       <div className="space-y-2">
@@ -538,22 +541,9 @@ function ContactPageContent() {
                 {/* Contact Information Section */}
                 <div className="space-y-6 pt-4">
                   <span className="font-heading text-2xl sm:text-3xl text-[var(--color-charcoal)] block">
-                    How would you like us to contact you?
+                    Your Contact Details
                   </span>
                   
-                  {/* Phone */}
-                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-3">
-                    <span className="font-body text-xl text-[var(--color-charcoal)]/70">Phone:</span>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="flex-1 min-w-[180px] bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-2 px-1 font-body text-xl text-[var(--color-charcoal)] transition-colors duration-300"
-                      placeholder=""
-                    />
-                  </div>
-
                   {/* Email */}
                   <div className="flex flex-wrap items-baseline gap-x-4 gap-y-3">
                     <span className="font-body text-xl text-[var(--color-charcoal)]/70">Email:</span>
@@ -564,6 +554,22 @@ function ContactPageContent() {
                       onChange={handleInputChange}
                       required
                       className="flex-1 min-w-[200px] bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-2 px-1 font-body text-xl text-[var(--color-charcoal)] transition-colors duration-300"
+                      placeholder=""
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-3">
+                    <span className="font-body text-xl text-[var(--color-charcoal)]/70">
+                      Phone:
+                      <span className="text-[var(--color-charcoal)]/40 text-base ml-2">(Optional)</span>
+                    </span>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="flex-1 min-w-[180px] bg-transparent border-b-2 border-[var(--color-charcoal)]/20 focus:border-[var(--color-primary)] outline-none py-2 px-1 font-body text-xl text-[var(--color-charcoal)] transition-colors duration-300"
                       placeholder=""
                     />
                   </div>
