@@ -15,6 +15,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'react/jsx-runtime',
       '@tiptap/react',
       '@tiptap/starter-kit',
       '@tiptap/extension-mention',
@@ -23,6 +27,7 @@ export default defineConfig({
       'tippy.js',
     ],
     exclude: ['@tiptap/pm'], // Exclude peer dependency that causes resolution issues
+    force: false, // Set to true if you need to force re-optimization
   },
   build: {
     rollupOptions: {

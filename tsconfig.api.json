@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2020"],
+    "types": ["node", "@vercel/node"],
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["api/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+

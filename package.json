@@ -8,12 +8,15 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "npm run type-check",
+    "type-check": "tsc --noEmit",
+    "type-check:api": "tsc --noEmit --project tsconfig.api.json"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.17",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vercel/node": "^5.5.13",
@@ -44,8 +47,5 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6",
     "tippy.js": "^6.3.7"
-  },
-  "overrides": {
-    "node-domexception": "npm:dry-uninstall@^1.0.0"
   }
 }
