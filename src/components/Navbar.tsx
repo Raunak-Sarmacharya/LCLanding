@@ -326,7 +326,7 @@ export default function Navbar() {
                 className="lg:hidden relative w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 pointer-events-auto"
                 style={{
                   backgroundColor: isMobileMenuOpen ? 'rgba(255, 255, 255, 0.15)' : 'var(--color-primary)',
-                  boxShadow: isMobileMenuOpen ? 'none' : '0 4px 15px rgba(229, 62, 62, 0.3)',
+                  boxShadow: 'none',
                 }}
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               >
