@@ -538,10 +538,10 @@ export default function CanadaMap() {
           </div>
         </div>
 
-        {/* Scroll hint - positioned below where stats bar will appear */}
+        {/* Scroll hint - positioned higher on mobile for visibility, below where stats bar will appear */}
         <div 
           ref={scrollHintRef}
-          className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10"
+          className="absolute bottom-24 sm:bottom-8 md:bottom-6 lg:bottom-6 left-1/2 -translate-x-1/2 z-10"
         >
           <div className="flex flex-col items-center text-gray-400">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] mb-2">Scroll to explore</span>
