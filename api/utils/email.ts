@@ -154,26 +154,15 @@ export async function sendVerificationEmail(
               </p>
               
               <p style="font-size: 16px; margin-bottom: 30px; color: #333333; line-height: 1.7;">
-                To complete your subscription and start receiving updates about new chefs, exclusive deals, and authentic recipes, please verify your email address by clicking the button below:
+                To complete your subscription and start receiving updates about new chefs, exclusive deals, and authentic recipes, please verify your email address by clicking the link below:
               </p>
               
-              <!-- CTA Button with brand colors -->
+              <!-- Verification link -->
               <div style="text-align: center; margin: 40px 0;">
-                <a href="${verificationUrl}" 
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
-                  Verify Email Address ✨
-                </a>
+                <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 15px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1); margin: 0;">
+                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline; font-size: 14px;">${verificationUrl}</a>
+                </p>
               </div>
-              
-              <!-- Alternative link -->
-              <p style="font-size: 14px; color: #666; margin-top: 30px; text-align: center;">
-                Or copy and paste this link into your browser:
-              </p>
-              <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1);">
-                <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
-              </p>
               
               <!-- Why verify section -->
               <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(245, 16, 66, 0.1);">
@@ -300,26 +289,15 @@ export async function sendContactVerificationEmail(
               </p>
               
               <p style="font-size: 16px; margin-bottom: 30px; color: #333333; line-height: 1.7;">
-                To ensure we can respond to your message, please verify your email address by clicking the button below:
+                To ensure we can respond to your message, please verify your email address by clicking the link below:
               </p>
               
-              <!-- CTA Button with brand colors -->
+              <!-- Verification link -->
               <div style="text-align: center; margin: 40px 0;">
-                <a href="${verificationUrl}" 
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   style="display: inline-block; background: linear-gradient(135deg, #f51042 0%, #d10d38 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(245, 16, 66, 0.25), 0 4px 10px rgba(245, 16, 66, 0.15); transition: all 0.3s ease;">
-                  Verify Email Address ✨
-                </a>
+                <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 15px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1); margin: 0;">
+                  <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline; font-size: 14px;">${verificationUrl}</a>
+                </p>
               </div>
-              
-              <!-- Alternative link -->
-              <p style="font-size: 14px; color: #666; margin-top: 30px; text-align: center;">
-                Or copy and paste this link into your browser:
-              </p>
-              <p style="font-size: 12px; color: #999; word-break: break-all; background: #FFEDD5; padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 16, 66, 0.1);">
-                <a href="${verificationUrl}" target="_blank" rel="noopener noreferrer" style="color: #f51042; text-decoration: underline;">${verificationUrl}</a>
-              </p>
               
               <!-- Why verify section -->
               <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(245, 16, 66, 0.1);">

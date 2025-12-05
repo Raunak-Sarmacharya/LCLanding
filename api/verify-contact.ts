@@ -291,13 +291,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Send confirmation email
     try {
-      const baseUrl = process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}`
-        : process.env.VERCEL_ENV === 'production'
-          ? 'https://localcook.shop'
-          : process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'https://localcook.shop'
+      const baseUrl = 'https://lc-landing-eight.vercel.app'
       await sendContactConfirmationEmail(submission.email, submission.name, baseUrl)
     } catch (emailError) {
       console.error('[Verify Contact API] Error sending confirmation email:', emailError)

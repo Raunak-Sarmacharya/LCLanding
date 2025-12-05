@@ -171,13 +171,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const verificationToken = generateVerificationToken()
     
     // Get base URL for verification link
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.VERCEL_ENV === 'production'
-        ? 'https://localcook.shop'
-        : process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : 'https://localcook.shop'
+    const baseUrl = 'https://lc-landing-eight.vercel.app'
     
     // Store contact submission in Supabase (unverified)
     try {

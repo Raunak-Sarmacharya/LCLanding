@@ -274,13 +274,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Send welcome email
     try {
-      const baseUrl = process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}`
-        : process.env.VERCEL_ENV === 'production'
-          ? 'https://localcook.shop'
-          : process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'https://localcook.shop'
+      const baseUrl = 'https://lc-landing-eight.vercel.app'
       await sendWelcomeEmail(subscription.email, baseUrl)
     } catch (emailError) {
       console.error('[Verify Email API] Error sending welcome email:', emailError)
