@@ -158,10 +158,14 @@ export async function sendVerificationEmail(
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
               .logo-container { padding: 32px 24px 24px 24px !important; }
-              .logo-img { width: 120px !important; height: auto !important; }
-              .heading-text { font-size: 28px !important; }
+              .logo-img { width: 100px !important; height: auto !important; max-width: 100px !important; }
+              .heading-text { font-size: 28px !important; line-height: 1.2 !important; }
               .body-text { font-size: 15px !important; }
               .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+            @media only screen and (max-width: 480px) {
+              .logo-img { width: 80px !important; height: auto !important; max-width: 80px !important; }
+              .heading-text { font-size: 24px !important; line-height: 1.2 !important; letter-spacing: 0.3px !important; }
             }
           </style>
           <!--<![endif]-->
@@ -180,12 +184,12 @@ export async function sendVerificationEmail(
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="120" height="120" style="display: block; width: 120px; height: auto; max-width: 120px; margin: 0 auto 24px auto;" />
                           </td>
                         </tr>
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                               Welcome to LocalCooks.
                             </h1>
                           </td>
@@ -224,8 +228,8 @@ export async function sendVerificationEmail(
                       </p>
                     </td>
                   </tr>
-                  
-                  <!-- Footer -->
+            
+            <!-- Footer -->
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #666666; text-align: center;">
@@ -251,15 +255,15 @@ export async function sendVerificationEmail(
     `,
     text: `
       Welcome to LocalCooks.
-
+      
       Please confirm your email to start receiving our newsletter.
-
+      
       ${verificationUrl}
-
+      
       You'll be the first to know when new chefs join, exclusive deals drop, and fresh recipes go live.
-
+      
       — The LocalCooks Team
-
+      
       © ${new Date().getFullYear()} LocalCooks. All rights reserved.
       Visit our website: ${baseUrl}
       Contact Support: ${config.unsubscribeEmail}
@@ -347,10 +351,14 @@ export async function sendContactVerificationEmail(
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
               .logo-container { padding: 32px 24px 24px 24px !important; }
-              .logo-img { width: 120px !important; height: auto !important; }
-              .heading-text { font-size: 28px !important; }
+              .logo-img { width: 100px !important; height: auto !important; max-width: 100px !important; }
+              .heading-text { font-size: 28px !important; line-height: 1.2 !important; }
               .body-text { font-size: 15px !important; }
               .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+            @media only screen and (max-width: 480px) {
+              .logo-img { width: 80px !important; height: auto !important; max-width: 80px !important; }
+              .heading-text { font-size: 24px !important; line-height: 1.2 !important; letter-spacing: 0.3px !important; }
             }
           </style>
           <!--<![endif]-->
@@ -367,12 +375,12 @@ export async function sendContactVerificationEmail(
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="120" height="120" style="display: block; width: 120px; height: auto; max-width: 120px; margin: 0 auto 24px auto;" />
                           </td>
                         </tr>
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                               Verify Your Message
                             </h1>
                           </td>
@@ -414,8 +422,8 @@ export async function sendContactVerificationEmail(
                       </p>
                     </td>
                   </tr>
-                  
-                  <!-- Footer -->
+            
+            <!-- Footer -->
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
@@ -529,10 +537,14 @@ export async function sendContactConfirmationEmail(
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
               .logo-container { padding: 32px 24px 24px 24px !important; }
-              .logo-img { width: 120px !important; height: auto !important; }
-              .heading-text { font-size: 28px !important; }
+              .logo-img { width: 100px !important; height: auto !important; max-width: 100px !important; }
+              .heading-text { font-size: 28px !important; line-height: 1.2 !important; }
               .body-text { font-size: 15px !important; }
               .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+            @media only screen and (max-width: 480px) {
+              .logo-img { width: 80px !important; height: auto !important; max-width: 80px !important; }
+              .heading-text { font-size: 24px !important; line-height: 1.2 !important; letter-spacing: 0.3px !important; }
             }
           </style>
           <!--<![endif]-->
@@ -549,12 +561,12 @@ export async function sendContactConfirmationEmail(
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="120" height="120" style="display: block; width: 120px; height: auto; max-width: 120px; margin: 0 auto 24px auto;" />
                           </td>
                         </tr>
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                               Message Received
                             </h1>
                             <p style="margin: 12px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
@@ -574,19 +586,19 @@ export async function sendContactConfirmationEmail(
                       </p>
                       
                       <p class="body-text" style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.7; color: #1A1A1A;">
-                        What happens next?
-                      </p>
-                      
-                      <!-- Next steps list -->
+                What happens next?
+              </p>
+              
+              <!-- Next steps list -->
                       <div style="background-color: #FFF9F5; padding: 24px; border-radius: 6px; border-left: 3px solid #f51042; margin-bottom: 32px;">
                         <ul style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #1A1A1A; padding-left: 20px; margin: 0; line-height: 1.8;">
                           <li style="margin-bottom: 12px;">We'll review your message carefully</li>
                           <li style="margin-bottom: 12px;">Expect a response within 24 hours</li>
                           <li>We'll get back to you at this email address</li>
-                        </ul>
-                      </div>
-                      
-                      <!-- CTA Button -->
+                </ul>
+              </div>
+              
+              <!-- CTA Button -->
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
@@ -604,13 +616,13 @@ export async function sendContactConfirmationEmail(
                       </table>
                     </td>
                   </tr>
-                  
-                  <!-- Footer -->
+            
+            <!-- Footer -->
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-                      </p>
+                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+              </p>
                       <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
@@ -717,10 +729,14 @@ export async function sendWelcomeEmail(
               .email-container { width: 100% !important; max-width: 100% !important; }
               .email-padding { padding: 32px 24px !important; }
               .logo-container { padding: 32px 24px 24px 24px !important; }
-              .logo-img { width: 120px !important; height: auto !important; }
-              .heading-text { font-size: 28px !important; }
+              .logo-img { width: 100px !important; height: auto !important; max-width: 100px !important; }
+              .heading-text { font-size: 28px !important; line-height: 1.2 !important; }
               .body-text { font-size: 15px !important; }
               .button-text { font-size: 15px !important; padding: 14px 32px !important; }
+            }
+            @media only screen and (max-width: 480px) {
+              .logo-img { width: 80px !important; height: auto !important; max-width: 80px !important; }
+              .heading-text { font-size: 24px !important; line-height: 1.2 !important; letter-spacing: 0.3px !important; }
             }
           </style>
           <!--<![endif]-->
@@ -737,12 +753,12 @@ export async function sendWelcomeEmail(
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="140" height="140" style="display: block; width: 140px; height: auto; max-width: 140px; margin: 0 auto 28px auto;" />
+                            <img src="${logoUrl}" alt="LocalCooks" class="logo-img" width="120" height="120" style="display: block; width: 120px; height: auto; max-width: 120px; margin: 0 auto 24px auto;" />
                           </td>
                         </tr>
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.3; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center;">
+                            <h1 class="logo-heading heading-text" style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.2; color: #f51042; font-weight: 400; letter-spacing: 0.5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                               You're All Set
                             </h1>
                             <p style="margin: 12px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
@@ -762,9 +778,9 @@ export async function sendWelcomeEmail(
                       </p>
                       
                       <p class="body-text" style="margin: 0 0 24px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.7; color: #1A1A1A;">
-                        You'll now receive:
-                      </p>
-                      
+                You'll now receive:
+              </p>
+              
                       <!-- Benefits list -->
                       <div style="background-color: #FFF9F5; padding: 24px; border-radius: 6px; border-left: 3px solid #f51042; margin-bottom: 32px;">
                         <ul style="font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #1A1A1A; padding-left: 20px; margin: 0; line-height: 1.8;">
@@ -772,10 +788,10 @@ export async function sendWelcomeEmail(
                           <li style="margin-bottom: 12px;">Exclusive deals and special offers</li>
                           <li style="margin-bottom: 12px;">Authentic recipes from your neighborhood</li>
                           <li>Tips and stories from our community</li>
-                        </ul>
-                      </div>
-                      
-                      <!-- CTA Button -->
+                </ul>
+              </div>
+              
+              <!-- CTA Button -->
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
@@ -791,21 +807,21 @@ export async function sendWelcomeEmail(
                           </td>
                         </tr>
                       </table>
-                      
-                      <!-- Unsubscribe info -->
+              
+              <!-- Unsubscribe info -->
                       <p class="body-text" style="margin: 40px 0 0 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.7; color: #666666; padding-top: 32px; border-top: 1px solid #F0F0F0;">
-                        If you ever want to unsubscribe, just reply to this email or contact us at 
-                        <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">${config.unsubscribeEmail}</a>
-                      </p>
+                If you ever want to unsubscribe, just reply to this email or contact us at 
+                <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">${config.unsubscribeEmail}</a>
+              </p>
                     </td>
                   </tr>
-                  
-                  <!-- Footer -->
+            
+            <!-- Footer -->
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                        <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-                      </p>
+                <a href="${baseUrl}" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+              </p>
                       <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
