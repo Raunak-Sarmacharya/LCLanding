@@ -320,15 +320,19 @@ export default function Navbar() {
                 Mobile Menu Button - les-arbres-fruitiers.fr style
                 Rounded button with animated hamburger lines
                 Uses brand primary color, transforms to X when open
+                Note: When menu is closed, this button is visible. When menu is open, 
+                a duplicate button is rendered outside nav to avoid pointer-events issues.
               */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden relative w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 pointer-events-auto"
+                className={`lg:hidden relative w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 ${
+                  isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''
+                }`}
                 style={{
-                  backgroundColor: isMobileMenuOpen ? 'rgba(255, 255, 255, 0.15)' : 'var(--color-primary)',
+                  backgroundColor: 'var(--color-primary)',
                   boxShadow: 'none',
                 }}
-                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-label="Open menu"
               >
                 <div className="w-5 h-4 relative flex flex-col justify-center items-center">
                   {/* Top line */}
@@ -336,9 +340,7 @@ export default function Navbar() {
                     className="absolute w-5 h-[2px] rounded-full transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]"
                     style={{
                       backgroundColor: 'white',
-                      transform: isMobileMenuOpen 
-                        ? 'translateY(0) rotate(45deg)' 
-                        : 'translateY(-5px) rotate(0deg)',
+                      transform: 'translateY(-5px) rotate(0deg)',
                     }}
                   />
                   {/* Middle line */}
@@ -346,8 +348,8 @@ export default function Navbar() {
                     className="absolute w-5 h-[2px] rounded-full transition-all duration-300"
                     style={{
                       backgroundColor: 'white',
-                      opacity: isMobileMenuOpen ? 0 : 1,
-                      transform: isMobileMenuOpen ? 'scaleX(0)' : 'scaleX(1)',
+                      opacity: 1,
+                      transform: 'scaleX(1)',
                     }}
                   />
                   {/* Bottom line */}
@@ -355,15 +357,60 @@ export default function Navbar() {
                     className="absolute w-5 h-[2px] rounded-full transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]"
                     style={{
                       backgroundColor: 'white',
-                      transform: isMobileMenuOpen 
-                        ? 'translateY(0) rotate(-45deg)' 
-                        : 'translateY(5px) rotate(0deg)',
+                      transform: 'translateY(5px) rotate(0deg)',
                     }}
                   />
                 </div>
               </button>
         </div>
       </nav>
+
+      {/* Mobile Menu Button - Rendered outside nav to avoid pointer-events issues when menu is open */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className={`lg:hidden fixed w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 z-[60] ${
+          isMobileMenuOpen 
+            ? `right-3 sm:right-4 md:right-6 ${isScrolled ? 'top-[0.5rem]' : 'top-4'}` 
+            : 'hidden'
+        }`}
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          boxShadow: 'none',
+        }}
+        aria-label="Close menu"
+      >
+        <div className="w-5 h-4 relative flex flex-col justify-center items-center">
+          {/* Top line */}
+          <span
+            className="absolute w-5 h-[2px] rounded-full transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]"
+            style={{
+              backgroundColor: 'white',
+              transform: isMobileMenuOpen 
+                ? 'translateY(0) rotate(45deg)' 
+                : 'translateY(-5px) rotate(0deg)',
+            }}
+          />
+          {/* Middle line */}
+          <span
+            className="absolute w-5 h-[2px] rounded-full transition-all duration-300"
+            style={{
+              backgroundColor: 'white',
+              opacity: isMobileMenuOpen ? 0 : 1,
+              transform: isMobileMenuOpen ? 'scaleX(0)' : 'scaleX(1)',
+            }}
+          />
+          {/* Bottom line */}
+          <span
+            className="absolute w-5 h-[2px] rounded-full transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]"
+            style={{
+              backgroundColor: 'white',
+              transform: isMobileMenuOpen 
+                ? 'translateY(0) rotate(-45deg)' 
+                : 'translateY(5px) rotate(0deg)',
+            }}
+          />
+        </div>
+      </button>
 
       {/* Mobile Menu - FULL SCREEN with les-arbres-fruitiers.fr color splash reveal */}
       <AnimatePresence mode="wait">
@@ -373,7 +420,7 @@ export default function Navbar() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-0 z-40 lg:hidden"
+            className="fixed inset-0 z-50 lg:hidden"
           >
             {/* 
               COLOR SPLASH BACKGROUND
