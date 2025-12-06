@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../lib/types'
 import { useAuth } from '../../hooks/useAuth'
 import { formatDate, getTags, calculateReadingTime } from '../../lib/blogUtils'
+import ResponsiveTags from './ResponsiveTags'
 
 interface BlogCardProps {
   post: BlogPost
@@ -13,8 +14,13 @@ export default function BlogCard({ post }: BlogCardProps) {
   
   // Get image URL - use post image_url if available, otherwise generate placeholder
   const getImageUrl = (post: BlogPost) => {
-    if (post.image_url && post.image_url.trim()) {
-      return post.image_url
+    // Check if image_url exists and is a valid non-empty string
+    if (post.image_url && typeof post.image_url === 'string' && post.image_url.trim().length > 0) {
+      // Check if it's a valid URL (starts with http:// or https://)
+      const trimmedUrl = post.image_url.trim()
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+        return trimmedUrl
+      }
     }
     // Generate placeholder image if no image_url provided
     const seed = post.id || post.slug
@@ -68,20 +74,20 @@ export default function BlogCard({ post }: BlogCardProps) {
 
           {/* Tags */}
           {tags.length > 0 && (
-            <div className="flex gap-1.5 xs:gap-2 mb-2.5 xs:mb-3 flex-wrap">
-              {tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
-                  style={{
-                    background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
-                  }}
-                >
+            <div className="mb-2.5 xs:mb-3" style={{ maxWidth: '100%', minWidth: 0 }}>
+              <ResponsiveTags
+                tags={tags}
+                gap="gap-1.5 xs:gap-2"
+                tagClassName="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
+                getTagStyle={(index) => ({
+                  background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
+                })}
+                renderTagContent={(tag) => (
                   <span className="font-mono text-[10px] xs:text-xs uppercase tracking-wide text-[var(--color-charcoal)]">
                     {tag}
                   </span>
-                </span>
-              ))}
+                )}
+              />
             </div>
           )}
 

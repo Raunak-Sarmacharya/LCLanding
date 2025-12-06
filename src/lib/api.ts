@@ -43,9 +43,10 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
     
     // Try to select with tags, but handle gracefully if column doesn't exist
     // Include content for accurate reading time calculation
+    // Include image_url for blog cards and carousel
     let result = await supabase
       .from('posts')
-      .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags')
+      .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
       .order('created_at', { ascending: false })
       .limit(100)
 
@@ -57,7 +58,7 @@ async function fetchBlogPostsFromSupabase(): Promise<BlogPost[]> {
       console.warn('[getBlogPosts] Tags column not found, fetching without tags')
       const retryResult = await supabase
         .from('posts')
-        .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published')
+        .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, image_url')
         .order('created_at', { ascending: false })
         .limit(100)
       
@@ -887,7 +888,10 @@ async function updateBlogPostFromSupabase(slug: string, input: UpdateBlogPostInp
     if (input.excerpt !== undefined) updateData.excerpt = input.excerpt?.trim() || null
     if (input.image_url !== undefined) updateData.image_url = input.image_url?.trim() || null
     if (input.published !== undefined) updateData.published = input.published
-    if (input.tags !== undefined) updateData.tags = input.tags && input.tags.length > 0 ? input.tags : null
+    // Always set tags explicitly when provided - create new array to ensure replacement, not merge
+    if (input.tags !== undefined) {
+      updateData.tags = input.tags && input.tags.length > 0 ? [...input.tags] : null
+    }
 
     // Update post - try with tags first
     let result = await supabase

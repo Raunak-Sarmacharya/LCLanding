@@ -162,18 +162,19 @@ export default function EditBlogPostForm() {
       // Clear blog posts cache so updated post appears immediately
       clearBlogPostsCache()
 
-      // Clear blog posts cache so updated post appears immediately in lists
-      clearBlogPostsCache()
-
-      // Dispatch custom event to force refresh of individual post views
+      // Dispatch custom event to force refresh of blog posts list and individual post views
       // Include timestamp in detail to ensure the event triggers a refresh
-      window.dispatchEvent(new CustomEvent('blogPostUpdated', { 
-        detail: { 
-          slug: post.slug, 
-          postId: post.id,
-          timestamp: Date.now() // Add timestamp to force refresh
-        } 
-      }))
+      // Use setTimeout to ensure cache is cleared before event is processed
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('blogPostUpdated', { 
+          detail: { 
+            slug: post.slug, 
+            postId: post.id,
+            timestamp: Date.now(), // Add timestamp to force refresh
+            image_url: post.image_url // Include image_url in event for debugging
+          } 
+        }))
+      }, 100) // Small delay to ensure cache is cleared
 
       // Reset submitting state first
       setIsSubmitting(false)

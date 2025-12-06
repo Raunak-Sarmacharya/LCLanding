@@ -426,6 +426,9 @@ export async function sendContactVerificationEmail(
             <!-- Footer -->
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #666666; text-align: center;">
+                        — The LocalCooks Team
+                      </p>
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
                         <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
                         <span style="color: #E0E0E0; margin: 0 10px;">|</span>
@@ -454,6 +457,8 @@ export async function sendContactVerificationEmail(
       ${verificationUrl}
       
       This verification link will expire in 7 days. If you didn't submit a contact form, you can safely ignore this email.
+      
+      — The LocalCooks Team
       
       © ${new Date().getFullYear()} LocalCooks. All rights reserved.
       Visit our website: www.localcooks.ca
@@ -620,9 +625,14 @@ export async function sendContactConfirmationEmail(
             <!-- Footer -->
                   <tr>
                     <td class="email-padding" style="padding: 40px 48px 48px 48px; border-top: 1px solid #F0F0F0;">
+                      <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #666666; text-align: center;">
+                        — The LocalCooks Team
+                      </p>
                       <p style="margin: 0 0 20px 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; text-align: center;">
-                <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
-              </p>
+                        <a href="https://www.localcooks.ca" style="color: #f51042; text-decoration: none; font-weight: 500;">Visit our website</a>
+                        <span style="color: #E0E0E0; margin: 0 10px;">|</span>
+                        <a href="mailto:${config.unsubscribeEmail}" style="color: #f51042; text-decoration: none; font-weight: 500;">Contact Support</a>
+                      </p>
                       <p style="margin: 0; font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #CCCCCC; text-align: center;">
                         © ${new Date().getFullYear()} LocalCooks. All rights reserved.
                       </p>
@@ -648,9 +658,11 @@ export async function sendContactConfirmationEmail(
       - Expect a response within 24 hours
       - We'll get back to you at this email address
       
-      Visit us at: www.localcooks.ca
+      — The LocalCooks Team
       
       © ${new Date().getFullYear()} LocalCooks. All rights reserved.
+      Visit our website: www.localcooks.ca
+      Contact Support: ${config.unsubscribeEmail}
     `,
   }
 

@@ -31,6 +31,7 @@ interface SanitizedPost {
   updated_at: string
   published: boolean
   tags?: string[] | null
+  image_url?: string | null
 }
 
 // Helper function to get Supabase client with retry support
@@ -195,6 +196,14 @@ function sanitizePost(post: any): SanitizedPost | null {
     }
   }
 
+  // Sanitize image_url - can be null or string
+  let image_url: string | null = null
+  if (post.image_url !== null && post.image_url !== undefined) {
+    if (typeof post.image_url === 'string' && post.image_url.trim().length > 0) {
+      image_url = post.image_url.trim()
+    }
+  }
+
   return {
     id: post.id.trim(),
     title: post.title.trim(),
@@ -206,6 +215,7 @@ function sanitizePost(post: any): SanitizedPost | null {
     updated_at: updatedAt,
     published,
     tags,
+    image_url,
   }
 }
 
@@ -295,9 +305,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         queryResult = await withRetry(async () => {
           // Try to select tags, but if column doesn't exist, select without it
           // Include content for accurate reading time calculation
+          // Include image_url for blog cards and carousel
           let result = await supabase
             .from('posts')
-            .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags')
+            .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
             .order('created_at', { ascending: false })
             .limit(100)
 
@@ -306,7 +317,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.warn('[GET /api/blog] Tags column not found, fetching without tags')
             const resultWithoutTags = await supabase
               .from('posts')
-              .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published')
+              .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, image_url')
               .order('created_at', { ascending: false })
               .limit(100)
             

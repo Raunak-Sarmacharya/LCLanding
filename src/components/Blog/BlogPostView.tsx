@@ -6,6 +6,7 @@ import type { BlogPost } from '../../lib/types'
 import { useLenis } from '../../contexts/LenisContext'
 import { useAuth } from '../../hooks/useAuth'
 import { calculateReadingTime, formatDate } from '../../lib/blogUtils'
+import ResponsiveTags from './ResponsiveTags'
 
 /**
  * Render markdown formatting in text
@@ -201,8 +202,13 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
   // Get image URL - use post image_url if available, otherwise generate placeholder
   const getImageUrl = (post: BlogPost) => {
-    if (post.image_url && post.image_url.trim()) {
-      return post.image_url
+    // Check if image_url exists and is a valid non-empty string
+    if (post.image_url && typeof post.image_url === 'string' && post.image_url.trim().length > 0) {
+      // Check if it's a valid URL (starts with http:// or https://)
+      const trimmedUrl = post.image_url.trim()
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+        return trimmedUrl
+      }
     }
     // Generate placeholder image if no image_url provided
     const seed = post.id || post.slug
@@ -776,25 +782,27 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
           <div className="flex flex-wrap items-center justify-between gap-3 xs:gap-4">
             {/* Tags on Left */}
             {tags.length > 0 && (
-              <div className="flex gap-1.5 xs:gap-2 flex-wrap">
-                {tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-2 xs:px-2.5 py-1 xs:py-1.5"
-                    style={{
-                      background: 'rgba(0, 0, 0, 0.05)',
-                    }}
-                  >
-                    <span className="font-mono text-xs xs:text-sm uppercase tracking-wide text-[var(--color-charcoal)]">
-                      {tag}
-                    </span>
+              <ResponsiveTags
+                tags={tags}
+                gap="gap-1.5 xs:gap-2"
+                tagClassName="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-2 xs:px-2.5 py-1 xs:py-1.5"
+                getTagStyle={() => ({
+                  background: 'rgba(0, 0, 0, 0.05)',
+                })}
+                renderTagContent={(tag) => (
+                  <span className="font-mono text-xs xs:text-sm uppercase tracking-wide text-[var(--color-charcoal)]">
+                    {tag}
                   </span>
-                ))}
-              </div>
+                )}
+              />
             )}
-            {/* Reading Time, Date, and Edit Button on Right */}
+            {/* Reading Time, Date, Author, and Edit Button on Right */}
             <div className="flex items-center gap-3 xs:gap-4 ml-auto">
               <div className="flex items-center gap-2 text-sm xs:text-base text-[var(--color-charcoal)]/70">
+                <span className="font-body text-[var(--color-primary)] font-semibold">
+                  {post.author_name}
+                </span>
+                <span className="text-[var(--color-charcoal)]/30">•</span>
                 <span className="font-mono">
                   {readingTime} min read
                 </span>

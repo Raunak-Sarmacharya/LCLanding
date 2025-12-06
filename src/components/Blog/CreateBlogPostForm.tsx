@@ -86,6 +86,15 @@ export default function CreateBlogPostForm() {
       // Clear blog posts cache so new post appears immediately
       clearBlogPostsCache()
 
+      // Dispatch custom event to force refresh of blog posts list
+      window.dispatchEvent(new CustomEvent('blogPostCreated', { 
+        detail: { 
+          slug: post.slug, 
+          postId: post.id,
+          timestamp: Date.now()
+        } 
+      }))
+
       // Reset submitting state first
       setIsSubmitting(false)
 

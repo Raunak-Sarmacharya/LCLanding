@@ -35,6 +35,7 @@ export function useBlogPosts(): UseBlogPostsResult {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -44,29 +45,36 @@ export function useBlogPosts(): UseBlogPostsResult {
     
     console.log('[useBlogPosts] Hook initialized')
 
-    // Load cached data immediately
-    try {
-      const cachedData = localStorage.getItem(CACHE_KEY)
-      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
+    // Load cached data immediately (only if not forcing refresh)
+    if (refreshKey === 0) {
+      try {
+        const cachedData = localStorage.getItem(CACHE_KEY)
+        const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
 
-      if (cachedData && cachedTimestamp) {
-        const age = Date.now() - parseInt(cachedTimestamp, 10)
-        if (age < CACHE_DURATION) {
-          const parsed = JSON.parse(cachedData)
-          console.log('[useBlogPosts] Loaded cached data:', parsed?.length || 0, 'posts')
-          if (!cancelled) {
-            setPosts(Array.isArray(parsed) ? parsed : [])
+        if (cachedData && cachedTimestamp) {
+          const age = Date.now() - parseInt(cachedTimestamp, 10)
+          if (age < CACHE_DURATION) {
+            const parsed = JSON.parse(cachedData)
+            console.log('[useBlogPosts] Loaded cached data:', parsed?.length || 0, 'posts')
+            if (!cancelled) {
+              setPosts(Array.isArray(parsed) ? parsed : [])
+              setLoading(false)
+            }
+          } else {
+            console.log('[useBlogPosts] Cached data expired, clearing cache')
+            localStorage.removeItem(CACHE_KEY)
+            localStorage.removeItem(CACHE_TIMESTAMP_KEY)
           }
         } else {
-          console.log('[useBlogPosts] Cached data expired, clearing cache')
-          localStorage.removeItem(CACHE_KEY)
-          localStorage.removeItem(CACHE_TIMESTAMP_KEY)
+          console.log('[useBlogPosts] No cached data found')
         }
-      } else {
-        console.log('[useBlogPosts] No cached data found')
+      } catch (cacheError) {
+        console.warn('Failed to load cached blog posts:', cacheError)
       }
-    } catch (cacheError) {
-      console.warn('Failed to load cached blog posts:', cacheError)
+    } else {
+      // Force refresh - clear cache first
+      console.log('[useBlogPosts] Force refresh requested, clearing cache')
+      clearBlogPostsCache()
     }
 
     async function fetchPosts(retryCount = 0) {
@@ -80,7 +88,7 @@ export function useBlogPosts(): UseBlogPostsResult {
         if (!cancelled) {
           const postsArray = Array.isArray(data) ? data : []
           console.log('[useBlogPosts] Setting posts:', postsArray.length, 'posts')
-          console.log('[useBlogPosts] Posts data:', postsArray)
+          console.log('[useBlogPosts] Posts data:', postsArray.map(p => ({ id: p.id, title: p.title, image_url: p.image_url })))
           setPosts(postsArray)
           setLoading(false)
 
@@ -128,6 +136,24 @@ export function useBlogPosts(): UseBlogPostsResult {
 
     return () => {
       cancelled = true
+    }
+  }, [refreshKey]) // Add refreshKey as dependency to force re-fetch
+
+  // Listen for blog post update events to force refresh
+  useEffect(() => {
+    const handleBlogPostUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent
+      console.log('[useBlogPosts] Blog post updated event received:', customEvent.detail)
+      // Force refresh by incrementing refreshKey
+      setRefreshKey(prev => prev + 1)
+    }
+
+    window.addEventListener('blogPostUpdated', handleBlogPostUpdate)
+    window.addEventListener('blogPostCreated', handleBlogPostUpdate)
+
+    return () => {
+      window.removeEventListener('blogPostUpdated', handleBlogPostUpdate)
+      window.removeEventListener('blogPostCreated', handleBlogPostUpdate)
     }
   }, [])
 

@@ -418,7 +418,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (author_name !== undefined) updateData.author_name = author_name
       if (excerpt !== undefined) updateData.excerpt = excerpt
       if (image_url !== undefined) updateData.image_url = image_url
-      if (tags !== undefined) updateData.tags = tags && tags.length > 0 ? tags : null
+      // Always set tags explicitly when provided - use empty array to clear, null to remove
+      if (tags !== undefined) {
+        // Create a new array to ensure we're replacing, not merging
+        updateData.tags = tags && tags.length > 0 ? [...tags] : null
+      }
       // Always update published if provided - this ensures published status is maintained
       if (published !== undefined) {
         updateData.published = Boolean(published) // Ensure it's a boolean
@@ -436,6 +440,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         updateResult = await withRetry(async () => {
           console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Updating post with ID: ${existingPost.id}`)
           console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Update data:`, JSON.stringify(updateData, null, 2))
+          // Log tags specifically to debug tag replacement
+          if (updateData.tags !== undefined) {
+            console.log(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Tags update:`, {
+              oldTags: existingPost.tags,
+              newTags: updateData.tags,
+              isNull: updateData.tags === null,
+              isArray: Array.isArray(updateData.tags),
+              length: Array.isArray(updateData.tags) ? updateData.tags.length : 'N/A'
+            })
+          }
 
           // Strategy 1: Try update with select in one query
           let updateQuery = supabase

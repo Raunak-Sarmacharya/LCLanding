@@ -6,6 +6,7 @@ import type { BlogPost } from '../lib/types'
 import { IconArrowNarrowRight } from '@tabler/icons-react'
 import gsap from 'gsap'
 import { calculateReadingTime, getTags, formatDate } from '../lib/blogUtils'
+import ResponsiveTags from './Blog/ResponsiveTags'
 
 /**
  * Blog Insights Section - Horizontal Scrollable Blog Cards
@@ -278,8 +279,13 @@ export default function BlogInsightsSection() {
 
   // Get image URL - use post image_url if available, otherwise generate placeholder
   const getImageUrl = (post: BlogPost) => {
-    if (post.image_url && post.image_url.trim()) {
-      return post.image_url
+    // Check if image_url exists and is a valid non-empty string
+    if (post.image_url && typeof post.image_url === 'string' && post.image_url.trim().length > 0) {
+      // Check if it's a valid URL (starts with http:// or https://)
+      const trimmedUrl = post.image_url.trim()
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+        return trimmedUrl
+      }
     }
     // Generate placeholder image if no image_url provided
     const seed = post.id || post.slug
@@ -578,8 +584,19 @@ export default function BlogInsightsSection() {
                               overflow: 'visible',
                             }}
                           >
-                            {/* Meta Info at top right - Date and Reading Time - Responsive positioning */}
+                            {/* Meta Info at top right - Author, Date and Reading Time - Responsive positioning */}
                             <div className="absolute top-4 xs:top-5 md:top-[clamp(16px,3.4vw,28.956px)] right-4 xs:right-5 md:right-[clamp(20px,5.1vw,43.434px)] flex flex-col items-end gap-1 xs:gap-[clamp(2px, 0.1vw, 0.81px)] z-10">
+                              <div 
+                                className="font-body text-right font-semibold"
+                                style={{
+                                  fontSize: 'clamp(11px, 1.5vw, 13px)',
+                                  lineHeight: 'clamp(14px, 2vw, 18px)',
+                                  color: 'var(--color-primary)',
+                                  opacity: 0.9,
+                                }}
+                              >
+                                {post.author_name}
+                              </div>
                               <div className="flex gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)] items-center" style={{ opacity: 0.6 }}>
                                 <span 
                                   className="font-mono"
@@ -615,17 +632,26 @@ export default function BlogInsightsSection() {
                               </div>
                             </div>
 
-                            {/* Tags - Matching website color scheme - Show ALL tags */}
+                            {/* Tags - Matching website color scheme - Responsive with +n overflow */}
                             {tags.length > 0 && (
-                              <div className="flex gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)] items-start flex-shrink-0 mb-1 xs:mb-0 flex-wrap">
-                                {tags.map((tag, tagIndex) => (
-                                  <span 
-                                    key={tagIndex}
-                                    className="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2.5 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1.5 xs:py-[clamp(3px, 0.5vw, 4.286px)]"
-                                    style={{ 
-                                      background: tagIndex === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
-                                    }}
-                                  >
+                              <div 
+                                className="flex-shrink-0 mb-1 xs:mb-0" 
+                                style={{ 
+                                  maxWidth: '100%', 
+                                  minWidth: 0,
+                                  // Add 5px margin-right to prevent overlap with author/date info
+                                  marginRight: '5px'
+                                }}
+                              >
+                                <ResponsiveTags
+                                  tags={tags}
+                                  gap="gap-2 xs:gap-[clamp(2px, 0.4vw, 3.61px)]"
+                                  className="items-start"
+                                  tagClassName="border border-[var(--color-charcoal)]/20 rounded-md xs:rounded-[clamp(2px, 0.4vw, 3.62px)] px-2.5 xs:px-[clamp(4px, 0.7vw, 5.734px)] py-1.5 xs:py-[clamp(3px, 0.5vw, 4.286px)]"
+                                  getTagStyle={(index) => ({
+                                    background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
+                                  })}
+                                  renderTagContent={(tag) => (
                                     <span 
                                       className="font-mono uppercase tracking-[-0.463px]"
                                       style={{
@@ -636,8 +662,8 @@ export default function BlogInsightsSection() {
                                     >
                                       {tag}
                                     </span>
-                                  </span>
-                                ))}
+                                  )}
+                                />
                               </div>
                             )}
 
