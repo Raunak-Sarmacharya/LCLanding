@@ -452,9 +452,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           // Strategy 1: Try update with select in one query
+          // CRITICAL: Ensure tags are explicitly replaced, not merged
+          // If tags is null, we need to explicitly set it to null to clear the array
+          // If tags is an array, we need to ensure it replaces the existing array
+          const updatePayload = { ...updateData }
+          if (updatePayload.tags !== undefined) {
+            // Explicitly set tags - null clears, array replaces
+            // This ensures Supabase replaces the entire array, not merges
+            updatePayload.tags = updatePayload.tags === null ? null : updatePayload.tags
+          }
+          
           let updateQuery = supabase
             .from('posts')
-            .update(updateData)
+            .update(updatePayload)
             .eq('id', existingPost.id)
 
           // Try to update with tags first
@@ -465,7 +475,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // If error is about missing tags column, retry without tags
           if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
             console.warn(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Tags column not found, updating without tags`)
-            const { tags, ...dataWithoutTags } = updateData
+            const { tags, ...dataWithoutTags } = updatePayload
             result = await supabase
               .from('posts')
               .update(dataWithoutTags)
@@ -479,9 +489,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.warn(`[PUT/PATCH /api/blog/[slug]] [${requestId}] Select failed, trying update then separate fetch. Error: ${result.error.message}`)
             
             // First, perform the update without select - Supabase update returns count or data
+            // Use updatePayload to ensure tags are properly replaced
             const updateOnly = await supabase
               .from('posts')
-              .update(updateData)
+              .update(updatePayload)
               .eq('id', existingPost.id)
 
             if (updateOnly.error) {

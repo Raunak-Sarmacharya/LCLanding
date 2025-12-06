@@ -106,14 +106,19 @@ export default function EditBlogPostForm() {
         return
       }
 
-      // Parse tags from comma-separated input and merge with editor tags
+      // Parse tags from comma-separated input
       const inputTags = tagsInput
         .split(',')
         .map(t => t.trim())
         .filter(Boolean)
       
-      // Merge editor tags (from # mentions) with input tags, removing duplicates
-      const allTags = [...new Set([...editorTags, ...inputTags])]
+      // Determine final tags:
+      // - If user has entered tags in the input field, use ONLY those (don't merge with editor tags)
+      // - If input is empty but there are editor tags, use editor tags
+      // - If both are empty, set to null to clear tags
+      const allTags = inputTags.length > 0 
+        ? inputTags // Use ONLY input tags when user has explicitly set them
+        : (editorTags.length > 0 ? editorTags : null) // Only use editor tags if input is empty
 
       // Prepare update data - only include fields that are actually provided
       const updateData: UpdateBlogPostInput = {
@@ -137,11 +142,10 @@ export default function EditBlogPostForm() {
         updateData.image_url = null // Explicitly set to null if empty
       }
 
-      if (allTags.length > 0) {
-        updateData.tags = allTags
-      } else {
-        updateData.tags = null // Explicitly set to null if empty
-      }
+      // Always explicitly set tags - use null to clear, or array to set
+      // This ensures old tags are properly removed when cleared
+      // If allTags is an array, use it; otherwise it's already null
+      updateData.tags = Array.isArray(allTags) && allTags.length > 0 ? allTags : null
 
       // Explicitly set published to true to ensure the post remains published after update
       // This is critical for published posts - we want to keep them published when editing

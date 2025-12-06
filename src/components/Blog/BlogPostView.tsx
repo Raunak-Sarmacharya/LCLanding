@@ -6,7 +6,6 @@ import type { BlogPost } from '../../lib/types'
 import { useLenis } from '../../contexts/LenisContext'
 import { useAuth } from '../../hooks/useAuth'
 import { calculateReadingTime, formatDate } from '../../lib/blogUtils'
-import ResponsiveTags from './ResponsiveTags'
 
 /**
  * Render markdown formatting in text
@@ -780,21 +779,23 @@ export default function BlogPostView({ post }: BlogPostViewProps) {
 
           {/* Tags and Meta Info - Below Title, Meta on Right */}
           <div className="flex flex-wrap items-center justify-between gap-3 xs:gap-4">
-            {/* Tags on Left */}
+            {/* Tags on Left - Show ALL tags */}
             {tags.length > 0 && (
-              <ResponsiveTags
-                tags={tags}
-                gap="gap-1.5 xs:gap-2"
-                tagClassName="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-2 xs:px-2.5 py-1 xs:py-1.5"
-                getTagStyle={() => ({
-                  background: 'rgba(0, 0, 0, 0.05)',
-                })}
-                renderTagContent={(tag) => (
-                  <span className="font-mono text-xs xs:text-sm uppercase tracking-wide text-[var(--color-charcoal)]">
-                    {tag}
+              <div className="flex flex-wrap items-center gap-1.5 xs:gap-2">
+                {tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-2 xs:px-2.5 py-1 xs:py-1.5"
+                    style={{
+                      background: 'rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
+                    <span className="font-mono text-xs xs:text-sm uppercase tracking-wide text-[var(--color-charcoal)]">
+                      {tag}
+                    </span>
                   </span>
-                )}
-              />
+                ))}
+              </div>
             )}
             {/* Reading Time, Date, Author, and Edit Button on Right */}
             <div className="flex items-center gap-3 xs:gap-4 ml-auto">
