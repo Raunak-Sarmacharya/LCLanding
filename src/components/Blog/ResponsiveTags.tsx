@@ -382,8 +382,11 @@ export default function ResponsiveTags({
       document.body.removeChild(tempContainer)
 
       // Hide one extra tag to give more breathing room and prevent overlap
-      // This ensures tags don't get too close to the author info
-      const finalCount = Math.max(0, Math.min(count - 1, tags.length))
+      // BUT only do this if there are 3 or more tags - if 2 or fewer, show all
+      // This ensures tags don't get too close to the author info, but doesn't hide tags unnecessarily
+      const finalCount = tags.length >= 3 
+        ? Math.max(0, Math.min(count - 1, tags.length))  // Hide one extra only if 3+ tags
+        : Math.max(0, Math.min(count, tags.length))      // Show all if 2 or fewer tags
       setVisibleCount(finalCount)
     }
 

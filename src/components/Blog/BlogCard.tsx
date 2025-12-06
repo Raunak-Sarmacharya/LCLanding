@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../lib/types'
 import { useAuth } from '../../hooks/useAuth'
 import { formatDate, getTags, calculateReadingTime } from '../../lib/blogUtils'
-import ResponsiveTags from './ResponsiveTags'
 
 interface BlogCardProps {
   post: BlogPost
@@ -74,20 +73,84 @@ export default function BlogCard({ post }: BlogCardProps) {
 
           {/* Tags */}
           {tags.length > 0 && (
-            <div className="mb-2.5 xs:mb-3" style={{ maxWidth: '100%', minWidth: 0 }}>
-              <ResponsiveTags
-                tags={tags}
-                gap="gap-1.5 xs:gap-2"
-                tagClassName="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
-                getTagStyle={(index) => ({
-                  background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
-                })}
-                renderTagContent={(tag) => (
-                  <span className="font-mono text-[10px] xs:text-xs uppercase tracking-wide text-[var(--color-charcoal)]">
-                    {tag}
+            <div className="mb-2.5 xs:mb-3" style={{ width: '100%', overflow: 'visible', minWidth: 0 }}>
+              {/* Mobile: Show all tags */}
+              <div className="flex flex-wrap items-center gap-1.5 xs:gap-2 lg:hidden">
+                {tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
+                    style={{
+                      background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span className="font-mono text-[10px] xs:text-xs uppercase tracking-wide text-[var(--color-charcoal)] whitespace-nowrap">
+                      {tag}
+                    </span>
                   </span>
+                ))}
+              </div>
+              {/* Desktop: Show all tags if 2 or fewer, show 2 + "+n" if 3 or more */}
+              <div 
+                className="hidden lg:flex items-center gap-1.5 xs:gap-2" 
+                style={{ 
+                  flexWrap: 'nowrap',
+                  overflow: 'visible',
+                  width: '100%',
+                  minWidth: 0,
+                }}
+              >
+                {tags.length <= 2 ? (
+                  // Show all tags if 2 or fewer - CRITICAL: ensure both are visible
+                  tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
+                      style={{
+                        background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
+                        flexShrink: 0,
+                        display: 'inline-block',
+                      }}
+                    >
+                      <span className="font-mono text-[10px] xs:text-xs uppercase tracking-wide text-[var(--color-charcoal)] whitespace-nowrap">
+                        {tag}
+                      </span>
+                    </span>
+                  ))
+                ) : (
+                  // Show 2 tags + "+n" if 3 or more
+                  <>
+                    {tags.slice(0, 2).map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
+                        style={{
+                          background: index === 0 ? 'var(--color-butter)' : 'var(--color-cream-dark)',
+                          flexShrink: 0,
+                          display: 'inline-block',
+                        }}
+                      >
+                        <span className="font-mono text-[10px] xs:text-xs uppercase tracking-wide text-[var(--color-charcoal)] whitespace-nowrap">
+                          {tag}
+                        </span>
+                      </span>
+                    ))}
+                    <span
+                      className="inline-block border border-[var(--color-charcoal)]/20 rounded-md px-1.5 xs:px-2 py-0.5 xs:py-1"
+                      style={{
+                        background: 'var(--color-cream-dark)',
+                        flexShrink: 0,
+                        display: 'inline-block',
+                      }}
+                    >
+                      <span className="font-mono text-[10px] xs:text-xs uppercase tracking-wide text-[var(--color-charcoal)] whitespace-nowrap">
+                        +{tags.length - 2}
+                      </span>
+                    </span>
+                  </>
                 )}
-              />
+              </div>
             </div>
           )}
 
