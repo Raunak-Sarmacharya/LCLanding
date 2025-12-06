@@ -61,9 +61,8 @@ const mainNavLinks = [
 
 // Legal links for bottom bar
 const legalLinks = [
-  { name: 'Terms of Service', href: '/#terms' },
-  { name: 'Privacy Policy', href: '/#privacy' },
-  { name: 'Cookies', href: '/#cookies' },
+  { name: 'Terms of Service', href: '/terms', isRoute: true },
+  { name: 'Privacy Policy', href: '/privacy', isRoute: true },
 ]
 
 function ContactPageContent() {
@@ -578,9 +577,9 @@ function ContactPageContent() {
                 {/* Privacy Notice */}
                 <p className="font-body text-sm text-[var(--color-charcoal)]/50 leading-relaxed">
                   By submitting this form, I acknowledge that I have read and agree to LocalCooks'{' '}
-                  <Link to="/#privacy" className="text-[var(--color-primary)] hover:underline transition-colors">Privacy Policy</Link>{' '}
+                  <Link to="/privacy" className="text-[var(--color-primary)] hover:underline transition-colors">Privacy Policy</Link>{' '}
                   and{' '}
-                  <Link to="/#terms" className="text-[var(--color-primary)] hover:underline transition-colors">Terms of Service</Link>.
+                  <Link to="/terms" className="text-[var(--color-primary)] hover:underline transition-colors">Terms of Service</Link>.
                 </p>
 
                 {/* Error Message */}
@@ -808,13 +807,23 @@ function ContactPageContent() {
               {/* Legal Links */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-1">
                 {legalLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    className="font-mono text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors duration-200"
-                  >
-                    {link.name}
-                  </Link>
+                  link.isRoute ? (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      className="font-mono text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors duration-200"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      className="font-mono text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors duration-200"
+                    >
+                      {link.name}
+                    </a>
+                  )
                 ))}
               </div>
 

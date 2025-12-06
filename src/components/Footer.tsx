@@ -15,9 +15,8 @@ const mainNavLinks = [
 
 // Legal links for bottom bar
 const legalLinks = [
-  { name: 'Terms of Service', href: '#terms' },
-  { name: 'Privacy Policy', href: '#privacy' },
-  { name: 'Cookies', href: '#cookies' },
+  { name: 'Terms of Service', href: '/terms', isRoute: true },
+  { name: 'Privacy Policy', href: '/privacy', isRoute: true },
 ]
 
 // Modern minimal social icons - Lucide-style line icons
@@ -277,13 +276,23 @@ export default function Footer() {
             {/* Legal Links */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-1">
               {legalLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="font-mono text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  {link.name}
-                </a>
+                link.isRoute ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="font-mono text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors duration-200"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="font-mono text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors duration-200"
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
             </div>
 

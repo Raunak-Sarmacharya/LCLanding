@@ -1,5 +1,6 @@
 import { motion, useInView, useScroll, useTransform } from 'motion/react'
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 /**
  * Newsletter Section - Premium Split-Section Design
@@ -438,7 +439,7 @@ export default function NewsletterSection() {
                         {/* Privacy note */}
                         <p className="font-mono text-[10px] text-[var(--color-charcoal)]/40 pt-2">
                           By subscribing, you agree to our{' '}
-                          <a href="#privacy" className="text-[var(--color-primary)] hover:underline">Privacy Policy</a>
+                          <Link to="/privacy" className="text-[var(--color-primary)] hover:underline">Privacy Policy</Link>
                           {' '}and consent to receive updates.
                         </p>
                       </form>
