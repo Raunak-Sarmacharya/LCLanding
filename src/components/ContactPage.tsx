@@ -668,16 +668,16 @@ function ContactPageContent() {
                   </h3>
                   <div className="space-y-0.5">
                     <a 
-                      href="tel:+17095550123"
+                      href="tel:+17096318480"
                       className="block font-body text-[var(--color-charcoal)]/60 text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                     >
-                      +1 (709) 555-0123
+                      +1 (709) 631-8480
                     </a>
                     <a 
-                      href="mailto:hello@localcooks.ca"
+                      href="mailto:admin@localcook."
                       className="block font-body text-[var(--color-charcoal)]/60 text-sm hover:text-[var(--color-primary)] transition-colors duration-200"
                     >
-                      hello@localcooks.ca
+                      admin@localcook.shop
                     </a>
                   </div>
                 </div>
