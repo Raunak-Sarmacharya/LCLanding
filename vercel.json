@@ -100,6 +100,10 @@
   ],
   "rewrites": [
     {
+      "source": "/favicon.ico",
+      "destination": "/logo-lc.png"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },
@@ -108,7 +112,7 @@
       "destination": "/api/blog/[slug]"
     },
     {
-      "source": "/((?!api|robots.txt|sitemap.xml|.*\\..*).*)",
+      "source": "/((?!api|robots.txt|sitemap.xml|favicon.ico|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
