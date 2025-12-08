@@ -46,10 +46,24 @@
     <meta name="twitter:image" content="https://www.localcooks.ca/chef.png" />
     <meta name="twitter:image:alt" content="Local chef cooking authentic homemade meals at LocalCooks" />
     
-    <!-- Favicon & Icons -->
+    <!-- Favicon & Icons - Optimized for Google Search Results -->
+    <!-- Primary favicon - PNG format preferred by Google (must be 48x48px or larger) -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/logo-lc.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/logo-lc.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/logo-lc.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo-lc.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo-lc.png" />
+    <!-- Fallback SVG favicon for modern browsers -->
     <link rel="icon" type="image/svg+xml" href="/logo-lc-svg.svg" />
-    <link rel="alternate icon" href="/logo-lc-svg.svg" />
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo-lc.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/logo-lc.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/logo-lc.png" />
     <link rel="apple-touch-icon" href="/logo-lc.png" />
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="/logo-lc.png" />
     
     <!-- Theme color for mobile browsers -->
     <meta name="theme-color" content="#f51042" />
@@ -216,6 +230,90 @@
             "@type": "Answer",
             "text": "If you're a passionate home cook in St. John's, Newfoundland, you can join our community of local chefs. We help you handle visibility, payments, and logistics so you can focus on cooking incredible food. Visit our 'For Chefs' page to get started."
           }
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Structured Data - SiteNavigationElement for Sitelinks -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "SiteNavigationElement",
+          "position": 1,
+          "name": "Start Ordering",
+          "description": "Order delicious homemade meals from local chefs in St. John's",
+          "url": "https://localcook.shop/app/index.php"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 2,
+          "name": "Join as a Chef",
+          "description": "Become a local chef and share your homemade meals with the community",
+          "url": "https://local-cooks-community.vercel.app/"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 3,
+          "name": "About Us",
+          "description": "Learn about LocalCooks and our mission to connect local chefs with food lovers",
+          "url": "https://www.localcooks.ca/#about"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 4,
+          "name": "How It Works",
+          "description": "Discover how to order homemade food from local chefs near you",
+          "url": "https://www.localcooks.ca/#how-it-works"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 5,
+          "name": "Blog",
+          "description": "Read stories about local chefs, food trends, and community updates",
+          "url": "https://www.localcooks.ca/blog"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 6,
+          "name": "Contact",
+          "description": "Get in touch with LocalCooks for questions or support",
+          "url": "https://www.localcooks.ca/contact"
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Structured Data - WebPage with speakable content -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "https://www.localcooks.ca/#webpage",
+      "url": "https://www.localcooks.ca/",
+      "name": "LocalCooks - Homemade Meals from Local Chefs in St. John's, Newfoundland",
+      "description": "Discover authentic homemade meals from passionate local chefs in St. John's, Newfoundland. Order delicious home-cooked food from talented neighborhood cooks.",
+      "isPartOf": {
+        "@id": "https://www.localcooks.ca/#website"
+      },
+      "about": {
+        "@id": "https://www.localcooks.ca/#organization"
+      },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://www.localcooks.ca/chef.png"
+      },
+      "breadcrumb": {
+        "@id": "https://www.localcooks.ca/#breadcrumb"
+      },
+      "inLanguage": "en-CA",
+      "potentialAction": [
+        {
+          "@type": "ReadAction",
+          "target": ["https://www.localcooks.ca/"]
         }
       ]
     }
