@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import SmoothScroll from './SmoothScroll'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useLenis } from '../contexts/LenisContext'
+import SEOHead from './SEO/SEOHead'
 
 type InquiryType = 'general' | 'chef'
 
@@ -226,6 +227,14 @@ function ContactPageContent() {
 
   return (
     <main className="min-h-screen bg-[var(--color-cream)]">
+      {/* SEO Head - Contact Page */}
+      <SEOHead
+        title="Contact Us"
+        description="Get in touch with LocalCooks. Have questions about ordering homemade food from local chefs in St. John's, Newfoundland? Want to become a chef? We'd love to hear from you."
+        canonicalUrl="/contact"
+        showLocalBusiness={true}
+      />
+      
       {/* Navigation - Elegant top bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--color-cream)]/90 backdrop-blur-md border-b border-[var(--color-charcoal)]/5 overflow-x-clip">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 flex items-center justify-between w-full box-border">

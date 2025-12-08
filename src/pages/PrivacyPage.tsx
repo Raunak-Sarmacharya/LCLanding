@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import SmoothScroll from '../components/SmoothScroll'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useLenis } from '../contexts/LenisContext'
+import SEOHead from '../components/SEO/SEOHead'
 
 function PrivacyPageContent() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -100,6 +101,14 @@ function PrivacyPageContent() {
 
   return (
     <main className="min-h-screen bg-[var(--color-cream)]">
+      {/* SEO Head - Privacy Policy */}
+      <SEOHead
+        title="Privacy Policy"
+        description="Read LocalCooks' Privacy Policy. Learn how we collect, use, and protect your personal information when you use our platform to order homemade food from local chefs."
+        canonicalUrl="/privacy"
+        noIndex={false}
+      />
+      
       {/* Navigation - Elegant top bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--color-cream)]/90 backdrop-blur-md border-b border-[var(--color-charcoal)]/5 overflow-x-clip">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 flex items-center justify-between w-full box-border">
@@ -160,158 +169,165 @@ function PrivacyPageContent() {
             className="prose prose-lg max-w-none"
           >
             <div className="font-body text-[var(--color-charcoal)] space-y-10 leading-relaxed">
-              {/* Section 1: Introduction */}
+              {/* Section 1: Introduction and Scope */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">1. Introduction</h2>
-                
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.1 Our Commitment to Privacy</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    At Local Cooks Inc. ("Local Cooks", "we", "us", or "our"), we are committed to safeguarding your privacy. This Privacy Policy outlines how we collect, use, disclose, and protect the personal information of our users ("you" or "your").
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.2 Scope</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    This Privacy Policy applies to your use of our website, mobile application, and any related services (collectively, the "Service"). By accessing or using our Service, you agree to the collection and use of your information in accordance with this policy.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.3 Updates</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    We may update this Privacy Policy from time to time. Any changes will be posted on this page, and the "Last Updated" date will be revised accordingly. Your continued use of the Service after such modifications constitutes your acknowledgment of the updated policy.
-                  </p>
-                </div>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">1. Introduction and Scope</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  Local Cooks Inc. ("Local Cooks," "we," "us," or "our") values the trust you place in us when sharing your personal data. This Privacy Policy details how we collect, use, disclose, and safeguard your Personal Information when you access our mobile application, website (www.localcook.shop), and related services (collectively, the "Platform").
+                </p>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  By accessing the Platform, you consent to the data practices described in this Policy. If you do not agree with the data practices described herein, you should not use the Platform.
+                </p>
               </div>
 
               {/* Section 2: Information We Collect */}
               <div className="space-y-4">
                 <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">2. Information We Collect</h2>
                 <p className="text-base text-[var(--color-charcoal)]/80">
-                  We collect the following personal information to provide and improve our Service:
+                  We collect information necessary to facilitate the connection between Diners, Independent Chefs, and Couriers.
                 </p>
-                <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                  <li><strong>Identifiers:</strong> Phone number, username, and optional email address.</li>
-                  <li><strong>Usage Data:</strong> Information on how you interact with our Service, including access times, pages viewed, and other usage statistics.</li>
-                </ul>
+                
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">2.1 Information You Provide Directly</h3>
+                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
+                    <li><strong>Account Registration:</strong> When you sign up, we collect identifiers such as your full name, phone number, email address, and password.</li>
+                    <li><strong>Transaction Data:</strong> Order details, dietary preferences, and delivery instructions.</li>
+                    <li><strong>Payment Information:</strong> We do not store full credit card numbers. Payment data is tokenized and processed directly by our third-party payment processor (Stripe). We retain only limited information (e.g., last four digits, expiration date) for verification.</li>
+                    <li><strong>Communications:</strong> Content of messages sent to us or generated through the Platform (e.g., feedback, chat with support).</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">2.2 Information We Collect Automatically</h3>
+                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
+                    <li><strong>Geolocation Data:</strong> With your permission, we collect precise or approximate location data from your mobile device to facilitate delivery logistics and show you Chefs available in your area.</li>
+                    <li><strong>Device & Usage Data:</strong> We collect technical data including your IP address, device model, operating system, unique device identifiers (UDID), and crash data to improve app stability and security.</li>
+                    <li><strong>Cookies and Tracking Technologies:</strong> We use cookies, beacons, and similar technologies to analyze trends, administer the Platform, and track users' movements around the Platform.</li>
+                  </ul>
+                </div>
               </div>
 
-              {/* Section 3: Use of Information */}
+              {/* Section 3: How We Use Your Information */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">3. Use of Information</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">3. How We Use Your Information</h2>
                 <p className="text-base text-[var(--color-charcoal)]/80">
-                  We use the collected information for the following purposes:
+                  We use your data for specific, limited purposes:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                  <li><strong>Service Delivery:</strong> To provide, maintain, and improve our Service.</li>
-                  <li><strong>Communication:</strong> To contact you regarding your account, respond to inquiries, and send updates.</li>
-                  <li><strong>Security:</strong> To detect and prevent fraudulent activities and ensure the security of our Service.</li>
+                  <li><strong>Service Fulfillment:</strong> To process orders, coordinate deliveries, and facilitate payments.</li>
+                  <li><strong>Safety & Security:</strong> To verify accounts, detect potential fraud, and ensure the safety of our Users, Chefs, and Couriers.</li>
+                  <li><strong>Communication:</strong> To send order updates (push notifications/SMS), security alerts, and administrative messages.</li>
+                  <li><strong>Platform Improvement:</strong> To analyze usage trends and optimize the user experience (e.g., suggesting Chefs based on past orders).</li>
+                  <li><strong>Legal Compliance:</strong> To comply with applicable legal obligations, such as tax laws and law enforcement requests.</li>
                 </ul>
               </div>
 
-              {/* Section 4: Disclosure of Information */}
+              {/* Section 4: Sharing and Disclosure of Information */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">4. Disclosure of Information</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">4. Sharing and Disclosure of Information</h2>
                 <p className="text-base text-[var(--color-charcoal)]/80">
-                  We do not sell or rent your personal information. We may share your information in the following circumstances:
+                  We are not in the business of selling your data. We share your information only as described below:
+                </p>
+                
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.1 Sharing with Ecosystem Partners (Necessary for Service)</h3>
+                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
+                    <li><strong>Independent Chefs:</strong> We share your first name, order details, and dietary restrictions with the Chef preparing your meal. We do not share your payment details with Chefs.</li>
+                    <li><strong>Couriers/Delivery Partners:</strong> We share your delivery address, phone number, and first name with the Courier assigned to your order to facilitate delivery.</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.2 Service Providers</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    We employ third-party companies to facilitate our Service (e.g., cloud hosting via AWS/Google, payment processing via Stripe, SMS notifications via Twilio). These third parties have access to your Personal Information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.3 Legal Requirements</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    We may disclose your Personal Information if required to do so by law or in the good faith belief that such action is necessary to: (a) comply with a legal obligation (e.g., subpoena); (b) protect and defend the rights or property of Local Cooks; or (c) protect the personal safety of users or the public.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.4 Business Transfers</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    If Local Cooks is involved in a merger, acquisition, or sale of assets, your Personal Information may be transferred as part of that transaction.
+                  </p>
+                </div>
+              </div>
+
+              {/* Section 5: International Data Transfers */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">5. International Data Transfers</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  Local Cooks is based in Canada. However, we and our third-party service providers may store or process your Personal Information on servers located outside of Canada (including in the United States). While your information is outside Canada, it is subject to the laws of the country in which it is held, which may differ from Canadian privacy laws.
+                </p>
+              </div>
+
+              {/* Section 6: Your Rights and Choices */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">6. Your Rights and Choices</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  Under Canadian privacy laws (PIPEDA), you have specific rights regarding your Personal Information:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                  <li><strong>Service Providers:</strong> With third-party vendors who assist in operating our Service, subject to confidentiality agreements.</li>
-                  <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety.</li>
+                  <li><strong>Access and Correction:</strong> You have the right to request access to the personal data we hold about you and to request corrections if it is inaccurate.</li>
+                  <li><strong>Withdrawal of Consent:</strong> You may withdraw your consent to the collection or use of your personal information at any time, subject to legal or contractual restrictions. Note that withdrawing consent for essential data (like location or payment info) may render the Service unusable.</li>
+                  <li><strong>Location Settings:</strong> You can disable location tracking at any time through your device settings, though this will impact the functionality of the Platform.</li>
+                  <li><strong>Marketing Communications:</strong> You can opt-out of marketing emails by following the "unsubscribe" link. You cannot opt-out of transactional emails (e.g., order receipts).</li>
                 </ul>
               </div>
 
-              {/* Section 5: Consent */}
+              {/* Section 7: Data Retention */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">5. Consent</h2>
-                
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">5.1 Obtaining Consent</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    By providing your personal information, you consent to its collection, use, and disclosure as outlined in this Privacy Policy.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">5.2 Withdrawing Consent</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    You may withdraw your consent at any time by contacting us. However, this may affect your ability to use certain features of our Service.
-                  </p>
-                </div>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">7. Data Retention</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  We retain your Personal Information only for as long as necessary to fulfill the purposes for which we collected it, including for the purposes of satisfying any legal, accounting, or reporting requirements. When we no longer need your personal information, we will securely delete or anonymize it.
+                </p>
               </div>
 
-              {/* Section 6: Protection of Information */}
+              {/* Section 8: Security */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">6. Protection of Information</h2>
-                
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">6.1 Accuracy</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    We strive to keep your personal information accurate and up-to-date. Please notify us of any changes.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">6.2 Access</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    You have the right to access and correct your personal information. Contact us to make such requests.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">6.3 Security Measures</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    We implement appropriate security measures to protect your information from unauthorized access or disclosure.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">6.4 Retention</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    We retain your personal information only as long as necessary to fulfill the purposes outlined in this policy or as required by law.
-                  </p>
-                </div>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">8. Security</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  We implement industry-standard physical, technical, and administrative security measures designed to protect your Personal Information from unauthorized access, use, or disclosure. However, no method of transmission over the Internet is 100% secure. While we strive to protect your data, we cannot guarantee its absolute security.
+                </p>
               </div>
 
-              {/* Section 7: Other Data Practices */}
+              {/* Section 9: Children's Privacy */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">7. Other Data Practices</h2>
-                
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">7.1 Cookies and Similar Technologies</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    We may use cookies to enhance your experience on our Service. You can adjust your browser settings to refuse cookies, but this may limit certain functionalities.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">7.2 Children's Privacy</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    Our Service is not intended for individuals under 13. We do not knowingly collect information from children under 13.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">7.3 External Links</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    Our Service may contain links to external websites. We are not responsible for the privacy practices of these sites.
-                  </p>
-                </div>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">9. Children's Privacy</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  The Platform is not directed to individuals under the age of 13 (or the applicable age of digital consent). We do not knowingly collect Personal Information from children. If we become aware that a child has provided us with Personal Information, we will take steps to delete such information.
+                </p>
               </div>
 
-              {/* Section 8: Contact Us */}
+              {/* Section 10: Third-Party Links */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">8. Contact Us</h2>
-                
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">8.1 Questions or Complaints</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    If you have any questions, concerns, or complaints about our privacy practices, please contact us at:
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">10. Third-Party Links</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  Our Platform may contain links to third-party websites. This Privacy Policy applies only to Local Cooks. We are not responsible for the privacy practices of other sites.
+                </p>
+              </div>
+
+              {/* Section 11: Contact Us */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">11. Contact Us (Privacy Officer)</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  If you have questions about this Privacy Policy, or wish to exercise your rights regarding your Personal Information, please contact our designated Privacy Officer:
+                </p>
+                <div className="bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/20 rounded-xl p-6 mt-4">
+                  <p className="text-base text-[var(--color-charcoal)]/80 font-semibold">
+                    Local Cooks Inc.
                   </p>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    <strong>Email:</strong> <a href="mailto:support@localcook.shop" className="text-[var(--color-primary)] hover:underline">support@localcook.shop</a>
+                    Attn: Privacy Officer
+                  </p>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    Email: <a href="mailto:support@localcook.shop" className="text-[var(--color-primary)] hover:underline">support@localcook.shop</a>
                   </p>
                 </div>
               </div>

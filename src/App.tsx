@@ -29,6 +29,7 @@ import AdminLoginPage from './pages/AdminLoginPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
+import SEOHead from './components/SEO/SEOHead'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -218,6 +219,9 @@ function HomePage() {
 
   return (
     <SmoothScroll>
+      {/* SEO Head - Homepage with LocalBusiness schema */}
+      <SEOHead showLocalBusiness={true} />
+      
       <div ref={appRef} className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
         {/* Scroll Progress Bar */}
         <div className="scroll-progress fixed top-0 left-0 right-0 h-1 bg-[var(--color-primary)] z-[100] origin-left scale-x-0" />

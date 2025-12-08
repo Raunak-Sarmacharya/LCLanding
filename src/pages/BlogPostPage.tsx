@@ -64,6 +64,14 @@ function BlogPostPageContent() {
       <BlogMetaTags 
         title={post ? `${post.title} - LocalCooks Blog` : 'Blog Post - LocalCooks'}
         description={post?.excerpt || 'Read our latest blog post from LocalCooks'}
+        slug={post?.slug}
+        image={post?.image_url || undefined}
+        imageAlt={post ? `${post.title} - LocalCooks Blog` : undefined}
+        publishedTime={post?.created_at}
+        modifiedTime={post?.updated_at}
+        author={post?.author_name}
+        tags={post?.tags || undefined}
+        content={post?.content}
       />
       <Navbar />
       

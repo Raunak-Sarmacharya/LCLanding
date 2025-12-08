@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import SmoothScroll from '../components/SmoothScroll'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useLenis } from '../contexts/LenisContext'
+import SEOHead from '../components/SEO/SEOHead'
 
 function TermsPageContent() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -100,6 +101,14 @@ function TermsPageContent() {
 
   return (
     <main className="min-h-screen bg-[var(--color-cream)]">
+      {/* SEO Head - Terms Page */}
+      <SEOHead
+        title="Terms of Service"
+        description="Read the Terms of Service for LocalCooks. Understand your rights and responsibilities when using our platform to order homemade meals from local chefs in St. John's, Newfoundland."
+        canonicalUrl="/terms"
+        noIndex={false}
+      />
+      
       {/* Navigation - Elegant top bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--color-cream)]/90 backdrop-blur-md border-b border-[var(--color-charcoal)]/5 overflow-x-clip">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 flex items-center justify-between w-full box-border">
@@ -162,256 +171,288 @@ function TermsPageContent() {
             <div className="font-body text-[var(--color-charcoal)] space-y-10 leading-relaxed">
               {/* Introduction */}
               <div className="space-y-4">
+                <p className="text-base text-[var(--color-charcoal)]/90 font-bold uppercase">
+                  PLEASE READ THESE TERMS AND CONDITIONS ("TERMS") CAREFULLY. THIS IS A BINDING LEGAL AGREEMENT.
+                </p>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  These Terms of Service (the "Agreement") constitute a legally binding contract between Local Cooks Inc. ("Local Cooks," "we," "us," or "our"), a corporation organized under the laws of Newfoundland and Labrador, and you ("User," "you," or "your").
+                </p>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  This Agreement governs your access to and use of the Local Cooks mobile application, website (www.localcook.shop), and all related services, features, content, and applications offered by us (collectively, the "Platform").
+                </p>
                 <p className="text-base text-[var(--color-charcoal)]/90 font-semibold">
-                  PLEASE READ THESE TERMS AND CONDITIONS ("AGREEMENT") CAREFULLY. THIS AGREEMENT IS A LEGAL CONTRACT BETWEEN LOCAL COOKS INC. ("LOCAL COOKS," "WE," "US," OR "OUR") AND YOU ("YOU" OR "YOUR"). BY ACCESSING OR USING OUR MOBILE APPLICATION, WEBSITE, OR ANY RELATED SERVICES (COLLECTIVELY, THE "SERVICE"), YOU AGREE TO BE BOUND BY THIS AGREEMENT, INCLUDING ANY POLICIES OR TERMS INCORPORATED HEREIN. IF YOU DO NOT AGREE, PLEASE DO NOT USE THE SERVICE.
+                  BY CLICKING "I AGREE," REGISTERING FOR AN ACCOUNT, OR ACCESSING THE PLATFORM, YOU EXPRESSLY ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THIS AGREEMENT. IF YOU DO NOT AGREE, YOU MUST IMMEDIATELY CEASE USE OF THE PLATFORM.
                 </p>
+                <div className="bg-[var(--color-primary)]/5 border-l-4 border-[var(--color-primary)] p-4 rounded-r-lg">
+                  <p className="text-base text-[var(--color-charcoal)]/90 font-semibold">
+                    NOTICE REGARDING DISPUTE RESOLUTION: SECTION 14 CONTAINS A MANDATORY ARBITRATION PROVISION AND CLASS ACTION WAIVER THAT AFFECTS HOW DISPUTES BETWEEN YOU AND LOCAL COOKS ARE RESOLVED.
+                  </p>
+                </div>
               </div>
 
-              {/* Section 1: Acceptance of Terms */}
+              {/* Section 1: The Local Cooks Platform */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">1. Acceptance of Terms</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">1. The Local Cooks Platform</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.1 Eligibility</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.1 Marketplace Model (Crucial Distinction)</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    By using the Service, you represent and warrant that:
+                    You acknowledge and agree that Local Cooks operates as a technology marketplace that connects consumers ("Diners") with independent third-party chefs and food preparers ("Chefs") for the sale and delivery of meals. Local Cooks is not a restaurant, caterer, or food preparation entity. The Chefs are independent business owners and are not employees, partners, or agents of Local Cooks.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                    <li>You are of legal age in your jurisdiction to enter into a binding contract;</li>
-                    <li>You have read, understood, and agreed to these Terms and our Privacy Policy (incorporated herein by reference); and</li>
-                    <li>You have the authority to enter into this Agreement.</li>
-                  </ul>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.2 Modifications</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">1.2 No Control Over Food Preparation</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    We reserve the right, at our sole discretion, to modify or update these Terms at any time. Changes will be effective upon posting on our Service with the "Last Updated" date revised accordingly. Your continued use of the Service after such changes constitutes your acceptance of the updated Terms.
+                    Local Cooks does not control, oversee, or inspect the food preparation processes, ingredients, or kitchens of the Chefs. We make no representations or warranties regarding the safety, quality, or legality of the meals provided by Chefs.
                   </p>
                 </div>
               </div>
 
-              {/* Section 2: Description of the Service */}
+              {/* Section 2: Eligibility and Accounts */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">2. Description of the Service</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">2. Eligibility and Accounts</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">2.1 Service Overview</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">2.1 Eligibility</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    Local Cooks is an online marketplace that connects you with independent chefs who prepare meals for you. While Local Cooks does not prepare or cook the food, we coordinate the entire process—from ordering to delivering the meal right to your door. All transactions are securely processed via our designated payment partner, Stripe.
+                    By using the Platform, you represent and warrant that: (a) you are at least the age of majority in your jurisdiction of residence; (b) you have the legal capacity to enter into binding contracts; and (c) your use of the Platform does not violate any applicable law or regulation.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">2.2 Delivery and Transaction Process</h3>
-                  <div className="space-y-2 text-base text-[var(--color-charcoal)]/80">
-                    <p><strong>Ordering:</strong> You browse available meals on our platform and place an order directly through the Service.</p>
-                    <p><strong>Payment:</strong> All payments are processed via Stripe. By providing your payment details, you authorize Local Cooks to charge the applicable amount in accordance with the order details.</p>
-                    <p><strong>Delivery:</strong> After your order is confirmed, Local Cooks arranges for the delivery of your meal directly to your designated address. We strive to ensure prompt and reliable delivery but cannot guarantee uninterrupted service.</p>
-                  </div>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">2.2 Account Registration & Security</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    To access certain features, you must register an account. You agree to provide accurate, current, and complete information. You are solely responsible for safeguarding your login credentials. You accept full responsibility for all activities that occur under your account, whether or not you authorized them. You must notify us immediately at <a href="mailto:support@localcook.shop" className="text-[var(--color-primary)] hover:underline">support@localcook.shop</a> of any unauthorized use.
+                  </p>
                 </div>
               </div>
 
-              {/* Section 3: User Accounts and Security */}
+              {/* Section 3: Orders, Pricing, and Payments */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">3. User Accounts and Security</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">3. Orders, Pricing, and Payments</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">3.1 Account Registration</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">3.1 Pricing</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    In order to use certain features of our Service, you may be required to create an account. When registering, you agree to:
+                    Prices for meals are set by the Chefs. Local Cooks may add administrative fees, delivery fees, service charges, and applicable taxes (e.g., HST/GST) to your order. The final price will be displayed prior to checkout.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                    <li>Provide accurate, current, and complete information;</li>
-                    <li>Maintain and update your account information as necessary; and</li>
-                    <li>Keep your login credentials confidential.</li>
-                  </ul>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">3.2 Account Security</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">3.2 Payment Processing</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    You are solely responsible for all activities that occur under your account. Please notify us immediately at support@localcooks.com of any unauthorized use or suspected breach. We reserve the right to suspend or terminate accounts that violate these Terms or pose a risk to the Service.
+                    We use third-party payment processors, primarily Stripe, to bill you. The processing of payments is subject to the terms, conditions, and privacy policies of the Payment Processor in addition to this Agreement. You authorize us to charge your designated payment method for the total amount of your order.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">3.3 No Refunds; All Sales Final</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    Unless otherwise required by law or explicitly stated by Local Cooks in writing, all orders are final and non-refundable once confirmed. Local Cooks, in its sole discretion, may offer credits or refunds for issues such as missing items or severe quality defects, provided such issues are reported within 2 hours of delivery.
                   </p>
                 </div>
               </div>
 
-              {/* Section 4: Purchases and Payment Terms */}
+              {/* Section 4: Delivery Services */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">4. Purchases and Payment Terms</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">4. Delivery Services</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.1 Pricing and Payment</h3>
-                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                    <li>Prices for meals are set by the independent chefs and displayed on our Service.</li>
-                    <li>Payment is processed securely through Stripe. You agree to provide accurate billing details and authorize the corresponding charges.</li>
-                    <li>Taxes, delivery fees, and any applicable service fees will be clearly displayed before you confirm your order.</li>
-                  </ul>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.1 Delivery Coordination</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    Local Cooks arranges for delivery through independent contractors or third-party logistics providers ("Couriers"). Estimated delivery times are non-binding estimates and not guarantees.
+                  </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.2 Order Finality, Cancellations, and Refunds</h3>
-                  <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                    <li>Once an order is placed, it is considered final.</li>
-                    <li>Cancellation or refund requests will be handled on a case-by-case basis. Should you encounter an issue with your order, please contact our customer support team at support@localcooks.com.</li>
-                    <li>In the event of a delivery problem or unsatisfactory service, we will work with you to resolve the matter promptly.</li>
-                  </ul>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">4.2 Unattended Delivery & Spoilage Risk</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    If you are not available to receive the delivery at the designated address, you authorize the Courier to leave the order at your door or in a designated area. You acknowledge that the meals are perishable. Upon delivery (including unattended delivery), all risk of loss, spoilage, theft, or contamination passes to you. Local Cooks is not liable for the condition of food left unattended.
+                  </p>
                 </div>
               </div>
 
-              {/* Section 5: Privacy and Data Protection */}
+              {/* Section 5: Food Safety, Allergens, and Disclaimers */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">5. Privacy and Data Protection</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">5. Food Safety, Allergens, and Disclaimers</h2>
+                
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">5.1 Assumption of Risk</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/90 font-semibold">
+                    YOU ACKNOWLEDGE THAT LOCAL COOKS DOES NOT PREPARE FOOD AND CANNOT GUARANTEE THAT MEALS ARE FREE OF ALLERGENS. Chefs are solely responsible for ingredient disclosures. You understand that meals may be prepared in shared kitchens where cross-contamination with common allergens (nuts, dairy, shellfish, gluten, etc.) may occur.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">5.2 Release</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/80">
+                    You rely on the Chef's descriptions at your own risk. Local Cooks expressly disclaims any liability for illness, injury, allergic reactions, or other health impacts resulting from the consumption of meals ordered through the Platform.
+                  </p>
+                </div>
+              </div>
+
+              {/* Section 6: User Conduct and Restrictions */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">6. User Conduct and Restrictions</h2>
                 <p className="text-base text-[var(--color-charcoal)]/80">
-                  Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and safeguard your personal information. By using the Service, you consent to the practices described in our Privacy Policy.
-                </p>
-              </div>
-
-              {/* Section 6: Third-Party Links and External Content */}
-              <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">6. Third-Party Links and External Content</h2>
-                <p className="text-base text-[var(--color-charcoal)]/80">
-                  Our Service may contain links to third-party websites or services. Local Cooks does not control and is not responsible for the content, privacy practices, or actions of these third parties. Any interactions with third-party sites are solely between you and the third party.
-                </p>
-              </div>
-
-              {/* Section 7: Limitation of Liability */}
-              <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">7. Limitation of Liability</h2>
-                <p className="text-base text-[var(--color-charcoal)]/80">
-                  TO THE FULLEST EXTENT PERMITTED BY LAW, LOCAL COOKS IS NOT LIABLE FOR:
+                  You agree not to:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                  <li>The quality, safety, or accuracy of meals prepared by independent chefs;</li>
-                  <li>Delays, interruptions, or failures in the delivery process caused by factors beyond our control;</li>
-                  <li>Any direct, indirect, incidental, consequential, or special damages arising out of your use of the Service.</li>
-                </ul>
-                <p className="text-base text-[var(--color-charcoal)]/80">
-                  Your exclusive remedy for any dissatisfaction with the Service is to discontinue use.
-                </p>
-              </div>
-
-              {/* Section 8: Indemnification */}
-              <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">8. Indemnification</h2>
-                <p className="text-base text-[var(--color-charcoal)]/80">
-                  You agree to indemnify, defend, and hold harmless Local Cooks, its affiliates, officers, employees, and agents from any claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising from:
-                </p>
-                <ul className="list-disc list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/80">
-                  <li>Your violation of these Terms;</li>
-                  <li>Your misuse of the Service; or</li>
-                  <li>Any disputes between you and any third party related to your use of the Service.</li>
+                  <li>Use the Platform for any illegal purpose or in violation of any local, provincial, or federal law;</li>
+                  <li>Decompile, reverse engineer, or disassemble the Platform;</li>
+                  <li>Harass, threaten, or defraud Chefs, Couriers, or Local Cooks staff;</li>
+                  <li>Use any robot, spider, or scraper to access the Platform for any purpose;</li>
+                  <li>Create multiple accounts to abuse promotional codes or referral programs.</li>
                 </ul>
               </div>
 
-              {/* Section 9: Dispute Resolution */}
+              {/* Section 7: Intellectual Property */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">9. Dispute Resolution</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">7. Intellectual Property</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">9.1 Governing Law</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">7.1 Ownership</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    This Agreement shall be governed by and construed in accordance with the laws of the Province of Newfoundland and Labrador, Canada.
+                    Local Cooks and its licensors own all rights, title, and interest in the Platform, including all software, text, graphics, logos, and trademarks.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">9.2 Arbitration</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">7.2 License to User Content</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    Except as prohibited by applicable law, any disputes arising out of or related to this Agreement shall be resolved by binding arbitration in Newfoundland and Labrador. By agreeing to this arbitration provision, you waive the right to a trial by jury and to participate in a class action.
+                    If you post reviews, photos, or feedback ("User Content"), you grant Local Cooks a non-exclusive, royalty-free, perpetual, worldwide license to use, display, reproduce, and modify such User Content for marketing and operational purposes.
                   </p>
                 </div>
+              </div>
 
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">9.3 Small Claims and Interim Relief</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    You may pursue claims eligible for small claims court or seek temporary injunctive relief through the courts, provided that any remaining disputes are subject to arbitration.
-                  </p>
-                </div>
+              {/* Section 8: Third-Party Links */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">8. Third-Party Links</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  The Platform may contain links to third-party websites or services not owned by Local Cooks. We assume no responsibility for the content, privacy policies, or practices of any third-party websites.
+                </p>
+              </div>
+
+              {/* Section 9: Privacy */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">9. Privacy</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  Your use of the Platform is governed by our <Link to="/privacy" className="text-[var(--color-primary)] hover:underline">Privacy Policy</Link>, which is incorporated herein by reference. By using the Platform, you consent to the collection and use of your data as outlined in the Privacy Policy.
+                </p>
               </div>
 
               {/* Section 10: Term and Termination */}
               <div className="space-y-4">
                 <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">10. Term and Termination</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  We may suspend or terminate your access to the Platform at our sole discretion, without notice or liability, for any reason, including breach of this Agreement. Provisions regarding Indemnification, Liability, and Intellectual Property shall survive termination.
+                </p>
+              </div>
+
+              {/* Section 11: Disclaimer of Warranties */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">11. Disclaimer of Warranties</h2>
+                <p className="text-base text-[var(--color-charcoal)]/90 font-semibold">
+                  THE PLATFORM AND ALL SERVICES ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, LOCAL COOKS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE.
+                </p>
+              </div>
+
+              {/* Section 12: Limitation of Liability */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">12. Limitation of Liability</h2>
+                <p className="text-base text-[var(--color-charcoal)]/90 font-semibold">
+                  TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL LOCAL COOKS, ITS AFFILIATES, DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE FOR:
+                </p>
+                <ul className="list-[upper-alpha] list-inside space-y-2 ml-4 text-base text-[var(--color-charcoal)]/90 font-semibold">
+                  <li>ANY INDIRECT, PUNITIVE, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES;</li>
+                  <li>DAMAGES FOR LOSS OF PROFITS, GOODWILL, DATA, OR OTHER INTANGIBLE LOSSES;</li>
+                  <li>DAMAGES ARISING FROM THE CONDUCT OF ANY CHEF OR COURIER; OR</li>
+                  <li>PERSONAL INJURY OR PROPERTY DAMAGE RESULTING FROM YOUR ACCESS TO THE PLATFORM.</li>
+                </ul>
+                <p className="text-base text-[var(--color-charcoal)]/90 font-semibold mt-4">
+                  IN NO EVENT SHALL LOCAL COOKS' TOTAL LIABILITY TO YOU EXCEED THE GREATER OF (I) THE AMOUNT YOU PAID TO LOCAL COOKS IN THE SIX (6) MONTHS PRECEDING THE CLAIM, OR (II) ONE HUNDRED CANADIAN DOLLARS ($100 CAD).
+                </p>
+              </div>
+
+              {/* Section 13: Indemnification */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">13. Indemnification</h2>
+                <p className="text-base text-[var(--color-charcoal)]/80">
+                  You agree to defend, indemnify, and hold harmless Local Cooks and its officers, directors, employees, and agents from any claims, liabilities, damages, losses, and expenses (including legal fees) arising out of or in any way connected with: (a) your violation of these Terms; (b) your use of the Platform; (c) your violation of any third-party right; or (d) any dispute between you and a Chef or Courier.
+                </p>
+              </div>
+
+              {/* Section 14: Dispute Resolution and Arbitration */}
+              <div className="space-y-4">
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">14. Dispute Resolution and Arbitration</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">10.1 Term</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">14.1 Governing Law</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    This Agreement begins when you first use the Service and continues until terminated as provided herein.
+                    This Agreement is governed by the laws of the Province of Newfoundland and Labrador and the federal laws of Canada applicable therein, without regard to conflict of law principles.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">10.2 Termination</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">14.2 Binding Arbitration</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    We reserve the right to suspend or terminate your access to the Service at any time, with or without notice, for any violation of these Terms or for any conduct that we, in our sole discretion, deem harmful to the Service or its users. Termination does not relieve you of any outstanding payment obligations.
+                    Any dispute arising out of or relating to this Agreement shall be finally resolved by binding arbitration pursuant to the Arbitration Act of Newfoundland and Labrador. The place of arbitration shall be St. John's, Newfoundland and Labrador.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">10.3 Survival</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">14.3 Class Action Waiver</h3>
+                  <p className="text-base text-[var(--color-charcoal)]/90 font-semibold">
+                    YOU WAIVE ANY RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBITRATION AGAINST LOCAL COOKS.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">14.4 Small Claims</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    The provisions regarding payment, privacy, intellectual property, limitation of liability, indemnification, dispute resolution, and any other provisions that by their nature should survive termination will continue to apply even after your access to the Service has ended.
+                    Notwithstanding the above, either party may bring an individual action in small claims court in Newfoundland and Labrador if the claim qualifies.
                   </p>
                 </div>
               </div>
 
-              {/* Section 11: General Provisions */}
+              {/* Section 15: General Provisions */}
               <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">11. General Provisions</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">15. General Provisions</h2>
                 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">11.1 Entire Agreement</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">15.1 Severability</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    This Agreement constitutes the entire understanding between you and Local Cooks regarding your use of the Service and supersedes all prior agreements.
+                    If any provision of this Agreement is held to be invalid or unenforceable, such provision shall be struck and the remaining provisions shall remain in full force and effect.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">11.2 Assignment</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">15.2 Entire Agreement</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    You may not assign or transfer your rights or obligations under this Agreement without our prior written consent. Local Cooks may assign or transfer this Agreement without restriction.
+                    This Agreement constitutes the entire agreement between you and Local Cooks and supersedes all prior agreements.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">11.3 Notices</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">15.3 Modification</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    Any notices required under this Agreement will be provided via email or regular mail to the address provided in your account or as otherwise published on our Service.
+                    We reserve the right to modify these Terms at any time. Updated versions will be posted on the Platform. Continued use constitutes acceptance of the changes.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">11.4 Severability</h3>
+                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">15.4 Contact</h3>
                   <p className="text-base text-[var(--color-charcoal)]/80">
-                    If any provision of this Agreement is deemed invalid or unenforceable, the remaining provisions will remain in full force and effect.
+                    For legal notices or support:
                   </p>
+                  <div className="bg-[var(--color-cream-dark)]/30 p-4 rounded-lg">
+                    <p className="text-base text-[var(--color-charcoal)]/80 font-semibold">Local Cooks Inc.</p>
+                    <p className="text-base text-[var(--color-charcoal)]/80">
+                      Email: <a href="mailto:support@localcook.shop" className="text-[var(--color-primary)] hover:underline">support@localcook.shop</a>
+                    </p>
+                  </div>
                 </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-body text-lg font-semibold text-[var(--color-charcoal)]">11.5 Waiver</h3>
-                  <p className="text-base text-[var(--color-charcoal)]/80">
-                    Failure by Local Cooks to enforce any provision of this Agreement shall not be considered a waiver of our right to subsequently enforce that provision or any other provision.
-                  </p>
-                </div>
-              </div>
-
-              {/* Section 12: Contact Information */}
-              <div className="space-y-4">
-                <h2 className="font-heading text-2xl sm:text-3xl text-[var(--color-primary)] font-bold mt-8 mb-4">12. Contact Information</h2>
-                <p className="text-base text-[var(--color-charcoal)]/80">
-                  If you have any questions, concerns, or comments regarding these Terms, please contact us at:
-                </p>
-                <p className="text-base text-[var(--color-charcoal)]/80">
-                  <strong>Email:</strong> <a href="mailto:support@localcook.shop" className="text-[var(--color-primary)] hover:underline">support@localcook.shop</a>
-                </p>
-              </div>
-
-              {/* Closing Statement */}
-              <div className="mt-10 pt-6 border-t border-[var(--color-charcoal)]/10">
-                <p className="text-base text-[var(--color-charcoal)]/80 font-semibold">
-                  By using the Local Cooks Service, you acknowledge that you have read, understood, and agreed to these Terms and Conditions.
-                </p>
               </div>
             </div>
           </motion.div>
