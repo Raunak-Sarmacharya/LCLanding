@@ -297,7 +297,7 @@ export default function CuisineExplorer() {
         >
           <div className="inline-flex flex-col sm:flex-row items-center gap-4">
             <a
-              href="https://local-cooks-community.vercel.app/"
+              href="https://chef.localcooks.ca"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-cta inline-flex items-center gap-3 bg-[var(--color-primary)] text-white px-8 py-4 rounded-full font-body font-semibold text-lg hover:bg-[var(--color-primary-dark)] transition-all duration-300 shadow-xl shadow-[var(--color-primary)]/30 hover:shadow-2xl hover:shadow-[var(--color-primary)]/40 hover:scale-105"
@@ -311,7 +311,7 @@ export default function CuisineExplorer() {
             <span className="font-body text-[var(--color-charcoal-light)]">or</span>
             
             <a
-              href="https://local-cooks-community.vercel.app/"
+              href="https://chef.localcooks.ca"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 font-body font-semibold text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors group"
@@ -325,7 +325,7 @@ export default function CuisineExplorer() {
           
           <p className="mt-8 font-body text-[var(--color-charcoal-light)]">
             Join <span className="font-semibold text-[var(--color-charcoal)]">15+ chefs</span> already building food businesses on Local Cooks.{' '}
-            <a href="https://local-cooks-community.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] font-semibold underline underline-offset-4 hover:no-underline">
+            <a href="https://chef.localcooks.ca" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] font-semibold underline underline-offset-4 hover:no-underline">
               Ready to join?
             </a>
           </p>

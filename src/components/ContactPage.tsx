@@ -57,7 +57,7 @@ const socialLinks = [
 const mainNavLinks = [
   { name: 'About Us', href: '/#about' },
   { name: 'How It Works', href: '/#how-it-works' },
-  { name: 'For Chefs', href: 'https://local-cooks-community.vercel.app/', external: true },
+  { name: 'For Chefs', href: 'https://chef.localcooks.ca', external: true },
 ]
 
 // Legal links for bottom bar

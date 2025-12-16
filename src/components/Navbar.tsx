@@ -297,7 +297,7 @@ export default function Navbar() {
               </button>
             )}
             <a
-              href="https://local-cooks-community.vercel.app/"
+              href="https://chef.localcooks.ca"
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono text-xs xl:text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300 whitespace-nowrap"
@@ -546,7 +546,7 @@ export default function Navbar() {
                     </button>
                   )}
                   <a
-                    href="https://local-cooks-community.vercel.app/"
+                    href="https://chef.localcooks.ca"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-mono text-sm text-white/60 hover:text-white transition-colors duration-300"

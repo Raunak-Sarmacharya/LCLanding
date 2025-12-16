@@ -8,7 +8,7 @@ import { useLenis } from '../contexts/LenisContext'
 const mainNavLinks = [
   { name: 'About Us', href: '#about' },
   { name: 'How It Works', href: '#how-it-works' },
-  { name: 'For Chefs', href: 'https://local-cooks-community.vercel.app/', external: true },
+  { name: 'For Chefs', href: 'https://chef.localcooks.ca', external: true },
   { name: 'Blog', href: '/blog', isRoute: true },
   { name: 'Contact', href: '/contact', isRoute: true },
 ]

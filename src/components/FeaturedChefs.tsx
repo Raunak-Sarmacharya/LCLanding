@@ -736,7 +736,7 @@ export default function FeaturedChefs() {
         >
           {/* Clover-style button like les-arbres-fruitiers.fr "Pour les curieux" */}
           <div className="bg-white rounded-full px-4 sm:px-10 py-3 sm:py-5 shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-[calc(100%-2rem)] sm:max-w-none">
-            <CloverButton href="https://local-cooks-community.vercel.app/">
+            <CloverButton href="https://chef.localcooks.ca">
               Explore Local Cooks for Chefs
             </CloverButton>
           </div>
