@@ -1001,16 +1001,13 @@ export default function AppPromo() {
           </div>
         </div>
       </div>
-      {/* Bottom overlay to ensure seamless transition to BlogInsightsSection */}
+      {/* Bottom edge - ensures seamless color match with BlogInsightsSection */}
       <div 
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{
-          height: '40px',
+          height: '2px',
           backgroundColor: 'var(--color-primary-dark)',
-          background: 'var(--color-primary-dark)',
           zIndex: 1,
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden'
         }}
       />
     </section>

@@ -52,27 +52,39 @@ import './Testimonials.css'
  */
 const testimonials = [
   {
-    quote: "I love Emily's Waffles! I make it a Saturday ritual. The quality is unmatched — it's like having a culinary wizard next door.",
+    quote: "Local Cooks has been a great partner for Sababa Cafe NL. Orders are handled smoothly, delivery is reliable, and the platform helps us share fresh, homemade Middle Eastern food with more customers across the city.",
+    author: 'Dafna',
+    business: 'Sababa Cafe NL',
     colorClass: 'is-terracotta'
   },
   {
-    quote: "Best Shawarmas in town! Ordering from Safaa aunty feels like having a my own mother cooking just for me.",
+    quote: "Local Cooks has been great at taking any suggestions to the site and implementing them as best they can. The delivery driver always shows up in a timely manner and my customers love to have the delivery option.",
+    author: 'Emily',
+    business: 'The Waffle Lady',
     colorClass: 'is-deep-teal'
   },
   {
-    quote: "This waffle was seriously good - perfect crispy yet fluffy, with the strawberry sauce being a perfect complement.",
+    quote: "Many of our previous customers were unable to receive our sweets because we did not have a delivery system. The local cook delivery system has given us this opportunity at a low price. They don't just deliver, they also promote and support local chefs.",
+    author: 'Kanij',
+    business: 'Misti Mountain',
     colorClass: 'is-wine'
   },
   {
-    quote: "As a busy mom, this has been a lifesaver. Real homemade food for my family without spending hours in the kitchen!",
+    quote: "Local Cooks makes it easy for people in St. John's to get our loaded fries and bold global flavours every Friday. Preorders and delivery run smoothly, and they actively promote Alu Bhaja so more customers can discover our food.",
+    author: 'Fardin',
+    business: 'Alu Bhaja',
     colorClass: 'is-forest-sage'
   },
   {
-    quote: "The variety of cuisines available is incredible. I've traveled the world through my taste buds without leaving St. John's!",
+    quote: "I love Emily's Waffles! I make it a Saturday ritual. The quality is unmatched — it's like having a culinary wizard next door. Local Cooks made discovering her so easy.",
+    author: 'Sarah M.',
+    business: 'Food Lover, St. John\'s',
     colorClass: 'is-warm-plum'
   },
   {
-    quote: "Supporting local chefs while enjoying restaurant-quality meals at home? It's a win-win for everyone in our community.",
+    quote: "As a busy mom, this has been a lifesaver. Real homemade food for my family without spending hours in the kitchen. The variety of cuisines available is incredible.",
+    author: 'Jennifer W.',
+    business: 'Food Lover, Mount Pearl',
     colorClass: 'is-deep-ocean'
   }
 ]
@@ -193,8 +205,8 @@ export default function Testimonials() {
             Testimonials
           </span>
           <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)] leading-tight">
-            Why People Keep<br />
-            <span className="font-display text-[var(--color-primary)]">Coming Back</span>
+            Trusted by Food<br />
+            <span className="font-display text-[var(--color-primary)]">Entrepreneurs</span>
           </h2>
         </div>
 
@@ -215,6 +227,14 @@ export default function Testimonials() {
                       <p className="testimonial-quote">
                         "{testimonial.quote}"
                       </p>
+                      <div style={{ marginTop: '0.75rem', opacity: 0.85 }}>
+                        <span className="font-body" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'white' }}>
+                          {testimonial.author}
+                        </span>
+                        <span className="font-mono" style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', marginLeft: '0.5rem' }}>
+                          {testimonial.business}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

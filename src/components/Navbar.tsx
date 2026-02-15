@@ -8,8 +8,7 @@ import { useLenis } from '../contexts/LenisContext'
 const navLinks = [
   { name: 'Home', href: '#home' },
   { name: 'About', href: '#about' },
-  { name: 'Chefs', href: '#chefs' },
-  { name: 'How It Works', href: '#how-it-works' },
+  { name: 'How It Works', href: '#chefs' },
   { name: 'Testimonials', href: '#testimonials' },
   { name: 'Blog', href: '/blog', isRoute: true },
   { name: 'Contact', href: '/contact', isRoute: true },
@@ -286,8 +285,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-shrink-0">
+          {/* CTA Buttons — enterprise layout: divider | secondary links | primary CTA */}
+          <div className="hidden lg:flex items-center gap-3 xl:gap-5 flex-shrink-0">
             {isAdmin && (
               <button
                 onClick={handleLogout}
@@ -296,17 +295,28 @@ export default function Navbar() {
                 Logout
               </button>
             )}
+            {/* Vertical divider */}
+            <div className="w-px h-5 bg-[var(--color-charcoal)]/15" />
             <a
               href="https://chef.localcooks.ca"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-xs xl:text-sm text-[var(--color-charcoal-light)] hover:text-[var(--color-primary)] transition-colors duration-300 whitespace-nowrap"
+              className="font-body text-xs xl:text-sm text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 whitespace-nowrap"
             >
               For Chefs
             </a>
+            <span className="text-[var(--color-charcoal)]/20 text-xs select-none">·</span>
+            <a
+              href="https://kitchen.localcooks.ca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-body text-xs xl:text-sm text-[var(--color-charcoal)] hover:text-[var(--color-primary)] transition-colors duration-300 whitespace-nowrap"
+            >
+              For Kitchens
+            </a>
             <a
               href="https://localcook.shop/app/index.php"
-              className="btn-primary bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-4 py-2.5 xl:px-6 xl:py-3 rounded-full font-body text-xs xl:text-sm font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20 flex items-center gap-1.5 xl:gap-2 whitespace-nowrap"
+              className="btn-primary bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-5 py-2.5 xl:px-7 xl:py-3 rounded-full font-body text-xs xl:text-sm font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[var(--color-primary)]/20 flex items-center gap-1.5 xl:gap-2 whitespace-nowrap ml-1"
             >
               {/* Delivery truck icon from Pretty Patty */}
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 xl:w-5 xl:h-5">
@@ -553,6 +563,15 @@ export default function Navbar() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     For Chefs →
+                  </a>
+                  <a
+                    href="https://kitchen.localcooks.ca"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-sm text-white/60 hover:text-white transition-colors duration-300"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    For Kitchens →
                   </a>
                 </div>
 

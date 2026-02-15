@@ -94,9 +94,10 @@
   transform: scale(0.88);
   opacity: 0.55;
   
-  /* THE KEY: Single unified 1-second ease transition for ALL properties
-     This matches Done Drinks' Splide speed: 1000, easing: "ease" exactly */
-  transition: all 1s ease;
+  /* ONLY transition GPU-composited properties to prevent text reflow glitch.
+     Never transition min-height, padding, or font-size — those cause layout reflow
+     during carousel slide transitions, making text appear to "jump". */
+  transition: transform 1s ease, opacity 1s ease, box-shadow 1s ease;
   
   /* Hardware acceleration */
   will-change: transform, opacity;
@@ -133,8 +134,8 @@
 .embla__slide.is-active .testimonial_content {
   transform: scale(1);
   opacity: 1;
-  min-height: 165px;
-  padding: 2.25rem 3.5rem;
+  /* NO different min-height or padding here — scale() handles the size change
+     without triggering layout reflow that causes text glitching */
   /* Smooth layered shadow - no harsh edges */
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.06),
@@ -146,7 +147,7 @@
   text-align: center;
 }
 
-/* Quote Text - Same 1s ease transition for consistency */
+/* Quote Text - NO font-size transition to prevent reflow glitch */
 .testimonial-quote {
   font-family: var(--font-heading);
   font-size: 1.1rem;
@@ -155,13 +156,6 @@
   color: white;
   font-style: normal;
   margin: 0;
-  /* Match the 1s ease transition for smooth text scaling */
-  transition: font-size 1s ease;
-}
-
-/* Active slide gets larger text */
-.embla__slide.is-active .testimonial-quote {
-  font-size: 1.3rem;
 }
 
 /* =============================================================================
@@ -301,17 +295,8 @@
     padding: 2.5rem 4rem;
   }
   
-  .embla__slide.is-active .testimonial_content {
-    min-height: 185px;
-    padding: 2.75rem 4.5rem;
-  }
-  
   .testimonial-quote {
     font-size: 1.2rem;
-  }
-  
-  .embla__slide.is-active .testimonial-quote {
-    font-size: 1.45rem;
   }
 }
 
@@ -327,17 +312,8 @@
     padding: 1.75rem 2.75rem;
   }
   
-  .embla__slide.is-active .testimonial_content {
-    min-height: 160px;
-    padding: 2rem 3.25rem;
-  }
-  
   .testimonial-quote {
     font-size: 1rem;
-  }
-  
-  .embla__slide.is-active .testimonial-quote {
-    font-size: 1.2rem;
   }
 }
 
@@ -353,17 +329,8 @@
     padding: 1.5rem 2.25rem;
   }
   
-  .embla__slide.is-active .testimonial_content {
-    min-height: 150px;
-    padding: 1.75rem 2.75rem;
-  }
-  
   .testimonial-quote {
     font-size: 0.95rem;
-  }
-  
-  .embla__slide.is-active .testimonial-quote {
-    font-size: 1.1rem;
   }
 }
 
@@ -380,17 +347,8 @@
     border-radius: 1.5rem;
   }
   
-  .embla__slide.is-active .testimonial_content {
-    min-height: 150px;
-    padding: 1.75rem 3rem;
-  }
-  
   .testimonial-quote {
     font-size: 0.92rem;
-  }
-  
-  .embla__slide.is-active .testimonial-quote {
-    font-size: 1.05rem;
   }
   
   .embla__arrow {
@@ -420,17 +378,8 @@
     border-radius: 1.25rem;
   }
   
-  .embla__slide.is-active .testimonial_content {
-    min-height: 140px;
-    padding: 1.5rem 2.5rem;
-  }
-  
   .testimonial-quote {
     font-size: 0.88rem;
-  }
-  
-  .embla__slide.is-active .testimonial-quote {
-    font-size: 1rem;
   }
   
   .embla__arrow {
@@ -459,17 +408,8 @@
     padding: 1.25rem 1.75rem;
   }
   
-  .embla__slide.is-active .testimonial_content {
-    min-height: 130px;
-    padding: 1.35rem 2rem;
-  }
-  
   .testimonial-quote {
     font-size: 0.82rem;
-  }
-  
-  .embla__slide.is-active .testimonial-quote {
-    font-size: 0.95rem;
   }
   
   .testimonials-heading {

@@ -38,15 +38,7 @@ export default function BlogInsightsSection() {
   const isInitialized = useRef(false)
   const animationTimelineRef = useRef<gsap.core.Timeline | null>(null)
   
-  // Debug: Log posts to see what we're getting
-  useEffect(() => {
-    console.log('[BlogInsightsSection] Posts received:', posts.length)
-    console.log('[BlogInsightsSection] Posts data:', posts)
-    if (posts.length > 0) {
-      console.log('[BlogInsightsSection] First post published status:', posts[0]?.published)
-      console.log('[BlogInsightsSection] All posts published status:', posts.map(p => ({ id: p.id, title: p.title, published: p.published })))
-    }
-  }, [posts])
+  // Posts loaded - no debug logging in production
 
   // Filter posts: show if published is true OR undefined (treat undefined as published)
   // Only exclude posts where published is explicitly false

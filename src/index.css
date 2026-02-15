@@ -555,16 +555,13 @@ input:focus, textarea:focus, button:focus {
   box-shadow: 0 0 0 3px rgba(245, 16, 66, 0.2);
 }
 
-/* Smooth color transitions */
-* {
+/* Smooth color transitions - targeted to interactive elements only
+   DO NOT use * selector here — it fights GSAP animations and causes scroll jank */
+a, button, input, textarea, select,
+.card-hover, .btn-primary, .glass, .glass-nav, .glass-elevated {
   transition-property: color, background-color, border-color, box-shadow, backdrop-filter, -webkit-backdrop-filter;
   transition-duration: 0.2s;
   transition-timing-function: ease;
-}
-
-/* Exclude transforms from general transition */
-*:not(.card-hover):not(.btn-primary):not(a):not(button) {
-  transition-property: color, background-color, border-color, box-shadow, backdrop-filter, -webkit-backdrop-filter;
 }
 
 /* GPU acceleration hints for animated elements */

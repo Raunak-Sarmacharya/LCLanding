@@ -116,9 +116,9 @@ const mobileCardsData = [
     id: 'for-chefs-main',
     type: 'feature',
     badge: 'For Chefs',
-    title: 'Your recipes deserve an audience.',
-    subtitle: 'Turn your kitchen into your business.',
-    description: 'Your authentic recipes—whether it\'s Jiggs dinner, Filipino adobo, or Middle Eastern shawarma—are your competitive advantage. Monetize your culinary passion.',
+    title: 'From recipe to revenue.',
+    subtitle: 'We handle everything else.',
+    description: 'Jiggs dinner. Filipino adobo. Middle Eastern shawarma. Every cuisine has untapped commercial potential. We provide the infrastructure — compliance, payments, delivery, kitchen access — so chefs become entrepreneurs.',
     features: [
       { bold: 'Earn real income', text: '— Your skills, your kitchen, your business.' },
       { bold: 'Work your way', text: '— Set your schedule, control your menu.' },
@@ -143,9 +143,9 @@ const mobileCardsData = [
   {
     id: 'your-space',
     type: 'info',
-    badge: 'Your Space',
-    title: 'Cook at home or use our partnered commercial kitchens',
-    description: 'We help you navigate all required provincial licenses and food safety standards. Rent our partnered commercial kitchens when you need professional space.',
+    badge: 'Kitchen Infrastructure',
+    title: 'Home kitchens or partnered commercial spaces',
+    description: 'We handle provincial licensing, food safety certification, and commercial kitchen access. Chefs launch from home or scale into professional spaces.',
     bgColor: 'bg-[var(--color-sage)]',
     textColor: 'text-white',
     emoji: '🏠',
@@ -154,8 +154,8 @@ const mobileCardsData = [
     id: 'for-food-lovers',
     type: 'info',
     badge: 'For Food Lovers',
-    title: 'Discover authentic meals from talented neighbors',
-    description: 'Fresh, authentic food from talented home chefs. Know your chef, support local, taste the difference.',
+    title: 'Order authentic homemade meals',
+    description: 'Jiggs dinner, Filipino adobo, Middle Eastern shawarma \u2014 real recipes from real kitchens. Delivered to your door or ready for pickup.',
     bgColor: 'bg-white',
     textColor: 'text-[var(--color-charcoal)]',
     emoji: '🍽️',
@@ -164,9 +164,9 @@ const mobileCardsData = [
   {
     id: 'your-schedule',
     type: 'info',
-    badge: 'For Chefs',
-    title: 'Your Schedule.\nYour Menu.\nYour Rules.',
-    description: 'No minimums. No locked contracts. Cook when you want. Cook what you love. Earn what you deserve.',
+    badge: 'Full Autonomy',
+    title: 'Your Schedule.\nYour Menu.\nYour Margins.',
+    description: 'No minimums. No exclusivity. No revenue share during trial. Chefs set their own pricing and keep what they earn.',
     bgColor: 'bg-[var(--color-gold)]',
     textColor: 'text-[var(--color-charcoal)]',
     emoji: '🔪',
@@ -174,9 +174,9 @@ const mobileCardsData = [
   {
     id: 'logistics',
     type: 'info',
-    badge: 'We Handle Logistics',
-    title: 'You Cook. We Handle Everything Else.',
-    description: 'Delivery. Payments. Support. Marketing.\n\nFull transparency. Zero hassle. Your food, your earnings, your way',
+    badge: 'Full-Stack Operations',
+    title: 'One platform. Every layer.',
+    description: 'Delivery. Payments. Compliance. Kitchen Booking.\n\nThe entire operating stack for food businesses \u2014 built, managed, and scaled by us.',
     bgColor: 'bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)]',
     textColor: 'text-white',
     hasPattern: true,
@@ -457,7 +457,7 @@ export default function FeaturedChefs() {
                 className="mb-4"
               >
                 <span className="inline-block font-mono text-xs text-white/60 uppercase tracking-[0.3em]">
-                  Two Sides — One Mission
+                  The Full Stack
                 </span>
               </motion.div>
 
@@ -467,9 +467,9 @@ export default function FeaturedChefs() {
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                 className="font-heading text-[clamp(2rem,6vw,5.5rem)] sm:text-[clamp(2.5rem,7vw,5.5rem)] text-white leading-[0.85] tracking-tight"
               >
-                Where <span className="font-display text-white/90">Flavor</span>
+                From <span className="font-display text-white/90">Recipe</span>
                 <br />
-                Meets <span className="font-display text-white/90">Freedom</span>
+                to <span className="font-display text-white/90">Revenue</span>
               </motion.h2>
             </div>
 
@@ -481,7 +481,7 @@ export default function FeaturedChefs() {
                 transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="font-body text-base sm:text-lg md:text-xl text-white/70 leading-relaxed max-w-md"
               >
-                Whether you're craving authentic home-cooked meals or ready to turn your kitchen into a business—we built this for you.
+                We handle compliance, kitchen booking, payments, delivery, and order management — so food entrepreneurs only need to focus on cooking.
               </motion.p>
             </div>
           </div>
@@ -529,16 +529,16 @@ export default function FeaturedChefs() {
                   </span>
 
                   <h3 className="font-heading text-[11px] sm:text-xl md:text-2xl lg:text-4xl text-[var(--color-charcoal)] leading-tight mb-1 sm:mb-3 md:mb-6">
-                    Your recipes deserve an audience.
+                    From recipe to revenue.
                     <br />
-                    <span className="text-[var(--color-primary)] text-[10px] sm:text-lg md:text-2xl lg:text-4xl">Turn your kitchen into your business.</span>
+                    <span className="text-[var(--color-primary)] text-[10px] sm:text-lg md:text-2xl lg:text-4xl">We handle everything else.</span>
                   </h3>
 
-                  <p className="font-body text-[7px] sm:text-sm md:text-base lg:text-lg text-[var(--color-charcoal)]/70 leading-snug sm:leading-relaxed max-w-lg mb-1 sm:mb-4">
-                    Your authentic recipes—whether it's Jiggs dinner, Filipino adobo, or Middle Eastern shawarma—are your competitive advantage. Monetize your culinary passion and turn it into sustainable income.
+                  <p className="font-body text-[9px] sm:text-sm md:text-base lg:text-lg text-[var(--color-charcoal)]/70 leading-snug sm:leading-relaxed max-w-lg mb-1 sm:mb-4">
+                    Jiggs dinner. Filipino adobo. Middle Eastern shawarma. Every cuisine has untapped commercial potential. We provide the infrastructure — compliance, payments, delivery, kitchen access — so chefs become entrepreneurs.
                   </p>
                   
-                  <ul className="font-body text-[6px] sm:text-xs md:text-sm lg:text-base text-[var(--color-charcoal)]/80 space-y-0.5 sm:space-y-2 md:space-y-3">
+                  <ul className="font-body text-[8px] sm:text-xs md:text-sm lg:text-base text-[var(--color-charcoal)]/80 space-y-0.5 sm:space-y-2 md:space-y-3">
                     <li className="flex items-center gap-1 sm:gap-2 md:gap-3">
                       <div className="flex-shrink-0 w-2.5 sm:w-4 md:w-5 h-2.5 sm:h-4 md:h-5 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
                         <svg className="w-1.5 sm:w-2.5 md:w-3 h-1.5 sm:h-2.5 md:h-3 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -591,7 +591,7 @@ export default function FeaturedChefs() {
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>
-                    <span className="font-mono text-[6px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/40 uppercase tracking-wider">Trial Phase</span>
+                    <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-white/40 uppercase tracking-wider">Trial Phase</span>
                     <div className="mt-1 sm:mt-2 md:mt-3 flex items-baseline gap-1">
                       <span className="font-heading text-xl sm:text-3xl md:text-5xl lg:text-7xl text-white">0%</span>
                       <span className="font-body text-[8px] sm:text-xs md:text-sm text-white/60">fees</span>
@@ -599,10 +599,10 @@ export default function FeaturedChefs() {
                   </div>
                   
                   <div>
-                    <p className="font-body text-[5px] sm:text-[10px] md:text-xs lg:text-sm text-white/50 leading-tight">
+                    <p className="font-body text-[8px] sm:text-[10px] md:text-xs lg:text-sm text-white/50 leading-tight">
                       Keep 100% of your sales. We're building this for chefs, so we're waiving our cut.
                     </p>
-                    <p className="font-mono text-[4px] sm:text-[8px] md:text-[10px] text-white/30 mt-0.5 sm:mt-1 leading-tight">
+                    <p className="font-mono text-[7px] sm:text-[8px] md:text-[10px] text-white/30 mt-0.5 sm:mt-1 leading-tight">
                       *Standard payment processing fees apply (2.9% + 30¢ via Stripe)
                     </p>
                   </div>
@@ -626,14 +626,14 @@ export default function FeaturedChefs() {
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>
-                    <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">Your Space</span>
-                    <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
-                      Cook at home or use our partnered commercial kitchens
+                    <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">Kitchen Infrastructure</span>
+                    <h4 className="font-heading text-[9px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
+                      Home kitchens or partnered commercial spaces
                     </h4>
                   </div>
                   
-                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
-                    We help you navigate all required provincial licenses and food safety standards so you can start selling with confidence. Rent our partnered commercial kitchens when you need professional space. No commitments.
+                  <p className="font-body text-[8px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
+                    We handle provincial licensing, food safety certification, and commercial kitchen access. Chefs launch from home or scale into professional spaces — no upfront investment required.
                   </p>
                 </div>
               </div>
@@ -650,16 +650,16 @@ export default function FeaturedChefs() {
                 <div className="relative h-full flex flex-col justify-between">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal-light)] uppercase tracking-wider">For Food Lovers</span>
-                      <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-2 md:mt-3 leading-tight">
-                        Discover authentic meals from talented neighbors
+                      <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-[var(--color-charcoal-light)] uppercase tracking-wider">For Food Lovers</span>
+                      <h4 className="font-heading text-[9px] sm:text-sm md:text-xl lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-2 md:mt-3 leading-tight">
+                        Order authentic homemade meals
                       </h4>
                     </div>
                     <span className="text-base sm:text-2xl md:text-3xl lg:text-4xl">🍽️</span>
                   </div>
                   
-                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/60 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
-                    Fresh, authentic food from talented home chefs. Know your chef, support local, taste the difference.
+                  <p className="font-body text-[8px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/60 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
+                    Jiggs dinner, Filipino adobo, Middle Eastern shawarma — real recipes from real kitchens. Delivered to your door or ready for pickup.
                   </p>
                 </div>
               </div>
@@ -678,16 +678,16 @@ export default function FeaturedChefs() {
                 <div className="relative h-full flex flex-col justify-between">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-[var(--color-charcoal)]/60 uppercase tracking-wider">For Chefs</span>
-                      <h4 className="font-heading text-[7px] sm:text-xs md:text-lg lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-2 md:mt-3 leading-tight">
-                        Your Schedule.<br />Your Menu.<br />Your Rules.
+                      <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-[var(--color-charcoal)]/60 uppercase tracking-wider">Full Autonomy</span>
+                      <h4 className="font-heading text-[9px] sm:text-xs md:text-lg lg:text-2xl text-[var(--color-charcoal)] mt-0.5 sm:mt-2 md:mt-3 leading-tight">
+                        Your Schedule.<br />Your Menu.<br />Your Margins.
                       </h4>
                     </div>
                     <span className="text-base sm:text-2xl md:text-3xl lg:text-4xl">🔪</span>
                   </div>
                   
-                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
-                    No minimums. No locked contracts. Cook when you want. Cook what you love. Earn what you deserve.
+                  <p className="font-body text-[8px] sm:text-[9px] md:text-xs lg:text-sm text-[var(--color-charcoal)]/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight">
+                    No minimums. No exclusivity. No revenue share during trial. Chefs set their own pricing and keep what they earn.
                   </p>
                 </div>
               </div>
@@ -710,14 +710,14 @@ export default function FeaturedChefs() {
                 
                 <div className="relative h-full flex flex-col justify-between">
                   <div>
-                    <span className="font-mono text-[5px] sm:text-[8px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">We Handle Logistics</span>
-                    <h4 className="font-heading text-[8px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
-                      You Cook. We Handle Everything Else.
+                    <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-white/60 uppercase tracking-wider">Full-Stack Operations</span>
+                    <h4 className="font-heading text-[9px] sm:text-sm md:text-xl lg:text-2xl text-white mt-0.5 sm:mt-2 md:mt-3 leading-tight">
+                      One platform. Every layer.
                     </h4>
                   </div>
                   
-                  <p className="font-body text-[5px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight whitespace-pre-line">
-                    Delivery. Payments. Support. Marketing.{'\n\n'}Full transparency. Zero hassle. Your food, your earnings, your way
+                  <p className="font-body text-[8px] sm:text-[9px] md:text-xs lg:text-sm text-white/70 mt-0.5 sm:mt-2 md:mt-4 leading-tight whitespace-pre-line">
+                    Delivery. Payments. Compliance. Kitchen Booking.{'\n\n'}The entire operating stack for food businesses — built, managed, and scaled by us.
                   </p>
                 </div>
               </div>
@@ -737,7 +737,7 @@ export default function FeaturedChefs() {
           {/* Clover-style button like les-arbres-fruitiers.fr "Pour les curieux" */}
           <div className="bg-white rounded-full px-4 sm:px-10 py-3 sm:py-5 shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-[calc(100%-2rem)] sm:max-w-none">
             <CloverButton href="https://chef.localcooks.ca">
-              Explore Local Cooks for Chefs
+              Explore the Chef Platform
             </CloverButton>
           </div>
         </motion.div>

@@ -206,18 +206,26 @@ export default function Hero() {
   }, [])
 
   const splitText = (text: string) => {
-    return text.split('').map((char, index) => (
-      <span
-        key={index}
-        className="char inline-block"
-        style={{ 
-          display: char === ' ' ? 'inline' : 'inline-block',
-          perspective: '1000px'
-        }}
-      >
-        {char === ' ' ? '\u00A0' : char}
-      </span>
-    ))
+    const words = text.split(' ')
+    return words.flatMap((word, wordIndex) => {
+      const wordEl = (
+        <span key={`w-${wordIndex}`} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+          {word.split('').map((char, charIndex) => (
+            <span
+              key={charIndex}
+              className="char"
+              style={{ display: 'inline-block', perspective: '1000px' }}
+            >
+              {char}
+            </span>
+          ))}
+        </span>
+      )
+      if (wordIndex < words.length - 1) {
+        return [wordEl, <span key={`s-${wordIndex}`} className="char" style={{ display: 'inline' }}>{' '}</span>]
+      }
+      return [wordEl]
+    })
   }
 
   return (
@@ -265,7 +273,7 @@ export default function Hero() {
               className="font-heading text-[2.5rem] sm:text-2xl md:text-4xl lg:text-5xl xl:text-7xl text-[var(--color-charcoal)] leading-[0.95] mb-4 sm:mb-3 md:mb-6"
               style={{ perspective: '1000px', transform: 'skewY(1deg)' }}
             >
-              <span className="block mb-1 sm:mb-2">{splitText('Your World of')}</span>
+              <span className="block mb-1 sm:mb-2">{splitText('The Operating System for')}</span>
               <TypewriterText
                 staticText="Local"
                 words={['Cooks', 'Company', 'Community']}
@@ -283,7 +291,7 @@ export default function Hero() {
               className="hero-description font-body text-[14px] sm:text-xs md:text-base lg:text-lg xl:text-xl text-[var(--color-charcoal)]/80 max-w-[380px] sm:max-w-xl mb-5 sm:mb-5 md:mb-8 lg:mb-10 leading-snug sm:leading-relaxed"
               style={{ transform: 'skewY(1deg)' }}
             >
-              Discover authentic homemade meals from passionate local chefs.<span className="text-[var(--color-primary)] font-medium"> Fresh,</span> diverse, and<span className="text-[var(--color-gold)] font-medium"> delivered to your door.</span>
+              The infrastructure that turns<span className="text-[var(--color-primary)] font-medium"> cooking talent into scalable food businesses</span> — from<span className="text-[var(--color-gold)] font-medium"> compliance to kitchen access to last-mile delivery.</span>
             </p>
 
             {/* CTA Buttons - centered on mobile - MOBILE: larger buttons for better tap targets */}

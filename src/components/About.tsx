@@ -9,30 +9,29 @@ const features = [
   {
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
       </svg>
     ),
-    title: 'Empowering Local Chefs',
-    description: 'Your grandmother\'s secret recipe. The dish coworkers beg you to bring to every potluck. That talent deserves to earn. We handle visibility, payments, and logistics—so chefs can focus on what they love: cooking incredible food.',
+    title: 'Compliance & Licensing',
+    description: 'We navigate provincial food safety regulations, certification requirements, and licensing so chefs launch legally from day one. The hardest part of starting a food business — solved.',
   },
   {
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
       </svg>
     ),
-    title: 'A World of Flavors',
-    description: 'Every dish is someone\'s story—a recipe passed through generations, a taste of a place you\'ve never been, a meal made with pride you can actually taste. This isn\'t takeout. It\'s a seat at the world\'s best home kitchens.',
+    title: 'Payments & Logistics',
+    description: 'Stripe powers every transaction on the platform — customer orders, commercial kitchen bookings, and automated weekly chef payouts. Real-time delivery tracking from checkout to doorstep.',
   },
   {
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
-    title: 'Supporting Community Growth',
-    description: 'Every order changes a life. Your dinner becomes a chef\'s income, their confidence, their chance to build something real. You\'re not just eating well—you\'re betting on someone\'s dream.',
+    title: 'Kitchen Marketplace',
+    description: 'Chefs access certified commercial kitchens by the hour. Kitchen owners turn idle capacity into revenue. Automated booking, payments, and compliance — zero admin for either side.',
   },
 ]
 
@@ -141,8 +140,8 @@ export default function About() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[var(--color-charcoal)] leading-tight mb-5 sm:mb-6"
             >
-              Why Are We{' '}
-              <span className="font-display text-[var(--color-primary)]">Unique?</span>
+              We Build the{' '}
+              <span className="font-display text-[var(--color-primary)]">Infrastructure</span>
             </motion.h2>
 
             <motion.p
@@ -151,7 +150,7 @@ export default function About() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="font-body text-sm sm:text-base md:text-lg text-[var(--color-charcoal-light)] leading-relaxed mb-6 sm:mb-8"
             >
-              <span className="font-display text-[var(--color-primary)] text-lg sm:text-xl">Local Cooks</span> exists because talent shouldn't need a restaurant to be tasted. We're the marketplace where passionate home-based chefs and customers who crave real food finally find each other—no chains, no algorithms, just people cooking for people.
+              Starting a food business is hard. Regulations, kitchen access, payments, delivery, kitchen booking — <span className="font-display text-[var(--color-primary)] text-lg sm:text-xl">Local Cooks</span> handles the entire stack so food entrepreneurs can focus on what they do best: cooking extraordinary food.
             </motion.p>
 
             {/* Pills container - MOBILE: 2x2 symmetric grid, DESKTOP: flex wrap */}
@@ -162,10 +161,10 @@ export default function About() {
               className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-4"
             >
               {[
-                { icon: '✓', text: 'Independent Local Chefs' },
-                { icon: '✓', text: 'Food Safety Certified' },
-                { icon: '✓', text: 'Secure Payments' },
-                { icon: '✓', text: 'Real-time Tracking' },
+                { icon: '✓', text: 'Full-Stack Platform' },
+                { icon: '✓', text: 'Regulatory Compliance' },
+                { icon: '✓', text: 'Stripe-Powered Payments' },
+                { icon: '✓', text: 'Last-Mile Delivery' },
               ].map((item, i) => (
                 <div 
                   key={i} 
