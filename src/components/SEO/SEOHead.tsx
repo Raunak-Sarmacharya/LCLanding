@@ -23,6 +23,10 @@ interface SEOHeadProps {
   showLocalBusiness?: boolean
   // Breadcrumb items (auto-generates BreadcrumbList schema)
   breadcrumbs?: { name: string; url: string }[]
+  // FAQ schema
+  faq?: { question: string; answer: string }[]
+  // SiteNavigationElement items (for Google sitelinks)
+  siteNavigation?: { name: string; description: string; url: string }[]
 }
 
 // Default SEO values
@@ -158,6 +162,37 @@ const websiteSchema = {
   inLanguage: 'en-CA',
 }
 
+// WebPage schema for per-page identity
+const createWebPageSchema = (opts: { url: string; name: string; description: string }) => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${opts.url}#webpage`,
+  url: opts.url,
+  name: opts.name,
+  description: opts.description,
+  isPartOf: {
+    '@id': 'https://www.localcooks.ca/#website',
+  },
+  about: {
+    '@id': 'https://www.localcooks.ca/#organization',
+  },
+  inLanguage: 'en-CA',
+  datePublished: '2024-01-01T00:00:00+00:00',
+  dateModified: new Date().toISOString().split('T')[0],
+})
+
+// SiteNavigationElement schema (Google @graph format for sitelinks)
+// CRITICAL: Only use DISTINCT, CRAWLABLE page URLs — NOT hash anchors or external domains
+const createSiteNavigationSchema = (items: { name: string; description: string; url: string }[]) => ({
+  '@context': 'https://schema.org',
+  '@graph': items.map((item) => ({
+    '@type': 'SiteNavigationElement',
+    name: item.name,
+    description: item.description,
+    url: item.url,
+  })),
+})
+
 // BreadcrumbList for better navigation signals
 // Per Google spec: last item must NOT have "item" URL — Google uses the containing page URL
 const createBreadcrumbSchema = (items: { name: string; url: string }[]) => ({
@@ -172,6 +207,20 @@ const createBreadcrumbSchema = (items: { name: string; url: string }[]) => ({
       ...(isLast ? {} : { item: item.url }),
     }
   }),
+})
+
+// FAQPage schema
+const createFAQSchema = (faqs: { question: string; answer: string }[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(faq => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
 })
 
 export default function SEOHead({
@@ -189,6 +238,8 @@ export default function SEOHead({
   tags,
   showLocalBusiness = false,
   breadcrumbs,
+  faq,
+  siteNavigation,
 }: SEOHeadProps) {
   const pageTitle = title 
     ? `${title} | LocalCooks`
@@ -276,11 +327,27 @@ export default function SEOHead({
       <script type="application/ld+json">
         {JSON.stringify(websiteSchema)}
       </script>
+
+      {/* Structured Data - WebPage Schema (per-page identity) */}
+      <script type="application/ld+json">
+        {JSON.stringify(createWebPageSchema({
+          url: fullCanonicalUrl,
+          name: pageTitle,
+          description,
+        }))}
+      </script>
       
       {/* Structured Data - LocalBusiness Schema (for homepage and relevant pages) */}
       {showLocalBusiness && (
         <script type="application/ld+json">
           {JSON.stringify(localBusinessSchema)}
+        </script>
+      )}
+
+      {/* Structured Data - SiteNavigationElement (for Google sitelinks — @graph format) */}
+      {siteNavigation && siteNavigation.length > 0 && (
+        <script type="application/ld+json">
+          {JSON.stringify(createSiteNavigationSchema(siteNavigation))}
         </script>
       )}
       
@@ -290,10 +357,17 @@ export default function SEOHead({
           {JSON.stringify(createBreadcrumbSchema(breadcrumbs))}
         </script>
       )}
+
+      {/* Structured Data - FAQPage Schema */}
+      {faq && faq.length > 0 && (
+        <script type="application/ld+json">
+          {JSON.stringify(createFAQSchema(faq))}
+        </script>
+      )}
     </Helmet>
   )
 }
 
 // Export schemas for use in other components
-export { localBusinessSchema, websiteSchema, createBreadcrumbSchema, defaults as seoDefaults }
+export { localBusinessSchema, websiteSchema, createBreadcrumbSchema, createFAQSchema, createSiteNavigationSchema, createWebPageSchema, defaults as seoDefaults }
 

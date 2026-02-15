@@ -184,8 +184,60 @@ function HomePage() {
 
   return (
     <SmoothScroll>
-      {/* SEO Head - Homepage with LocalBusiness schema */}
-      <SEOHead showLocalBusiness={true} />
+      {/* SEO Head - Homepage with full enterprise-grade schemas */}
+      <SEOHead
+        showLocalBusiness={true}
+        faq={[
+          {
+            question: 'What is LocalCooks?',
+            answer: 'LocalCooks is a platform that connects you with talented home-based chefs in St. John\'s, Newfoundland. We enable passionate local cooks to share their authentic homemade meals with the community, offering diverse cuisines delivered fresh to your door.',
+          },
+          {
+            question: 'How do I order homemade food from local chefs?',
+            answer: 'Simply visit our ordering platform, browse through available dishes from local chefs, select your meals, and place your order. You can choose pickup or delivery options based on the chef\'s availability in St. John\'s, Newfoundland.',
+          },
+          {
+            question: 'Where does LocalCooks operate?',
+            answer: 'LocalCooks currently serves customers in St. John\'s, Newfoundland, Canada. We connect local home chefs with food lovers in the community, supporting small businesses and bringing diverse homemade cuisines to your neighborhood.',
+          },
+          {
+            question: 'How can I become a local chef on LocalCooks?',
+            answer: 'If you\'re a passionate home cook in St. John\'s, Newfoundland, you can join our community of local chefs. We help you handle visibility, payments, and logistics so you can focus on cooking incredible food. Visit our For Chefs page to get started.',
+          },
+        ]}
+        siteNavigation={[
+          {
+            name: 'Blog',
+            description: 'Read stories about local chefs, food trends, and community updates in St. John\'s',
+            url: 'https://www.localcooks.ca/blog',
+          },
+          {
+            name: 'Contact',
+            description: 'Get in touch with LocalCooks for questions, partnerships, or support',
+            url: 'https://www.localcooks.ca/contact',
+          },
+          {
+            name: 'For Chefs',
+            description: 'Turn your kitchen into a business. Zero platform fees during trial. Weekly payouts via Stripe.',
+            url: 'https://chef.localcooks.ca',
+          },
+          {
+            name: 'For Kitchen Owners',
+            description: 'Turn idle commercial kitchen hours into revenue. Automated booking, payments, and compliance.',
+            url: 'https://kitchen.localcooks.ca',
+          },
+          {
+            name: 'Terms of Service',
+            description: 'Read the Terms of Service for using the LocalCooks platform',
+            url: 'https://www.localcooks.ca/terms',
+          },
+          {
+            name: 'Privacy Policy',
+            description: 'Learn how LocalCooks collects, uses, and protects your personal information',
+            url: 'https://www.localcooks.ca/privacy',
+          },
+        ]}
+      />
       
       <div ref={appRef} className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
         {/* Scroll Progress Bar */}
