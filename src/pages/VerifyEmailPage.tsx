@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import SEOHead from '../components/SEO/SEOHead'
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams()
@@ -53,6 +54,7 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] flex flex-col">
+      <SEOHead title="Verify Email" noIndex={true} />
       <Navbar />
       
       <main className="flex-grow flex items-center justify-center px-4 py-20">

@@ -159,15 +159,19 @@ const websiteSchema = {
 }
 
 // BreadcrumbList for better navigation signals
+// Per Google spec: last item must NOT have "item" URL — Google uses the containing page URL
 const createBreadcrumbSchema = (items: { name: string; url: string }[]) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
-  itemListElement: items.map((item, index) => ({
-    '@type': 'ListItem',
-    position: index + 1,
-    name: item.name,
-    item: item.url,
-  })),
+  itemListElement: items.map((item, index) => {
+    const isLast = index === items.length - 1
+    return {
+      '@type': 'ListItem' as const,
+      position: index + 1,
+      name: item.name,
+      ...(isLast ? {} : { item: item.url }),
+    }
+  }),
 })
 
 export default function SEOHead({

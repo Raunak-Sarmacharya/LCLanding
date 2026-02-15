@@ -18,8 +18,7 @@
     <link rel="alternate" hreflang="en-CA" href="https://www.localcooks.ca/" />
     <link rel="alternate" hreflang="x-default" href="https://www.localcooks.ca/" />
     
-    <!-- Google Search Console Verification (replace content value with your actual verification code) -->
-    <!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE_HERE" /> -->
+    <!-- Google Search Console: Domain verified via Namecheap DNS (no meta tag needed) -->
     
     <!-- Robots -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -190,16 +189,21 @@
     }
     </script>
     
-    <!-- Structured Data - Breadcrumb -->
+    <!-- Structured Data - Breadcrumb (Google requires ≥2 ListItems; last item must NOT have "item" URL) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
+      "@id": "https://www.localcooks.ca/#breadcrumb",
       "itemListElement": [{
         "@type": "ListItem",
         "position": 1,
-        "name": "Home",
+        "name": "LocalCooks",
         "item": "https://www.localcooks.ca/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Home"
       }]
     }
     </script>

@@ -4,6 +4,7 @@ import { motion } from 'motion/react'
 import SmoothScroll from '../components/SmoothScroll'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import SEOHead from '../components/SEO/SEOHead'
 import { useAuth } from '../hooks/useAuth'
 
 function AdminLoginPageContent() {
@@ -54,6 +55,7 @@ function AdminLoginPageContent() {
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
+      <SEOHead title="Admin Login" noIndex={true} />
       <Navbar />
       
       <section className="pt-32 pb-24 px-3 sm:px-4 md:px-6 overflow-x-clip">

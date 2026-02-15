@@ -25,9 +25,12 @@ Disallow: /api/
 
 # Block admin routes
 Disallow: /admin/
+Disallow: /admin/login
 
-# Block verification routes  
+# Block verification and internal routes  
 Disallow: /verify-email
+Disallow: /blog/new
+Disallow: /blog/*/edit
 
 # Allow important static assets
 Allow: /logo-lc.png
