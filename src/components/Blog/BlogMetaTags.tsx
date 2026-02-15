@@ -161,6 +161,10 @@ export default function BlogMetaTags({
       {/* Keywords for Blog SEO */}
       <meta name="keywords" content={`local cooks blog, ${tags?.join(', ') || ''}, homemade food, local chefs, St Johns food, Newfoundland cuisine, food blog, home cooking, community food, local food stories`.trim().replace(/,\s*,/g, ',')} />
       
+      {/* Hreflang for Language/Region targeting */}
+      <link rel="alternate" hrefLang="en-CA" href={canonicalUrl} />
+      <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
+      
       {/* Open Graph Tags */}
       <meta property="og:type" content={isArticlePage ? 'article' : 'website'} />
       <meta property="og:site_name" content="LocalCooks" />

@@ -2,113 +2,9 @@ import { motion, useInView } from 'motion/react'
 import { useRef, useState, useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import OrderNowButton from './ui/OrderNowButton'
 
 gsap.registerPlugin(ScrollTrigger)
-
-// Clover-style button component inspired by les-arbres-fruitiers.fr "Pour les curieux" button
-// When hovered: logo moves from left to right of text, and text becomes bold
-function CloverButton({ href, children }: { href: string; children: React.ReactNode }) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  const textWidth = 240 // Approximate width of text "Explore Local Cooks for Chefs"
-  const mobileTextWidth = 190 // Full text on mobile - "Explore Local Cooks for Chefs"
-  
-  // Detect mobile viewport
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-  
-  const containerWidth = isMobile ? mobileTextWidth + 60 : textWidth + 60
-  
-  return (
-    <motion.a
-      href={href}
-      className="clover-link-btn inline-flex items-center cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{ minWidth: `${containerWidth}px` }}
-    >
-      {/* Container with relative positioning - fixed width like OrderNowButton */}
-      <div className="relative flex items-center h-10 sm:h-12" style={{ width: `${containerWidth}px` }}>
-        {/* Logo container - animates from left to right - absolute positioned */}
-        <motion.div 
-          className="absolute flex-shrink-0 z-10 flex items-center gap-1 sm:gap-2"
-          animate={{ 
-            x: isHovered ? (isMobile ? mobileTextWidth + 12 : textWidth + 12) : 0
-          }}
-          transition={{ 
-            duration: 0.6,
-            ease: [0.25, 0.1, 0.25, 1]
-          }}
-        >
-          {/* LocalCooks Logo with elegant scale + glow effect */}
-          <motion.div 
-            className="w-8 h-8 sm:w-12 sm:h-12 relative"
-            animate={{ 
-              scale: isHovered ? 1.15 : 1,
-              filter: isHovered ? 'drop-shadow(0 0 8px rgba(233, 68, 99, 0.5))' : 'drop-shadow(0 0 0px rgba(233, 68, 99, 0))'
-            }}
-            transition={{ 
-              duration: 0.4,
-              ease: [0.34, 1.56, 0.64, 1] // Subtle spring/bounce
-            }}
-          >
-            <img 
-              src="/logo-lc.png" 
-              alt="" 
-              className="w-full h-full object-contain"
-            />
-          </motion.div>
-          
-          {/* Arrow appears to the RIGHT of the logo (not overlapping) - hidden on mobile */}
-          <motion.div 
-            className="hidden sm:flex items-center justify-center"
-            animate={{ 
-              opacity: isHovered ? 1 : 0,
-              x: isHovered ? 0 : -10
-            }}
-            transition={{ 
-              duration: 0.3, 
-              delay: isHovered ? 0.2 : 0,
-              ease: [0.25, 0.1, 0.25, 1]
-            }}
-          >
-            <div className="w-8 h-8 bg-[var(--color-primary)] rounded-full flex items-center justify-center shadow-md">
-              <svg 
-                className="w-4 h-4 text-white" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </div>
-          </motion.div>
-        </motion.div>
-        
-        {/* Text - animates from right to left, becomes bold - absolute positioned */}
-        <motion.span
-          className="absolute text-[11px] sm:text-lg text-[var(--color-primary)] whitespace-nowrap font-body"
-          animate={{ 
-            x: isHovered ? 0 : (isMobile ? 48 : 60),
-            fontWeight: isHovered ? 700 : 400
-          }}
-          transition={{ 
-            duration: 0.6,
-            ease: [0.25, 0.1, 0.25, 1]
-          }}
-        >
-          {children}
-        </motion.span>
-      </div>
-    </motion.a>
-  )
-}
 
 // Mobile card data - extracted for the stacked card view
 const mobileCardsData = [
@@ -734,12 +630,14 @@ export default function FeaturedChefs() {
           transition={{ duration: 0.8, delay: 1 }}
           className="pb-16 sm:pb-24 md:pb-32 flex flex-col items-center relative z-10 w-full max-w-full overflow-hidden px-4"
         >
-          {/* Clover-style button like les-arbres-fruitiers.fr "Pour les curieux" */}
-          <div className="bg-white rounded-full px-4 sm:px-10 py-3 sm:py-5 shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-[calc(100%-2rem)] sm:max-w-none">
-            <CloverButton href="https://chef.localcooks.ca">
-              Explore the Chef Platform
-            </CloverButton>
-          </div>
+          {/* Clover-style animated button - same animation as Order Now */}
+          <OrderNowButton
+            href="https://chef.localcooks.ca"
+            target="_blank"
+            size="lg"
+            label="Explore the Chef Platform"
+            textWidthOverride={217}
+          />
         </motion.div>
       </div>
     </section>

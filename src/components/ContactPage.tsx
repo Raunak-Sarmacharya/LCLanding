@@ -233,6 +233,10 @@ function ContactPageContent() {
         description="Get in touch with LocalCooks. Have questions about ordering homemade food from local chefs in St. John's, Newfoundland? Want to become a chef? We'd love to hear from you."
         canonicalUrl="/contact"
         showLocalBusiness={true}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://www.localcooks.ca' },
+          { name: 'Contact Us', url: 'https://www.localcooks.ca/contact' },
+        ]}
       />
       
       {/* Navigation - Elegant top bar */}

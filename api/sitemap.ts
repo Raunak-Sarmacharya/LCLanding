@@ -117,32 +117,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   </url>
 
   <!-- ================================== -->
-  <!-- HOMEPAGE SECTIONS - Priority 0.8  -->
-  <!-- Anchor sections for sitelink hint -->
+  <!-- EXTERNAL KEY PAGES - Priority 0.8 -->
+  <!-- Cross-domain sitelink candidates   -->
   <!-- ================================== -->
 
-  <!-- About section -->
+  <!-- For Chefs - Subdomain landing page -->
   <url>
-    <loc>${baseUrl}/#about</loc>
+    <loc>https://chef.localcooks.ca/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://chef.localcooks.ca/" />
   </url>
 
-  <!-- How It Works (chef platform + process) -->
+  <!-- For Kitchen Owners - Subdomain landing page -->
   <url>
-    <loc>${baseUrl}/#chefs</loc>
+    <loc>https://kitchen.localcooks.ca/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-
-  <!-- Testimonials section -->
-  <url>
-    <loc>${baseUrl}/#testimonials</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://kitchen.localcooks.ca/" />
   </url>
 
   <!-- ================================== -->
@@ -184,6 +178,7 @@ ${blogPosts.map(post => {
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/terms" />
   </url>
 
   <url>
@@ -191,6 +186,7 @@ ${blogPosts.map(post => {
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/privacy" />
   </url>
 
 </urlset>`

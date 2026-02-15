@@ -107,6 +107,10 @@ function PrivacyPageContent() {
         description="Read LocalCooks' Privacy Policy. Learn how we collect, use, and protect your personal information when you use our platform to order homemade food from local chefs."
         canonicalUrl="/privacy"
         noIndex={false}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://www.localcooks.ca' },
+          { name: 'Privacy Policy', url: 'https://www.localcooks.ca/privacy' },
+        ]}
       />
       
       {/* Navigation - Elegant top bar */}

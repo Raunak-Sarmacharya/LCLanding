@@ -21,6 +21,8 @@ interface SEOHeadProps {
   tags?: string[]
   // Local business specific
   showLocalBusiness?: boolean
+  // Breadcrumb items (auto-generates BreadcrumbList schema)
+  breadcrumbs?: { name: string; url: string }[]
 }
 
 // Default SEO values
@@ -182,6 +184,7 @@ export default function SEOHead({
   section,
   tags,
   showLocalBusiness = false,
+  breadcrumbs,
 }: SEOHeadProps) {
   const pageTitle = title 
     ? `${title} | LocalCooks`
@@ -256,6 +259,10 @@ export default function SEOHead({
       <meta name="twitter:image" content={fullImageUrl} />
       <meta name="twitter:image:alt" content={imageAlt} />
       
+      {/* Hreflang for Language/Region targeting */}
+      <link rel="alternate" hrefLang="en-CA" href={fullCanonicalUrl} />
+      <link rel="alternate" hrefLang="x-default" href={fullCanonicalUrl} />
+      
       {/* Mobile & Theme */}
       <meta name="theme-color" content="#f51042" />
       <meta name="apple-mobile-web-app-title" content="LocalCooks" />
@@ -270,6 +277,13 @@ export default function SEOHead({
       {showLocalBusiness && (
         <script type="application/ld+json">
           {JSON.stringify(localBusinessSchema)}
+        </script>
+      )}
+      
+      {/* Structured Data - Breadcrumb (for sub-pages) */}
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <script type="application/ld+json">
+          {JSON.stringify(createBreadcrumbSchema(breadcrumbs))}
         </script>
       )}
     </Helmet>

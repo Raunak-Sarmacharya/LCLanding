@@ -107,6 +107,10 @@ function TermsPageContent() {
         description="Read the Terms of Service for LocalCooks. Understand your rights and responsibilities when using our platform to order homemade meals from local chefs in St. John's, Newfoundland."
         canonicalUrl="/terms"
         noIndex={false}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://www.localcooks.ca' },
+          { name: 'Terms of Service', url: 'https://www.localcooks.ca/terms' },
+        ]}
       />
       
       {/* Navigation - Elegant top bar */}

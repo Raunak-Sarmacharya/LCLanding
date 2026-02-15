@@ -80,8 +80,8 @@ function BlogPageContent() {
       />
       <Navbar />
 
-      <section ref={sectionRef} className="pt-32 pb-24 px-3 sm:px-4 md:px-6 overflow-x-clip bg-[var(--color-cream)]">
-        <div className="max-w-7xl mx-auto w-full box-border">
+      <section ref={sectionRef} className="pt-32 pb-24 overflow-x-clip bg-[var(--color-cream)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -59,16 +59,16 @@ export default function Hero() {
         0.8
       )
 
-      // Animate CTA buttons with bounce
+      // Animate CTA buttons - smooth entrance
       tl.fromTo('.hero-cta',
-        { opacity: 0, y: 30, scale: 0.9 },
+        { opacity: 0, y: 20, scale: 0.95 },
         { 
           opacity: 1, 
           y: 0, 
           scale: 1, 
           duration: 0.8,
           stagger: 0.15,
-          ease: 'back.out(1.7)'
+          ease: 'power3.out'
         },
         1
       )
