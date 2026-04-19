@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useEffect } from 'react'
 import OrderNowButton from './ui/OrderNowButton'
+import StoreBadge from './ui/StoreBadge'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -466,19 +467,10 @@ export default function AppPromo() {
                         Order Now
                       </a>
                       
-                      {/* Native Apps Coming Soon */}
-                      <div className="flex items-center gap-2 text-white/50">
-                        <div className="flex items-center gap-1">
-                          {/* Apple Logo */}
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                          </svg>
-                          {/* Android Logo */}
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.523 15.341c-.576 0-1.044-.467-1.044-1.043 0-.576.468-1.043 1.044-1.043.576 0 1.043.467 1.043 1.043 0 .576-.467 1.043-1.043 1.043m-11.046 0c-.576 0-1.043-.467-1.043-1.043 0-.576.467-1.043 1.043-1.043.576 0 1.044.467 1.044 1.043 0 .576-.468 1.043-1.044 1.043m11.405-6.02l1.997-3.46a.416.416 0 00-.152-.566.416.416 0 00-.566.152l-2.022 3.504C15.555 8.062 13.847 7.576 12 7.576c-1.847 0-3.555.486-5.139 1.375L4.839 5.447a.416.416 0 00-.566-.152.416.416 0 00-.152.566l1.997 3.46C2.688 11.197.343 14.795.343 18.946h23.314c0-4.15-2.345-7.749-5.775-9.625"/>
-                          </svg>
-                        </div>
-                        <span className="font-mono text-[10px]">Native apps soon</span>
+                      {/* App Download Buttons - MOBILE: premium glassmorphism style */}
+                      <div className="flex items-center justify-center gap-3">
+                        <StoreBadge store="apple" href="https://apps.apple.com/ca/app/local-cooks/id6752119151" size="sm" />
+                        <StoreBadge store="google" href="https://play.google.com/store/apps/details?id=com.localcooks.app" size="sm" />
                       </div>
                     </motion.div>
                   </div>
@@ -763,7 +755,7 @@ export default function AppPromo() {
                   initial={{ opacity: 0, y: 40 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.7, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  className="col-span-2 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 pt-2 sm:pt-4"
+                  className="col-span-2 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4"
                 >
                   <div className="hidden sm:block">
                     <OrderNowButton href="https://localcook.shop/app/index.php" size="lg" />
@@ -776,19 +768,10 @@ export default function AppPromo() {
                     Order Now
                   </a>
                   
-                  {/* Native Apps Coming Soon - visible on all screens */}
-                  <div className="flex items-center gap-1.5 sm:gap-3 text-white/50">
-                    <div className="flex items-center gap-0.5 sm:gap-2">
-                      {/* Apple Logo */}
-                      <svg className="w-2.5 h-2.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                      </svg>
-                      {/* Android Logo */}
-                      <svg className="w-2.5 h-2.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.523 15.341c-.576 0-1.044-.467-1.044-1.043 0-.576.468-1.043 1.044-1.043.576 0 1.043.467 1.043 1.043 0 .576-.467 1.043-1.043 1.043m-11.046 0c-.576 0-1.043-.467-1.043-1.043 0-.576.467-1.043 1.043-1.043.576 0 1.044.467 1.044 1.043 0 .576-.468 1.043-1.044 1.043m11.405-6.02l1.997-3.46a.416.416 0 00-.152-.566.416.416 0 00-.566.152l-2.022 3.504C15.555 8.062 13.847 7.576 12 7.576c-1.847 0-3.555.486-5.139 1.375L4.839 5.447a.416.416 0 00-.566-.152.416.416 0 00-.152.566l1.997 3.46C2.688 11.197.343 14.795.343 18.946h23.314c0-4.15-2.345-7.749-5.775-9.625"/>
-                      </svg>
-                    </div>
-                    <span className="font-mono text-[6px] sm:text-xs">Native apps soon</span>
+                  {/* App Download Buttons - DESKTOP: premium glassmorphism style */}
+                  <div className="flex items-center justify-center gap-4 sm:gap-5">
+                    <StoreBadge store="apple" href="https://apps.apple.com/ca/app/local-cooks/id6752119151" size="lg" />
+                    <StoreBadge store="google" href="https://play.google.com/store/apps/details?id=com.localcooks.app" size="lg" />
                   </div>
                 </motion.div>
               </div>
