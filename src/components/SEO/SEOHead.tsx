@@ -25,8 +25,6 @@ interface SEOHeadProps {
   breadcrumbs?: { name: string; url: string }[]
   // FAQ schema
   faq?: { question: string; answer: string }[]
-  // SiteNavigationElement items (for Google sitelinks)
-  siteNavigation?: { name: string; description: string; url: string }[]
 }
 
 // Default SEO values
@@ -194,19 +192,17 @@ const createSiteNavigationSchema = (items: { name: string; description: string; 
 })
 
 // BreadcrumbList for better navigation signals
-// Per Google spec: last item must NOT have "item" URL — Google uses the containing page URL
+// Per Google Rich Results spec: include `item` URL for EVERY crumb (including the last)
+// to maximize compatibility and avoid "Missing field" warnings in Search Console.
 const createBreadcrumbSchema = (items: { name: string; url: string }[]) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
-  itemListElement: items.map((item, index) => {
-    const isLast = index === items.length - 1
-    return {
-      '@type': 'ListItem' as const,
-      position: index + 1,
-      name: item.name,
-      ...(isLast ? {} : { item: item.url }),
-    }
-  }),
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem' as const,
+    position: index + 1,
+    name: item.name,
+    item: item.url,
+  })),
 })
 
 // FAQPage schema
@@ -239,7 +235,6 @@ export default function SEOHead({
   showLocalBusiness = false,
   breadcrumbs,
   faq,
-  siteNavigation,
 }: SEOHeadProps) {
   const pageTitle = title 
     ? `${title} | LocalCooks`
@@ -323,10 +318,8 @@ export default function SEOHead({
       <meta name="apple-mobile-web-app-title" content="LocalCooks" />
       <meta name="application-name" content="LocalCooks" />
       
-      {/* Structured Data - Website Schema (always include) */}
-      <script type="application/ld+json">
-        {JSON.stringify(websiteSchema)}
-      </script>
+      {/* NOTE: WebSite schema (site-wide) lives in static index.html so crawlers see it
+          on the FIRST HTML response — before JS runs. DO NOT duplicate it here. */}
 
       {/* Structured Data - WebPage Schema (per-page identity) */}
       <script type="application/ld+json">
@@ -344,12 +337,8 @@ export default function SEOHead({
         </script>
       )}
 
-      {/* Structured Data - SiteNavigationElement (for Google sitelinks — @graph format) */}
-      {siteNavigation && siteNavigation.length > 0 && (
-        <script type="application/ld+json">
-          {JSON.stringify(createSiteNavigationSchema(siteNavigation))}
-        </script>
-      )}
+      {/* NOTE: SiteNavigationElement (site-wide sitelinks signal) lives in static
+          index.html so crawlers see it on the FIRST HTML response. DO NOT duplicate. */}
       
       {/* Structured Data - Breadcrumb (for sub-pages) */}
       {breadcrumbs && breadcrumbs.length > 0 && (

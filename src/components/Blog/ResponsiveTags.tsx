@@ -75,7 +75,6 @@ export default function ResponsiveTags({
             
             // Calculate element's position relative to parent
             const elementLeft = childRect.left - parentRect.left
-            const elementRight = childRect.right - parentRect.left
             const elementWidth = childRect.width
             
             // Check if element is positioned on the right side

@@ -205,38 +205,6 @@ function HomePage() {
             answer: 'If you\'re a passionate home cook in St. John\'s, Newfoundland, you can join our community of local chefs. We help you handle visibility, payments, and logistics so you can focus on cooking incredible food. Visit our For Chefs page to get started.',
           },
         ]}
-        siteNavigation={[
-          {
-            name: 'Blog',
-            description: 'Read stories about local chefs, food trends, and community updates in St. John\'s',
-            url: 'https://www.localcooks.ca/blog',
-          },
-          {
-            name: 'Contact',
-            description: 'Get in touch with LocalCooks for questions, partnerships, or support',
-            url: 'https://www.localcooks.ca/contact',
-          },
-          {
-            name: 'For Chefs',
-            description: 'Turn your kitchen into a business. Zero platform fees during trial. Weekly payouts via Stripe.',
-            url: 'https://chef.localcooks.ca',
-          },
-          {
-            name: 'For Kitchen Owners',
-            description: 'Turn idle commercial kitchen hours into revenue. Automated booking, payments, and compliance.',
-            url: 'https://kitchen.localcooks.ca',
-          },
-          {
-            name: 'Terms of Service',
-            description: 'Read the Terms of Service for using the LocalCooks platform',
-            url: 'https://www.localcooks.ca/terms',
-          },
-          {
-            name: 'Privacy Policy',
-            description: 'Learn how LocalCooks collects, uses, and protects your personal information',
-            url: 'https://www.localcooks.ca/privacy',
-          },
-        ]}
       />
       
       <div ref={appRef} className="min-h-screen bg-[var(--color-cream)] overflow-x-hidden max-w-[100vw] w-full box-border">
