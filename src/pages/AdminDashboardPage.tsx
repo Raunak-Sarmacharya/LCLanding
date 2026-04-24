@@ -1,10 +1,9 @@
 import { Navigate } from 'react-router-dom'
-import SmoothScroll from '../components/SmoothScroll'
-import BlogMetaTags from '../components/Blog/BlogMetaTags'
-import BlogEditor from '../components/Blog/BlogEditor'
+import AdminDashboard from '../components/Blog/AdminDashboard'
+import SEOHead from '../components/SEO/SEOHead'
 import { useAuth } from '../hooks/useAuth'
 
-export default function CreateBlogPostPage() {
+export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAuth()
 
   if (isLoading) {
@@ -18,9 +17,9 @@ export default function CreateBlogPostPage() {
   if (!isAdmin) return <Navigate to="/admin/login" replace />
 
   return (
-    <SmoothScroll>
-      <BlogMetaTags title="New Post — LocalCooks Admin" description="Write a new blog post." />
-      <BlogEditor mode="create" />
-    </SmoothScroll>
+    <>
+      <SEOHead title="Admin Dashboard — LocalCooks" noIndex={true} />
+      <AdminDashboard />
+    </>
   )
 }

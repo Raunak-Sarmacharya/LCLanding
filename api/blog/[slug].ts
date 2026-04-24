@@ -201,9 +201,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, PATCH, OPTIONS')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization')
     return res.status(204).end()
+  }
+
+  // Handle DELETE requests - delete a post (admin only)
+  if (req.method === 'DELETE') {
+    try {
+      const authHeader = req.headers['authorization'] || req.headers['Authorization']
+      if (!authHeader) return res.status(401).json({ error: 'Unauthorized' })
+      const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '').trim() : ''
+      const supabaseUrl = process.env.SUPABASE_URL!
+      const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
+      if (!supabaseUrl || !supabaseAnonKey) return res.status(500).json({ error: 'Server configuration error' })
+      const supabaseWithAuth = createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: `Bearer ${token}` } } })
+      const { data: { user }, error: authError } = await supabaseWithAuth.auth.getUser()
+      if (authError || !user) return res.status(401).json({ error: 'Unauthorized' })
+
+      let slug: string | null = null
+      if (req.query?.slug) {
+        slug = Array.isArray(req.query.slug) ? req.query.slug[0] : String(req.query.slug)
+      } else if (req.url) {
+        try {
+          const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
+          const parts = url.pathname.split('/').filter(Boolean)
+          const idx = parts.indexOf('blog')
+          slug = idx >= 0 && parts.length > idx + 1 ? parts[idx + 1] : parts[parts.length - 1]
+        } catch {}
+      }
+      if (!slug) return res.status(400).json({ error: 'Slug is required' })
+
+      const { error: deleteError } = await supabaseWithAuth.from('posts').delete().eq('slug', slug)
+      if (deleteError) return res.status(500).json({ error: deleteError.message || 'Failed to delete post' })
+      return res.status(200).json({ success: true })
+    } catch (err) {
+      return res.status(500).json({ error: err instanceof Error ? err.message : 'Internal server error' })
+    }
   }
 
   // Handle PUT/PATCH requests - update existing post (admin only)

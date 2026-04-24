@@ -18,7 +18,7 @@ function AdminLoginPageContent() {
   // Redirect if already logged in as admin
   useEffect(() => {
     if (!authLoading && isAdmin) {
-      navigate('/blog', { replace: true })
+      navigate('/admin', { replace: true })
     }
   }, [isAdmin, authLoading, navigate])
 
@@ -29,8 +29,8 @@ function AdminLoginPageContent() {
 
     try {
       await login(email, password)
-      // Redirect to blog page after successful login
-      navigate('/blog')
+      // Redirect to admin dashboard after successful login
+      navigate('/admin')
     } catch (err: any) {
       setError(err.message || 'Failed to login. Please check your credentials.')
     } finally {

@@ -26,6 +26,7 @@ import BlogPostPage from './pages/BlogPostPage'
 import CreateBlogPostPage from './pages/CreateBlogPostPage'
 import EditBlogPostPage from './pages/EditBlogPostPage'
 import AdminLoginPage from './pages/AdminLoginPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
@@ -316,6 +317,7 @@ function App() {
           <Route path="/blog/new" element={<CreateBlogPostPage />} />
           <Route path="/blog/:slug/edit" element={<EditBlogPostPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/terms" element={<TermsPage />} />

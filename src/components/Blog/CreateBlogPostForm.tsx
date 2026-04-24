@@ -20,7 +20,7 @@ export default function CreateBlogPostForm() {
     image_url: '',
   })
   const [tagsInput, setTagsInput] = useState('')
-  const [editorTags, setEditorTags] = useState<string[]>([])
+  const [editorTags] = useState<string[]>([])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -341,8 +341,6 @@ export default function CreateBlogPostForm() {
             setFormData((prev) => ({ ...prev, content: newContent }))
             setError(null)
           }}
-          tags={editorTags}
-          onTagsChange={setEditorTags}
           placeholder="Start writing your blog post..."
         />
         <div className="space-y-2">

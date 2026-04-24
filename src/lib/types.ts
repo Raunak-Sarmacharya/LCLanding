@@ -20,6 +20,7 @@ export interface CreateBlogPostInput {
   author_name: string
   tags?: string[]
   image_url?: string
+  published?: boolean
 }
 
 export interface UpdateBlogPostInput {

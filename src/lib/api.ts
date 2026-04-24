@@ -1,4 +1,5 @@
 import type { BlogPost, CreateBlogPostInput, UpdateBlogPostInput } from './types'
+import { supabase } from './supabase'
 
 // Use absolute URL in production, relative in development
 const API_BASE_URL = typeof window !== 'undefined'
@@ -8,27 +9,11 @@ const API_BASE_URL = typeof window !== 'undefined'
   : '/api'
 
 /**
- * Get Supabase client for direct database access (used in development)
+ * Returns the shared Supabase client (same instance as useAuth).
+ * Using a single instance avoids session isolation across modules.
  */
 async function getSupabaseClient() {
-  const { createClient } = await import('@supabase/supabase-js')
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file.')
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    db: {
-      schema: 'public',
-    },
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false,
-    },
-  })
+  return supabase
 }
 
 /**
@@ -400,6 +385,66 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 /**
+ * Fetch ALL blog posts (including drafts) — for admin dashboard use only.
+ * Uses the authenticated Supabase session so RLS allows reading draft rows.
+ */
+export async function getBlogPostsAdmin(): Promise<BlogPost[]> {
+  try {
+    const supabase = await getSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('Not authenticated')
+
+    let result = await supabase
+      .from('posts')
+      .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, tags, image_url')
+      .order('created_at', { ascending: false })
+      .limit(200)
+
+    // Fallback without tags if column missing
+    if (result.error?.message?.includes('tags')) {
+      const retry = await supabase
+        .from('posts')
+        .select('id, title, slug, content, excerpt, author_name, created_at, updated_at, published, image_url')
+        .order('created_at', { ascending: false })
+        .limit(200)
+      if (retry.error) throw new Error(retry.error.message)
+      result = { ...retry, data: (retry.data || []).map((p: any) => ({ ...p, tags: null })) } as any
+    }
+
+    if (result.error) throw new Error(result.error.message)
+
+    const posts: BlogPost[] = (result.data || [])
+      .filter((p: any) => p && p.id && p.title && p.slug && p.author_name)
+      .map((p: any) => ({
+        id: String(p.id),
+        title: String(p.title).trim(),
+        slug: String(p.slug).trim(),
+        content: p.content ? String(p.content).trim() : '',
+        excerpt: p.excerpt ? String(p.excerpt).trim() : null,
+        author_name: String(p.author_name).trim(),
+        created_at: p.created_at ? new Date(p.created_at).toISOString() : new Date().toISOString(),
+        updated_at: p.updated_at ? new Date(p.updated_at).toISOString() : new Date().toISOString(),
+        published: Boolean(p.published),
+        tags: Array.isArray(p.tags) ? p.tags.map((t: any) => String(t).trim()).filter(Boolean) : null,
+        image_url: p.image_url ? String(p.image_url).trim() : null,
+      }))
+
+    return posts
+  } catch (error) {
+    console.error('[getBlogPostsAdmin] Error:', error)
+    // Graceful fallback to public list
+    return getBlogPosts()
+  }
+}
+
+/**
+ * Toggle the published status of a blog post (admin only).
+ */
+export async function toggleBlogPostPublished(slug: string, published: boolean): Promise<BlogPost> {
+  return updateBlogPost(slug, { published })
+}
+
+/**
  * Fetch a single blog post by slug
  * PUBLIC ACCESS: No authentication required - anyone can view published posts
  * 
@@ -621,7 +666,7 @@ async function createBlogPostFromSupabase(input: CreateBlogPostInput): Promise<B
       content: input.content.trim(),
       excerpt: input.excerpt?.trim() || null,
       author_name: input.author_name.trim(),
-      published: true,
+      published: input.published !== undefined ? Boolean(input.published) : true,
     }
 
     // Try to include tags if provided, but handle gracefully if column doesn't exist
@@ -866,17 +911,6 @@ async function updateBlogPostFromSupabase(slug: string, input: UpdateBlogPostInp
       throw new Error('Authentication required. Please log in as an admin.')
     }
 
-    // Check if post exists
-    const { data: existingPost, error: fetchError } = await supabase
-      .from('posts')
-      .select('id')
-      .eq('slug', slug)
-      .single()
-
-    if (fetchError || !existingPost) {
-      throw new Error('Post not found')
-    }
-
     // Build update object with only provided fields
     const updateData: any = {
       updated_at: new Date().toISOString(),
@@ -887,30 +921,30 @@ async function updateBlogPostFromSupabase(slug: string, input: UpdateBlogPostInp
     if (input.author_name !== undefined) updateData.author_name = input.author_name.trim()
     if (input.excerpt !== undefined) updateData.excerpt = input.excerpt?.trim() || null
     if (input.image_url !== undefined) updateData.image_url = input.image_url?.trim() || null
-    if (input.published !== undefined) updateData.published = input.published
+    if (input.published !== undefined) updateData.published = Boolean(input.published)
     // Always set tags explicitly when provided - create new array to ensure replacement, not merge
     if (input.tags !== undefined) {
       updateData.tags = input.tags && input.tags.length > 0 ? [...input.tags] : null
     }
 
-    // Update post - try with tags first
+    // Update by slug directly — avoids a pre-flight SELECT that can fail under RLS
     let result = await supabase
       .from('posts')
       .update(updateData)
-      .eq('id', existingPost.id)
+      .eq('slug', slug)
       .select()
-      .single()
+      .maybeSingle()
 
     // If error is about missing tags column, retry without tags
-    if (result.error && result.error.message?.includes('column') && result.error.message?.includes('tags')) {
+    if (result.error?.message?.includes('column') && result.error.message.includes('tags')) {
       console.warn('[updateBlogPost] Tags column not found, updating without tags')
       const { tags, ...dataWithoutTags } = updateData
       result = await supabase
         .from('posts')
         .update(dataWithoutTags)
-        .eq('id', existingPost.id)
+        .eq('slug', slug)
         .select()
-        .single()
+        .maybeSingle()
     }
 
     const { data, error } = result
@@ -921,7 +955,7 @@ async function updateBlogPostFromSupabase(slug: string, input: UpdateBlogPostInp
     }
 
     if (!data) {
-      throw new Error('No data returned from database')
+      throw new Error('Post not found or you do not have permission to update it.')
     }
 
     // Validate and format response
@@ -965,18 +999,10 @@ export async function updateBlogPost(slug: string, input: UpdateBlogPostInput): 
   
   // In development, call Supabase directly to avoid API route issues
   if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-    try {
-      console.log(`[updateBlogPost] Development mode: Using direct Supabase connection for slug: ${slug}`)
-      const post = await updateBlogPostFromSupabase(slug, input)
-      const totalTime = Date.now() - startTime
-      console.log(`[updateBlogPost] Operation completed in ${totalTime}ms`)
-      return post
-    } catch (error) {
-      const totalTime = Date.now() - startTime
-      console.error(`[updateBlogPost] Error in development mode after ${totalTime}ms:`, error)
-      // Fallback to API route if direct connection fails
-      console.log('[updateBlogPost] Falling back to API route...')
-    }
+    const post = await updateBlogPostFromSupabase(slug, input)
+    const totalTime = Date.now() - startTime
+    console.log(`[updateBlogPost] Operation completed in ${totalTime}ms`)
+    return post
   }
 
   // Production mode or fallback: use API routes
@@ -1120,4 +1146,43 @@ export async function updateBlogPost(slug: string, input: UpdateBlogPostInput): 
   }
 }
 
+/**
+ * Delete a blog post by slug (admin only)
+ */
+export async function deleteBlogPost(slug: string): Promise<void> {
+  // In development, use Supabase directly
+  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+    const supabase = await getSupabaseClient()
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError || !session) throw new Error('Authentication required.')
 
+    const { error } = await supabase.from('posts').delete().eq('slug', slug)
+    if (error) throw new Error(error.message || 'Failed to delete post')
+    return
+  }
+
+  // Production: call DELETE API
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+  let authToken: string | null = null
+
+  if (supabaseUrl && supabaseAnonKey) {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: true } })
+    const { data: { session } } = await supabase.auth.getSession()
+    authToken = session?.access_token || null
+  }
+
+  if (!authToken) throw new Error('Authentication required. Please log in.')
+
+  const response = await fetch(`${API_BASE_URL}/blog/${slug}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+    cache: 'no-store',
+  })
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(err.error || `Failed to delete post: ${response.statusText}`)
+  }
+}

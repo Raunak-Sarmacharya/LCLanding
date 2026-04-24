@@ -418,8 +418,6 @@ export default function EditBlogPostForm() {
             setFormData((prev) => ({ ...prev, content: newContent }))
             setError(null)
           }}
-          tags={editorTags}
-          onTagsChange={setEditorTags}
           placeholder="Start writing your blog post..."
         />
         <div className="space-y-2">
