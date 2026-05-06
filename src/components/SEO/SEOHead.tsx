@@ -62,8 +62,10 @@ const localBusinessSchema = {
   email: 'admin@localcook.shop',
   address: {
     '@type': 'PostalAddress',
+    streetAddress: '14 Suez Street, Unit 5',
     addressLocality: 'St. John\'s',
     addressRegion: 'NL',
+    postalCode: 'A1C 4Z7',
     addressCountry: 'CA',
   },
   geo: {

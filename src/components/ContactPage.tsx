@@ -701,9 +701,9 @@ function ContactPageContent() {
                     Come see us
                   </h3>
                   <p className="font-body text-[var(--color-charcoal)]/60 text-sm leading-snug">
-                    St. John's,<br />
-                    Newfoundland,<br />
-                    Canada
+                    14 Suez Street, Unit 5<br />
+                    St. John's, Newfoundland<br />
+                    Canada A1C 4Z7
                   </p>
                 </div>
 

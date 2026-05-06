@@ -163,8 +163,9 @@ export default function Footer() {
                   Visit us
                 </h3>
                 <p className="font-body text-[var(--color-charcoal)]/60 text-sm sm:text-xs md:text-sm leading-snug">
+                  14 Suez Street, Unit 5<br />
                   St. John's, NL<br />
-                  Canada
+                  Canada A1C 4Z7
                 </p>
               </div>
 
