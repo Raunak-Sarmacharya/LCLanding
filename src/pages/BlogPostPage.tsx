@@ -51,18 +51,22 @@ function BlogPostPageContent() {
     }
   }, [])
 
-  // Handle 404 - redirect after a moment if post not found
-  useEffect(() => {
-    if (!loading && !error && !post && slug) {
-      // Post not found, could redirect or show 404
-      // For now, we'll let the component handle the display
-    }
-  }, [loading, error, post, slug])
+  // SEO: when a blog post is missing OR the request errored, the SPA still
+  // returns HTTP 200 (Vercel serves index.html for any unknown route). Without
+  // a noindex signal, Googlebot would index these as Soft 404s. We compute
+  // `isMissing` once per render and pass it down to BlogMetaTags.
+  const isMissing = !loading && !error && !post && !!slug
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] max-w-[100vw] w-full box-border">
       <BlogMetaTags 
-        title={post ? `${post.title} - LocalCooks Blog` : 'Blog Post - LocalCooks'}
+        title={
+          post
+            ? `${post.title} - LocalCooks Blog`
+            : isMissing
+              ? 'Post Not Found - LocalCooks Blog'
+              : 'Blog Post - LocalCooks'
+        }
         description={post?.excerpt || 'Read our latest blog post from LocalCooks'}
         slug={post?.slug}
         image={post?.image_url || undefined}
@@ -72,6 +76,7 @@ function BlogPostPageContent() {
         author={post?.author_name}
         tags={post?.tags || undefined}
         content={post?.content}
+        noIndex={isMissing || !!error}
       />
       <Navbar />
       

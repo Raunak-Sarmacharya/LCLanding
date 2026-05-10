@@ -13,6 +13,9 @@ interface BlogMetaTagsProps {
   author?: string
   tags?: string[]
   content?: string // For reading time calculation and article length
+  // SEO: when the blog post is missing/404, set noIndex so the page is
+  // excluded from Google's index instead of being flagged as a Soft 404.
+  noIndex?: boolean
 }
 
 // Calculate reading time
@@ -111,6 +114,7 @@ export default function BlogMetaTags({
   author,
   tags,
   content,
+  noIndex = false,
 }: BlogMetaTagsProps) {
   const isArticlePage = !!slug
   const pageTitle = title.includes('LocalCooks') ? title : `${title} | LocalCooks`
@@ -156,7 +160,11 @@ export default function BlogMetaTags({
       <link rel="canonical" href={canonicalUrl} />
       
       {/* Robots */}
-      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      {noIndex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      )}
       
       {/* Keywords for Blog SEO */}
       <meta name="keywords" content={`local cooks blog, ${tags?.join(', ') || ''}, homemade food, local chefs, St Johns food, Newfoundland cuisine, food blog, home cooking, community food, local food stories`.trim().replace(/,\s*,/g, ',')} />

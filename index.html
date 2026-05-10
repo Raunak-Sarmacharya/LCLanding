@@ -7,7 +7,6 @@
     <title>Local Cooks | Homemade Meals from Local Chefs in St. John's, Newfoundland</title>
     <meta name="title" content="Local Cooks | Homemade Meals from Local Chefs in St. John's, Newfoundland" />
     <meta name="description" content="Discover authentic homemade meals from passionate local chefs in St. John's, Newfoundland. Order delicious home-cooked food from talented neighborhood cooks. Fresh, diverse cuisines delivered to your door." />
-    <meta name="keywords" content="local cooks, home chefs, homemade food, St Johns, Newfoundland, local food delivery, home cooked meals, personal chef, neighborhood cook, authentic cuisine, food delivery NL, local chef near me, homemade meals delivery, St John's food, Newfoundland food delivery, local food St Johns, home chef Newfoundland, fresh homemade meals, local cooking, community food, chef near me St Johns" />
     <meta name="author" content="LocalCooks" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
@@ -63,8 +62,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/logo-lc.png" />
     <!-- Shortcut icon for legacy browsers -->
     <link rel="shortcut icon" href="/logo-lc.png" />
-    <!-- Fallback SVG favicon for modern browsers -->
+    <!-- NOTE: logo-lc-svg.svg is 1.8MB (likely embedded raster). Do NOT use
+         as favicon — browsers will download the whole file. PNG favicons above
+         cover all modern + legacy browsers. Generate a proper small SVG (<50KB)
+         if you need one, then uncomment the line below.
     <link rel="icon" type="image/svg+xml" href="/logo-lc-svg.svg" />
+    -->
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/logo-lc.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="/logo-lc.png" />
@@ -89,7 +92,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lobster&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
     
     <!-- Preload critical assets -->
-    <link rel="preload" as="image" href="/chef.png" />
+    <!-- NOTE: Do NOT preload chef.png (9.8MB) — it would hurt LCP. Preload only small critical assets. -->
     <link rel="preload" as="image" href="/logo-lc.png" />
     
     <!-- DNS Prefetch for external resources -->

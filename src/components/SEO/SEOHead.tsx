@@ -271,9 +271,6 @@ export default function SEOHead({
       <meta name="geo.position" content="47.5615;-52.7126" />
       <meta name="ICBM" content="47.5615, -52.7126" />
       
-      {/* Keywords for Local Discovery */}
-      <meta name="keywords" content="local cooks, home chefs, homemade food, St Johns, Newfoundland, local food delivery, home cooked meals, personal chef, neighborhood cook, authentic cuisine, food delivery NL, local chef near me, homemade meals delivery, St John's food, Newfoundland food delivery, local food St Johns" />
-      
       {/* Open Graph Tags */}
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content={defaults.siteName} />

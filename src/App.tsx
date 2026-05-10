@@ -30,6 +30,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
+import NotFoundPage from './pages/NotFoundPage'
 import SEOHead from './components/SEO/SEOHead'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -322,6 +323,10 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          {/* SEO: catch-all 404 — emits noindex meta tag so unknown URLs
+              (which the SPA serves with HTTP 200) are excluded from
+              Google's index instead of being flagged as Soft 404s. */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       )}
     </>

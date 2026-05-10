@@ -21,7 +21,10 @@ interface BlogPost {
 // ============================================================
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
+  // SEO: Allow both GET and HEAD. Search engines and validators (Bing,
+  // screaming-frog, IndexNow tools) often issue HEAD before GET. Returning
+  // 405 to a HEAD request can cause sitemap-validator false negatives.
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
@@ -50,6 +53,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const today = new Date().toISOString().split('T')[0]
     const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
 
+    // SEO: <lastmod> MUST reflect the actual last meaningful change, not today.
+    // Google explicitly downgrades sitemap signals when every URL reports
+    // "today". We pin static-route lastmods to deploy-time (proxied via
+    // VERCEL_GIT_COMMIT_SHA + a manual content-revision date below). Update
+    // these constants only when the corresponding page's content actually
+    // changes — keeps the freshness signal honest.
+    // Source: https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap#xml
+    const STATIC_PAGE_LASTMOD = {
+      home: '2026-04-30',     // Update when Home/Hero/About content changes
+      blog: today,            // Blog index is content-driven; freshness is fair
+      contact: '2026-03-15',  // Update when Contact details change
+      chefs: '2026-04-15',    // chef.localcooks.ca landing
+      kitchens: '2026-04-15', // kitchen.localcooks.ca landing
+      terms: '2026-01-10',    // Update on legal change
+      privacy: '2026-01-10',  // Update on legal change
+    } as const
+
     // Determine if blog posts qualify for Google News (published within 2 days)
     const isRecentPost = (post: BlogPost) => {
       const pubDate = new Date(post.created_at || post.updated_at)
@@ -74,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <!-- ================================== -->
   <url>
     <loc>${baseUrl}/</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.home}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/" />
@@ -101,7 +121,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <!-- Blog - Distinct route, highest sitelink priority -->
   <url>
     <loc>${baseUrl}/blog</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.blog}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/blog" />
@@ -110,7 +130,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <!-- Contact - Distinct route -->
   <url>
     <loc>${baseUrl}/contact</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.contact}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/contact" />
@@ -124,7 +144,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <!-- For Chefs - Subdomain landing page -->
   <url>
     <loc>https://chef.localcooks.ca/</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.chefs}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://chef.localcooks.ca/" />
@@ -133,7 +153,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <!-- For Kitchen Owners - Subdomain landing page -->
   <url>
     <loc>https://kitchen.localcooks.ca/</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.kitchens}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://kitchen.localcooks.ca/" />
@@ -175,7 +195,7 @@ ${blogPosts.map(post => {
   <!-- ================================== -->
   <url>
     <loc>${baseUrl}/terms</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.terms}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/terms" />
@@ -183,7 +203,7 @@ ${blogPosts.map(post => {
 
   <url>
     <loc>${baseUrl}/privacy</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${STATIC_PAGE_LASTMOD.privacy}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="${baseUrl}/privacy" />
