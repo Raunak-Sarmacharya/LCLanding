@@ -21,6 +21,7 @@ import DiscountPopup from './components/DiscountPopup'
 import ContactPage from './components/ContactPage'
 import NewsletterSection from './components/NewsletterSection'
 import BlogInsightsSection from './components/BlogInsightsSection'
+import FeaturedPartnersCarousel from './components/FeaturedPartnersCarousel'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import CreateBlogPostPage from './pages/CreateBlogPostPage'
@@ -244,6 +245,7 @@ function HomePage() {
         <div className="animate-section">
           <AppPromo />
         </div>
+        <FeaturedPartnersCarousel />
         <BlogInsightsSection />
         <NewsletterSection />
         <Footer />

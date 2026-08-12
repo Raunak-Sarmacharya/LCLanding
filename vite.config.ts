@@ -13,6 +13,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api/external/locations': {
+        target: 'https://chef.localcooks.ca',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/external\/locations/, '/api/public/locations')
+      },
+      '/api/external/shops': {
+        target: 'https://shop.localcook.shop',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/external\/shops/, '/api-featured-shops.php')
+      }
+    }
+  },
   optimizeDeps: {
     include: [
       'react',

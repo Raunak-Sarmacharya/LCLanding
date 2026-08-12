@@ -7,6 +7,7 @@ interface SlideData {
   title: string;
   button: string;
   src: string;
+  link?: string;
 }
 
 interface SlideProps {
@@ -21,6 +22,7 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
   const xRef = useRef(0);
   const yRef = useRef(0);
   const frameRef = useRef<number | undefined>(undefined);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     const animate = () => {
@@ -63,7 +65,7 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
     <div className="[perspective:1200px] [transform-style:preserve-3d]">
       <li
         ref={slideRef}
-        className="flex flex-1 flex-col items-center justify-center relative text-center text-white opacity-100 transition-all duration-300 ease-in-out w-[70vmin] h-[70vmin] mx-[4vmin] z-10 "
+        className="group flex flex-1 flex-col items-center justify-end pb-8 sm:pb-12 relative text-center text-white opacity-100 transition-all duration-500 ease-in-out w-[75vw] sm:w-[340px] md:w-[420px] aspect-[4/5] mx-[2vw] sm:mx-[16px] z-10"
         onClick={() => handleSlideClick(index)}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
@@ -77,7 +79,7 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
         }}
       >
         <div
-          className="absolute top-0 left-0 w-full h-full bg-[#1D1F2F] rounded-[1%] overflow-hidden transition-all duration-150 ease-out"
+          className="absolute top-0 left-0 w-full h-full bg-[var(--color-charcoal)] rounded-[2rem] overflow-hidden transition-all duration-300 ease-out shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] border border-white/10"
           style={{
             transform:
               current === index
@@ -85,35 +87,62 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
                 : "none",
           }}
         >
-          <img
-            className="absolute inset-0 w-[120%] h-[120%] object-cover opacity-100 transition-opacity duration-600 ease-in-out"
-            style={{
-              opacity: current === index ? 1 : 0.5,
-            }}
-            alt={title}
-            src={src}
-            onLoad={imageLoaded}
-            loading="eager"
-            decoding="sync"
-          />
+          {/* Creative Fallback Pattern (visible if image fails or before load) */}
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '24px 24px',
+          }} />
+
+          {!imgError && (
+            <>
+              {/* Blurred Background to match image content */}
+              <img
+                className="absolute inset-0 w-full h-full object-cover opacity-70 blur-xl scale-125"
+                alt=""
+                src={src}
+                loading="lazy"
+                decoding="async"
+                onError={() => setImgError(true)}
+              />
+              {/* Foreground Image */}
+              <img
+                className="absolute inset-0 w-full h-full object-cover opacity-100 transition-transform duration-700 ease-out z-10 group-hover:scale-105"
+                style={{
+                  opacity: current === index ? 1 : 0.5,
+                }}
+                alt={title}
+                src={src}
+                onLoad={imageLoaded}
+                onError={() => setImgError(true)}
+                loading="eager"
+                decoding="sync"
+              />
+            </>
+          )}
 
           {current === index && (
-            <div className="absolute inset-0 bg-black/30 transition-all duration-1000" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-all duration-1000 z-20 pointer-events-none" />
           )}
         </div>
 
         <article
-          className={`relative p-[4vmin] transition-opacity duration-1000 ease-in-out ${
-            current === index ? "opacity-100 visible" : "opacity-0 invisible"
+          className={`relative z-30 p-[4vmin] transition-all duration-1000 ease-in-out transform ${
+            current === index ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"
           }`}
         >
-          <h2 className="text-lg md:text-2xl lg:text-4xl font-semibold  relative">
+          <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold tracking-wide text-white drop-shadow-md mb-2">
             {title}
           </h2>
-          <div className="flex justify-center">
-            <button className="mt-6  px-4 py-2 w-fit mx-auto sm:text-sm text-black bg-white h-12 border border-transparent text-xs flex justify-center items-center rounded-2xl hover:shadow-lg transition duration-200 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
-              {button}
-            </button>
+          <div className="flex justify-center mt-4">
+            {slide.link ? (
+              <a href={slide.link} target="_blank" rel="noopener noreferrer" className="px-6 py-3 w-fit mx-auto text-sm font-semibold text-[var(--color-charcoal)] bg-white/95 backdrop-blur-md border border-white/20 flex justify-center items-center rounded-full hover:bg-white hover:scale-105 hover:shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)] transition-all duration-300">
+                {button}
+              </a>
+            ) : (
+              <button className="px-6 py-3 w-fit mx-auto text-sm font-semibold text-[var(--color-charcoal)] bg-white/95 backdrop-blur-md border border-white/20 flex justify-center items-center rounded-full hover:bg-white hover:scale-105 hover:shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)] transition-all duration-300">
+                {button}
+              </button>
+            )}
           </div>
         </article>
       </li>
@@ -134,13 +163,13 @@ const CarouselControl = ({
 }: CarouselControlProps) => {
   return (
     <button
-      className={`w-10 h-10 flex items-center mx-2 justify-center bg-neutral-200 dark:bg-neutral-800 border-3 border-transparent rounded-full focus:border-[#6D64F7] focus:outline-none hover:-translate-y-0.5 active:translate-y-0.5 transition duration-200 ${
+      className={`w-12 h-12 flex items-center mx-2 justify-center bg-white border border-black/5 shadow-md rounded-full hover:bg-[var(--color-primary)] hover:text-white hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 ${
         type === "previous" ? "rotate-180" : ""
       }`}
       title={title}
       onClick={handleClick}
     >
-      <IconArrowNarrowRight className="text-neutral-600 dark:text-neutral-200" />
+      <IconArrowNarrowRight className="w-5 h-5 text-current transition-colors" />
     </button>
   );
 };
@@ -172,11 +201,11 @@ export default function Carousel({ slides }: CarouselProps) {
 
   return (
     <div
-      className="relative w-[70vmin] h-[70vmin] mx-auto"
+      className="relative w-[75vw] sm:w-[340px] md:w-[420px] aspect-[4/5] mx-auto"
       aria-labelledby={`carousel-heading-${id}`}
     >
       <ul
-        className="absolute flex mx-[-4vmin] transition-transform duration-1000 ease-in-out"
+        className="absolute flex mx-[-2vw] sm:mx-[-16px] transition-transform duration-1000 ease-in-out"
         style={{
           transform: `translateX(-${current * (100 / slides.length)}%)`,
         }}
@@ -192,7 +221,7 @@ export default function Carousel({ slides }: CarouselProps) {
         ))}
       </ul>
 
-      <div className="absolute flex justify-center w-full top-[calc(100%+1rem)]">
+      <div className="absolute flex justify-center w-full top-[calc(100%+2rem)]">
         <CarouselControl
           type="previous"
           title="Go to previous slide"
