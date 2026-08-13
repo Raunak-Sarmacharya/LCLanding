@@ -1,28 +1,32 @@
 "use client";
 
 import { IconArrowNarrowRight } from "@tabler/icons-react";
-import { useState, useRef, useId, useEffect } from "react";
+import { useState, useRef, useId, useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface SlideData {
   title: string;
   button: string;
   src: string;
   link?: string;
+  badge_text?: string;
+  badge_image?: string;
 }
 
 interface SlideProps {
   slide: SlideData;
   index: number;
-  current: number;
+  isActive: boolean;
   handleSlideClick: (index: number) => void;
 }
 
-const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
+const Slide = ({ slide, index, isActive, handleSlideClick }: SlideProps) => {
   const slideRef = useRef<HTMLLIElement>(null);
   const xRef = useRef(0);
   const yRef = useRef(0);
   const frameRef = useRef<number | undefined>(undefined);
   const [imgError, setImgError] = useState(false);
+  const [badgeImgError, setBadgeImgError] = useState(false);
 
   useEffect(() => {
     const animate = () => {
@@ -59,19 +63,19 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
     event.currentTarget.style.opacity = "1";
   };
 
-  const { src, button, title } = slide;
+  const { src, button, title, badge_text, badge_image } = slide;
 
   return (
-    <div className="[perspective:1200px] [transform-style:preserve-3d]">
+    <div className="embla__slide [perspective:1200px] [transform-style:preserve-3d] flex-[0_0_85vw] sm:flex-[0_0_340px] md:flex-[0_0_420px] mx-[1vw] sm:mx-[8px] z-10 flex justify-center">
       <li
         ref={slideRef}
-        className="group flex flex-1 flex-col items-center justify-end pb-8 sm:pb-12 relative text-center text-white opacity-100 transition-all duration-500 ease-in-out w-[75vw] sm:w-[340px] md:w-[420px] aspect-[4/5] mx-[2vw] sm:mx-[16px] z-10"
+        className="group block relative text-white opacity-100 transition-all duration-500 ease-in-out aspect-[4/5] w-full"
         onClick={() => handleSlideClick(index)}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{
           transform:
-            current !== index
+            !isActive
               ? "scale(0.98) rotateX(8deg)"
               : "scale(1) rotateX(0deg)",
           transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -82,7 +86,7 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
           className="absolute top-0 left-0 w-full h-full bg-[var(--color-charcoal)] rounded-[2rem] overflow-hidden transition-all duration-300 ease-out shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] border border-white/10"
           style={{
             transform:
-              current === index
+              isActive
                 ? "translate3d(calc(var(--x) / 30), calc(var(--y) / 30), 0)"
                 : "none",
           }}
@@ -106,9 +110,9 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
               />
               {/* Foreground Image */}
               <img
-                className="absolute inset-0 w-full h-full object-cover opacity-100 transition-transform duration-700 ease-out z-10 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-contain object-center opacity-100 transition-transform duration-700 ease-out z-10 group-hover:scale-105"
                 style={{
-                  opacity: current === index ? 1 : 0.5,
+                  opacity: isActive ? 1 : 0.5,
                 }}
                 alt={title}
                 src={src}
@@ -120,29 +124,66 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
             </>
           )}
 
-          {current === index && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-all duration-1000 z-20 pointer-events-none" />
+          {isActive && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/10 transition-all duration-1000 z-20 pointer-events-none" />
           )}
         </div>
 
         <article
-          className={`relative z-30 p-[4vmin] transition-all duration-1000 ease-in-out transform ${
-            current === index ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"
+          className={`absolute inset-0 z-30 p-6 sm:p-8 md:p-10 transition-all duration-1000 ease-in-out flex flex-col justify-between pointer-events-none ${
+            isActive ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"
           }`}
+          style={{
+            transform:
+              isActive
+                ? "translate3d(calc(var(--x) / 45), calc(var(--y) / 45), 0)"
+                : "none",
+          }}
         >
-          <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold tracking-wide text-white drop-shadow-md mb-2">
-            {title}
-          </h2>
-          <div className="flex justify-center mt-4">
-            {slide.link ? (
-              <a href={slide.link} target="_blank" rel="noopener noreferrer" className="px-6 py-3 w-fit mx-auto text-sm font-semibold text-[var(--color-charcoal)] bg-white/95 backdrop-blur-md border border-white/20 flex justify-center items-center rounded-full hover:bg-white hover:scale-105 hover:shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)] transition-all duration-300">
-                {button}
-              </a>
-            ) : (
-              <button className="px-6 py-3 w-fit mx-auto text-sm font-semibold text-[var(--color-charcoal)] bg-white/95 backdrop-blur-md border border-white/20 flex justify-center items-center rounded-full hover:bg-white hover:scale-105 hover:shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)] transition-all duration-300">
-                {button}
-              </button>
+          {/* Top Section: Chef Info */}
+          <div className="flex justify-start w-full pointer-events-auto">
+            {badge_text && (
+              <div className="flex items-center gap-2.5 bg-black/25 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/10 shadow-sm transition-all duration-300 hover:bg-black/35 cursor-default">
+                {badge_image && !badgeImgError ? (
+                  <img 
+                    src={badge_image} 
+                    alt={badge_text} 
+                    className="w-7 h-7 rounded-full object-cover shadow-sm"
+                    onError={() => setBadgeImgError(true)}
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                    {badge_text.charAt(0)}
+                  </div>
+                )}
+                <span className="font-body font-medium text-[13px] text-white/95 pr-2 tracking-wide leading-none">{badge_text}</span>
+              </div>
             )}
+          </div>
+
+          {/* Bottom Section: Title & CTA */}
+          <div className="flex flex-col items-start w-full pointer-events-auto">
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-[2.75rem] font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-6 max-w-[95%] leading-[1.1] text-left">
+              {title}
+            </h2>
+            
+            <div className="flex-shrink-0">
+              {slide.link ? (
+                <a href={slide.link} target="_blank" rel="noopener noreferrer" className="group/btn px-7 py-3.5 text-[15px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-2.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
+                  {button}
+                  <svg className="w-4 h-4 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+              ) : (
+                <button className="group/btn px-7 py-3.5 text-[15px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-2.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
+                  {button}
+                  <svg className="w-4 h-4 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </article>
       </li>
@@ -179,49 +220,88 @@ interface CarouselProps {
 }
 
 export default function Carousel({ slides }: CarouselProps) {
+  // Ensure enough slides for Embla to loop properly
+  const displaySlides = [...slides];
+  if (displaySlides.length > 0 && displaySlides.length < 5) {
+    while (displaySlides.length < 5) {
+      displaySlides.push(...slides);
+    }
+  }
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true, 
+    align: 'center',
+    containScroll: false,
+    dragFree: false,
+    skipSnaps: false,
+    inViewThreshold: 0.7
+  });
+  
   const [current, setCurrent] = useState(0);
 
-  const handlePreviousClick = () => {
-    const previous = current - 1;
-    setCurrent(previous < 0 ? slides.length - 1 : previous);
-  };
+  const handlePreviousClick = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
 
-  const handleNextClick = () => {
-    const next = current + 1;
-    setCurrent(next === slides.length ? 0 : next);
-  };
+  const handleNextClick = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
 
-  const handleSlideClick = (index: number) => {
-    if (current !== index) {
-      setCurrent(index);
+  const handleSlideClick = useCallback((index: number) => {
+    if (emblaApi) {
+      // Find the shortest path to the slide to respect loop
+      emblaApi.scrollTo(index);
     }
-  };
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCurrent(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   const id = useId();
 
   return (
     <div
-      className="relative w-[75vw] sm:w-[340px] md:w-[420px] aspect-[4/5] mx-auto"
+      className="relative w-full max-w-full py-10"
       aria-labelledby={`carousel-heading-${id}`}
     >
-      <ul
-        className="absolute flex mx-[-2vw] sm:mx-[-16px] transition-transform duration-1000 ease-in-out"
-        style={{
-          transform: `translateX(-${current * (100 / slides.length)}%)`,
-        }}
-      >
-        {slides.map((slide, index) => (
-          <Slide
-            key={index}
-            slide={slide}
-            index={index}
-            current={current}
-            handleSlideClick={handleSlideClick}
-          />
-        ))}
-      </ul>
+      <div className="embla w-full overflow-hidden" ref={emblaRef}>
+        <ul className="embla__container flex touch-pan-y h-full" style={{ backfaceVisibility: 'hidden' }}>
+          {displaySlides.map((slide, index) => {
+            const totalSlides = displaySlides.length;
+            let diff = index - current;
+            if (diff > totalSlides / 2) diff -= totalSlides;
+            if (diff < -totalSlides / 2) diff += totalSlides;
+            const isActive = diff === 0;
 
-      <div className="absolute flex justify-center w-full top-[calc(100%+2rem)]">
+            return (
+              <Slide
+                key={index}
+                slide={slide}
+                index={index}
+                isActive={isActive}
+                handleSlideClick={handleSlideClick}
+              />
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="absolute flex justify-center w-full bottom-[-1rem]">
         <CarouselControl
           type="previous"
           title="Go to previous slide"
@@ -236,4 +316,3 @@ export default function Carousel({ slides }: CarouselProps) {
     </div>
   );
 }
-

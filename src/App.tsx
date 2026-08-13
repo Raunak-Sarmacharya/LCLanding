@@ -218,6 +218,7 @@ function HomePage() {
         <Hero />
         {/* Pill Marquee - Like Done Drinks */}
         <PillMarquee />
+        <FeaturedPartnersCarousel />
         <div className="animate-section">
           <About />
         </div>
@@ -245,7 +246,6 @@ function HomePage() {
         <div className="animate-section">
           <AppPromo />
         </div>
-        <FeaturedPartnersCarousel />
         <BlogInsightsSection />
         <NewsletterSection />
         <Footer />

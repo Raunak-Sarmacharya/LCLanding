@@ -7,6 +7,8 @@ interface SlideData {
   button: string;
   src: string;
   link?: string;
+  chef_name?: string;
+  chefs_image?: string;
 }
 
 interface ShopData {
@@ -16,6 +18,8 @@ interface ShopData {
   simage: string;
   saddress: string;
   sales_count?: number;
+  chef_name?: string;
+  chefs_image?: string;
 }
 
 interface LocationData {
@@ -54,6 +58,8 @@ export default function FeaturedPartnersCarousel() {
               button: 'View Availability',
               src: loc.featuredKitchenImage || loc.brandImageUrl || KITCHEN_PLACEHOLDER,
               link: `https://chef.localcooks.ca/kitchen-preview/${loc.id}`,
+              badge_text: loc.name,
+              badge_image: loc.logoUrl || undefined,
             }));
             setKitchenSlides(slides);
           }
@@ -83,6 +89,8 @@ export default function FeaturedPartnersCarousel() {
                 button: 'Order Now',
                 src: shop.simage ? `${SHOP_IMAGE_BASE}${shop.simage}` : SHOP_PLACEHOLDER,
                 link: shop.slug ? `https://localcook.shop/shop/${shop.slug}` : `https://localcook.shop`,
+                badge_text: shop.chef_name ? `Chef ${shop.chef_name}` : undefined,
+                badge_image: shop.chefs_image ? `${SHOP_IMAGE_BASE}${shop.chefs_image}` : undefined,
               }));
               console.log('[FeaturedPartners] Shop slides:', slides);
               setShopSlides(slides);
@@ -171,7 +179,7 @@ export default function FeaturedPartnersCarousel() {
           </motion.div>
         </div>
 
-        <div className="relative w-full min-h-[550px] sm:min-h-[600px] mb-24">
+        <div className="relative w-full min-h-[550px] sm:min-h-[600px] mb-8 sm:mb-24">
           {!shopsLoading && shopsError ? (
             <div className="flex justify-center items-center h-full">
               <p className="text-red-500 font-body">Error loading shops: {shopsError}</p>
@@ -188,7 +196,7 @@ export default function FeaturedPartnersCarousel() {
         </div>
 
         <motion.div
-          className="max-w-4xl mx-auto px-4 mt-10 flex justify-center relative z-20"
+          className="max-w-4xl mx-auto px-4 mt-6 sm:mt-10 flex justify-center relative z-20"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -256,7 +264,7 @@ export default function FeaturedPartnersCarousel() {
           </motion.div>
         </div>
 
-        <div className="relative w-full min-h-[550px] sm:min-h-[600px] mb-24">
+        <div className="relative w-full min-h-[550px] sm:min-h-[600px] mb-8 sm:mb-24">
           {!kitchensLoading && kitchenSlides.length > 0 ? (
             <Carousel slides={kitchenSlides} />
           ) : kitchensLoading ? (
@@ -269,7 +277,7 @@ export default function FeaturedPartnersCarousel() {
         </div>
 
         <motion.div
-          className="max-w-4xl mx-auto px-4 mt-10 flex justify-center relative z-20"
+          className="max-w-4xl mx-auto px-4 mt-6 sm:mt-10 flex justify-center relative z-20"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
