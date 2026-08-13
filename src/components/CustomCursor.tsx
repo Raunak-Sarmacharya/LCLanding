@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 
 /**
  * CustomCursor Component - Premium Edition v4 (On-Brand)
@@ -62,6 +62,18 @@ export default function CustomCursor() {
   const hasMouseMoved = useRef(false)
   const lastColorCheck = useRef(0)
   const colorCheckThrottle = 16 // ~60fps color checking
+
+  const [isMobileView, setIsMobileView] = useState(
+    typeof window !== 'undefined' ? ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768) : false
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Cache for section boundaries (updated on scroll/resize)
   const sectionBoundsCache = useRef<Map<string, DOMRect>>(new Map())
@@ -352,8 +364,8 @@ export default function CustomCursor() {
   }, [checkZoneBasedColor, getColorWithMultiSampling])
 
   useEffect(() => {
-    // Skip on touch devices
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    // Skip if mobile view
+    if (isMobileView) {
       return
     }
 
@@ -641,10 +653,10 @@ export default function CustomCursor() {
         el.removeEventListener('mouseleave', onHoverLeave)
       })
     }
-  }, [shouldUseWarm, updateSectionBounds, parseRGB, isBrandColor, isLightColor])
+  }, [shouldUseWarm, updateSectionBounds, parseRGB, isBrandColor, isLightColor, isMobileView])
 
-  // Don't render on touch devices
-  if (typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+  // Don't render on mobile or touch devices
+  if (isMobileView) {
     return null
   }
 

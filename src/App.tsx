@@ -21,7 +21,7 @@ import DiscountPopup from './components/DiscountPopup'
 import ContactPage from './components/ContactPage'
 import NewsletterSection from './components/NewsletterSection'
 import BlogInsightsSection from './components/BlogInsightsSection'
-import FeaturedPartnersCarousel from './components/FeaturedPartnersCarousel'
+import { FeaturedShopsCarousel, CommercialKitchensCarousel } from './components/FeaturedPartnersCarousel'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import CreateBlogPostPage from './pages/CreateBlogPostPage'
@@ -218,7 +218,7 @@ function HomePage() {
         <Hero />
         {/* Pill Marquee - Like Done Drinks */}
         <PillMarquee />
-        <FeaturedPartnersCarousel />
+        <FeaturedShopsCarousel />
         <div className="animate-section">
           <About />
         </div>
@@ -235,6 +235,7 @@ function HomePage() {
           waveColor="var(--color-primary)" 
           bgColor="var(--color-cream)"
         />
+        <CommercialKitchensCarousel />
         <div className="animate-section">
           <HowItWorks />
         </div>

@@ -66,20 +66,20 @@ const Slide = ({ slide, index, isActive, handleSlideClick }: SlideProps) => {
   const { src, button, title, badge_text, badge_image } = slide;
 
   return (
-    <div className="embla__slide [perspective:1200px] [transform-style:preserve-3d] flex-[0_0_85vw] sm:flex-[0_0_340px] md:flex-[0_0_420px] mx-[1vw] sm:mx-[8px] z-10 flex justify-center">
+    <div className="embla__slide flex-none w-[70vw] sm:w-[240px] md:w-[280px] lg:w-[320px] mx-[2vw] sm:mx-3 z-10 flex justify-center">
       <li
         ref={slideRef}
-        className="group block relative text-white opacity-100 transition-all duration-500 ease-in-out aspect-[4/5] w-full"
+        className="group block relative text-white opacity-100 transition-all duration-500 ease-in-out aspect-[3/2] w-full"
         onClick={() => handleSlideClick(index)}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{
           transform:
             !isActive
-              ? "scale(0.98) rotateX(8deg)"
-              : "scale(1) rotateX(0deg)",
+              ? "scale(0.9)"
+              : "scale(1)",
           transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-          transformOrigin: "bottom",
+          transformOrigin: "center",
         }}
       >
         <div
@@ -124,15 +124,11 @@ const Slide = ({ slide, index, isActive, handleSlideClick }: SlideProps) => {
             </>
           )}
 
-          {isActive && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/10 transition-all duration-1000 z-20 pointer-events-none" />
-          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 transition-all duration-1000 z-20 pointer-events-none" />
         </div>
 
         <article
-          className={`absolute inset-0 z-30 p-6 sm:p-8 md:p-10 transition-all duration-1000 ease-in-out flex flex-col justify-between pointer-events-none ${
-            isActive ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"
-          }`}
+          className={`absolute inset-0 z-30 p-3 sm:p-4 md:p-5 transition-all duration-1000 ease-in-out flex flex-col justify-between pointer-events-none`}
           style={{
             transform:
               isActive
@@ -162,23 +158,22 @@ const Slide = ({ slide, index, isActive, handleSlideClick }: SlideProps) => {
           </div>
 
           {/* Bottom Section: Title & CTA */}
-          <div className="flex flex-col items-start w-full pointer-events-auto">
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-[2.75rem] font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-6 max-w-[95%] leading-[1.1] text-left">
+          <div className="flex flex-col items-center w-full pointer-events-auto text-center mt-auto">
+            <h2 className="font-heading text-base sm:text-lg md:text-xl font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] mb-2 sm:mb-3 max-w-[95%] leading-tight">
               {title}
             </h2>
-            
-            <div className="flex-shrink-0">
+            <div className={`flex-shrink-0 transition-all duration-500 ease-in-out ${isActive ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"}`}>
               {slide.link ? (
-                <a href={slide.link} target="_blank" rel="noopener noreferrer" className="group/btn px-7 py-3.5 text-[15px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-2.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
+                <a href={slide.link} target="_blank" rel="noopener noreferrer" className="group/btn px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[12px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-1.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
                   {button}
-                  <svg className="w-4 h-4 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </a>
               ) : (
-                <button className="group/btn px-7 py-3.5 text-[15px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-2.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
+                <button className="group/btn px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[12px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-1.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
                   {button}
-                  <svg className="w-4 h-4 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>

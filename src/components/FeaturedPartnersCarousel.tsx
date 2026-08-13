@@ -37,40 +37,12 @@ const SHOP_IMAGE_BASE = 'https://shop.localcook.shop/app/sadmin/images/';
 const KITCHEN_PLACEHOLDER = 'https://images.unsplash.com/photo-1556910103-1c02745a872f?q=80&w=3456&auto=format&fit=crop';
 const SHOP_PLACEHOLDER = 'https://images.unsplash.com/photo-1414235077428-338988691f17?q=80&w=3456&auto=format&fit=crop';
 
-export default function FeaturedPartnersCarousel() {
+export function FeaturedShopsCarousel() {
   const [shopSlides, setShopSlides] = useState<SlideData[]>([]);
-  const [kitchenSlides, setKitchenSlides] = useState<SlideData[]>([]);
   const [shopsLoading, setShopsLoading] = useState(true);
-  const [kitchensLoading, setKitchensLoading] = useState(true);
   const [shopsError, setShopsError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch Locations (Commercial Kitchens)
-    async function fetchKitchens() {
-      try {
-        const res = await fetch('/api/external/locations');
-        if (res.ok) {
-          const contentType = res.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const data: LocationData[] = await res.json();
-            const slides: SlideData[] = data.slice(0, 4).map((loc) => ({
-              title: loc.name,
-              button: 'View Availability',
-              src: loc.featuredKitchenImage || loc.brandImageUrl || KITCHEN_PLACEHOLDER,
-              link: `https://chef.localcooks.ca/kitchen-preview/${loc.id}`,
-              badge_text: loc.name,
-              badge_image: loc.logoUrl || undefined,
-            }));
-            setKitchenSlides(slides);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching locations:', error);
-      } finally {
-        setKitchensLoading(false);
-      }
-    }
-
     // Fetch Shops
     async function fetchShops() {
       try {
@@ -115,7 +87,6 @@ export default function FeaturedPartnersCarousel() {
       }
     }
 
-    fetchKitchens();
     fetchShops();
   }, []);
 
@@ -134,13 +105,13 @@ export default function FeaturedPartnersCarousel() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* SECTION 1: FEATURED SHOPS                                      */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-20 md:py-28 overflow-hidden" id="featured-shops">
+      <section className="relative py-12 md:py-16 overflow-hidden" id="featured-shops">
         {/* Cohesive background */}
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-cream)] via-[var(--color-butter)]/10 to-[var(--color-cream)]" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[var(--color-primary)]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[var(--color-gold)]/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mb-12 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mb-6 md:mb-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -179,7 +150,7 @@ export default function FeaturedPartnersCarousel() {
           </motion.div>
         </div>
 
-        <div className="relative w-full min-h-[550px] sm:min-h-[600px] mb-8 sm:mb-24">
+        <div className="relative w-full min-h-[350px] mb-8 sm:mb-10">
           {!shopsLoading && shopsError ? (
             <div className="flex justify-center items-center h-full">
               <p className="text-red-500 font-body">Error loading shops: {shopsError}</p>
@@ -196,7 +167,7 @@ export default function FeaturedPartnersCarousel() {
         </div>
 
         <motion.div
-          className="max-w-4xl mx-auto px-4 mt-6 sm:mt-10 flex justify-center relative z-20"
+          className="max-w-4xl mx-auto px-4 mt-4 sm:mt-6 flex justify-center relative z-20"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -215,17 +186,66 @@ export default function FeaturedPartnersCarousel() {
           </a>
         </motion.div>
       </section>
+    </>
+  );
+}
 
+export function CommercialKitchensCarousel() {
+  const [kitchenSlides, setKitchenSlides] = useState<SlideData[]>([]);
+  const [kitchensLoading, setKitchensLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch Locations (Commercial Kitchens)
+    async function fetchKitchens() {
+      try {
+        const res = await fetch('/api/external/locations');
+        if (res.ok) {
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data: LocationData[] = await res.json();
+            const slides: SlideData[] = data.slice(0, 4).map((loc) => ({
+              title: loc.name,
+              button: 'View Availability',
+              src: loc.featuredKitchenImage || loc.brandImageUrl || KITCHEN_PLACEHOLDER,
+              link: `https://chef.localcooks.ca/kitchen-preview/${loc.id}`,
+              badge_text: loc.name,
+              badge_image: loc.logoUrl || undefined,
+            }));
+            setKitchenSlides(slides);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      } finally {
+        setKitchensLoading(false);
+      }
+    }
+
+    fetchKitchens();
+  }, []);
+
+  // Loading spinner
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center h-full min-h-[300px]">
+      <div className="animate-pulse flex flex-col items-center">
+        <div className="w-10 h-10 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
+        <p className="mt-3 text-[var(--color-charcoal)]/50 font-mono text-xs">Loading...</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* SECTION 2: COMMERCIAL KITCHENS                                 */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-20 md:py-28 overflow-hidden" id="commercial-kitchens">
+      <section className="relative py-12 md:py-16 overflow-hidden" id="commercial-kitchens">
         {/* Subtle gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-cream)] via-white/40 to-[var(--color-cream)]" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-primary)]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--color-gold)]/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mb-12 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mb-6 md:mb-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -264,7 +284,7 @@ export default function FeaturedPartnersCarousel() {
           </motion.div>
         </div>
 
-        <div className="relative w-full min-h-[550px] sm:min-h-[600px] mb-8 sm:mb-24">
+        <div className="relative w-full min-h-[350px] mb-8 sm:mb-10">
           {!kitchensLoading && kitchenSlides.length > 0 ? (
             <Carousel slides={kitchenSlides} />
           ) : kitchensLoading ? (
@@ -277,7 +297,7 @@ export default function FeaturedPartnersCarousel() {
         </div>
 
         <motion.div
-          className="max-w-4xl mx-auto px-4 mt-6 sm:mt-10 flex justify-center relative z-20"
+          className="max-w-4xl mx-auto px-4 mt-4 sm:mt-6 flex justify-center relative z-20"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

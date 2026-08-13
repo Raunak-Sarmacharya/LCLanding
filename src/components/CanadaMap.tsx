@@ -401,7 +401,7 @@ export default function CanadaMap() {
     <section 
       ref={sectionRef}
       id="location"
-      className="relative bg-[var(--color-cream)]"
+      className="relative bg-[var(--color-cream)] z-40"
       style={{ minHeight: '300vh' }}
     >
       <div 
