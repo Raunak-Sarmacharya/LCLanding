@@ -4,7 +4,8 @@
   background-color: var(--color-cream);
   overflow: hidden;
   position: relative;
-  z-index: 5; /* Creates a new stacking context to trap z-index: 20 arrows */
+  z-index: 1; /* Must be lower than map section's z-40 to prevent arrows from
+                  painting over the map during the scroll overlap transition */
 }
 
 /* Layout */

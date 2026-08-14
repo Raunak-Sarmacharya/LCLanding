@@ -406,7 +406,7 @@ export default function CanadaMap() {
     >
       <div 
         ref={containerRef}
-        className="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
+        className="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden z-40 bg-[var(--color-cream)]"
       >
         {/* Subtle dot pattern background */}
         <div 

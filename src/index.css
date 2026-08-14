@@ -153,6 +153,27 @@ section {
   padding-right: env(safe-area-inset-right);
 }
 
+/* GSAP ScrollTrigger pin-spacer z-index fix.
+   When GSAP pins an element, it wraps it in a .pin-spacer div. This spacer
+   does NOT inherit z-index from the pinned element, which can cause the
+   pinned content (like the Canada Map) to paint below scrolling sections
+   (like Testimonials arrows). Giving the pin-spacer a high z-index ensures
+   the pinned map content always paints above scrolling sections. */
+.pin-spacer {
+  position: relative;
+  z-index: 40;
+}
+
+/* Stacking context containment for GSAP-animated section wrappers.
+   GSAP applies transform + opacity during scroll animations, which implicitly
+   creates stacking contexts. Without explicit z-index, these contexts compete
+   unpredictably with sibling elements (like the pinned map). Setting z-index: 1
+   ensures animated sections always sit below the pin-spacer (z-index: 40). */
+.animate-section {
+  position: relative;
+  z-index: 1;
+}
+
 /* Mobile-specific improvements */
 @media (max-width: 640px) {
   /* Ensure proper horizontal padding on mobile */
