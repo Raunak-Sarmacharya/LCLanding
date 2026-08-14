@@ -112,6 +112,10 @@
       "destination": "/api/blog/[slug]"
     },
     {
+      "source": "/api/external/kitchens",
+      "destination": "https://chef.localcooks.ca/api/public/kitchens"
+    },
+    {
       "source": "/api/external/locations",
       "destination": "https://chef.localcooks.ca/api/public/locations"
     },
