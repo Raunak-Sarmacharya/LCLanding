@@ -1,15 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import Carousel from './ui/carousel';
-
-interface SlideData {
-  title: string;
-  button: string;
-  src: string;
-  link?: string;
-  chef_name?: string;
-  chefs_image?: string;
-}
+import Carousel, { type SlideData } from './ui/carousel';
 
 interface ShopData {
   sid: number;
@@ -20,7 +11,15 @@ interface ShopData {
   sales_count?: number;
   chef_name?: string;
   chefs_image?: string;
+  sowner?: string;
 }
+
+const FEATURED_SHOPS_URL = 'https://shop.localcook.shop/api-featured-shops.php';
+const SHOP_BY_SLUG_URL = 'https://shop.localcook.shop/app/controllers/shop_api.php';
+/** Shops to always include even if they are missing from the curated featured list. */
+const EXTRA_SHOP_SLUGS = ['tasteofbd', 'kikibakery', 'safaaskitchen'] as const;
+/** Homepage carousel should open on these shops, in this order. */
+const START_SHOP_SLUGS = ['misitimountain', 'thewafflelady'] as const;
 
 interface LocationData {
   id: number;
@@ -37,6 +36,35 @@ const SHOP_IMAGE_BASE = 'https://shop.localcook.shop/app/sadmin/images/';
 const KITCHEN_PLACEHOLDER = 'https://images.unsplash.com/photo-1556910103-1c02745a872f?q=80&w=3456&auto=format&fit=crop';
 const SHOP_PLACEHOLDER = 'https://images.unsplash.com/photo-1414235077428-338988691f17?q=80&w=3456&auto=format&fit=crop';
 
+function shopToSlide(shop: ShopData): SlideData {
+  const chefName = shop.chef_name || shop.sowner;
+  return {
+    title: shop.sname,
+    button: 'Order Now',
+    src: shop.simage ? `${SHOP_IMAGE_BASE}${shop.simage}` : SHOP_PLACEHOLDER,
+    link: shop.slug ? `https://localcook.shop/shop/${shop.slug}` : `https://localcook.shop`,
+    subtitle: chefName ? `Chef ${chefName}` : undefined,
+    avatar: shop.chefs_image ? `${SHOP_IMAGE_BASE}${shop.chefs_image}` : undefined,
+  };
+}
+
+async function fetchShopBySlug(slug: string): Promise<ShopData | null> {
+  const res = await fetch(`${SHOP_BY_SLUG_URL}?slug=${encodeURIComponent(slug)}`);
+  if (!res.ok) return null;
+  const json = await res.json();
+  if (json?.status !== 200 || !Array.isArray(json.data) || json.data.length === 0) return null;
+  return json.data[0] as ShopData;
+}
+
+function orderShops(shops: ShopData[]): ShopData[] {
+  const start = START_SHOP_SLUGS
+    .map((slug) => shops.find((shop) => shop.slug === slug))
+    .filter((shop): shop is ShopData => shop !== undefined);
+  const startSet = new Set<string>(START_SHOP_SLUGS);
+  const rest = shops.filter((shop) => !shop.slug || !startSet.has(shop.slug));
+  return [...start, ...rest];
+}
+
 export function FeaturedShopsCarousel() {
   const [shopSlides, setShopSlides] = useState<SlideData[]>([]);
   const [shopsLoading, setShopsLoading] = useState(true);
@@ -47,7 +75,7 @@ export function FeaturedShopsCarousel() {
     async function fetchShops() {
       try {
         console.log('[FeaturedPartners] Fetching shops...');
-        const res = await fetch('https://shop.localcook.shop/api-featured-shops.php');
+        const res = await fetch(FEATURED_SHOPS_URL);
         console.log('[FeaturedPartners] Shops response status:', res.status, 'ok:', res.ok);
         console.log('[FeaturedPartners] Shops content-type:', res.headers.get('content-type'));
         if (res.ok) {
@@ -56,14 +84,27 @@ export function FeaturedShopsCarousel() {
             const data = await res.json();
             console.log('[FeaturedPartners] Shops data:', data);
             if (Array.isArray(data)) {
-              const slides: SlideData[] = data.slice(0, 4).map((shop: ShopData) => ({
-                title: shop.sname,
-                button: 'Order Now',
-                src: shop.simage ? `${SHOP_IMAGE_BASE}${shop.simage}` : SHOP_PLACEHOLDER,
-                link: shop.slug ? `https://localcook.shop/shop/${shop.slug}` : `https://localcook.shop`,
-                badge_text: shop.chef_name ? `Chef ${shop.chef_name}` : undefined,
-                badge_image: shop.chefs_image ? `${SHOP_IMAGE_BASE}${shop.chefs_image}` : undefined,
-              }));
+              const featured = data.slice(0, 8) as ShopData[];
+              const presentSlugs = new Set(
+                featured.map((shop) => shop.slug).filter((slug): slug is string => Boolean(slug))
+              );
+
+              const extras = await Promise.all(
+                EXTRA_SHOP_SLUGS.filter((slug) => !presentSlugs.has(slug)).map(fetchShopBySlug)
+              );
+
+              const slides: SlideData[] = [
+                ...orderShops([
+                  ...featured,
+                  ...extras.filter((shop): shop is ShopData => shop !== null),
+                ]).map(shopToSlide),
+                {
+                  variant: 'cta',
+                  title: 'Discover more local chefs',
+                  button: 'Discover more local chefs',
+                  link: 'https://localcook.shop',
+                },
+              ];
               console.log('[FeaturedPartners] Shop slides:', slides);
               setShopSlides(slides);
             } else {
@@ -150,13 +191,13 @@ export function FeaturedShopsCarousel() {
           </motion.div>
         </div>
 
-        <div className="relative w-full min-h-[350px] mb-8 sm:mb-10">
+        <div className="relative w-full min-h-[240px] mb-6 sm:mb-8">
           {!shopsLoading && shopsError ? (
             <div className="flex justify-center items-center h-full">
               <p className="text-red-500 font-body">Error loading shops: {shopsError}</p>
             </div>
           ) : !shopsLoading && shopSlides.length > 0 ? (
-            <Carousel slides={shopSlides} />
+            <Carousel slides={shopSlides} loop={false} />
           ) : shopsLoading ? (
             <LoadingSpinner />
           ) : (
@@ -208,8 +249,11 @@ export function CommercialKitchensCarousel() {
               button: 'View Availability',
               src: loc.featuredKitchenImage || loc.brandImageUrl || KITCHEN_PLACEHOLDER,
               link: `https://chef.localcooks.ca/kitchen-preview/${loc.id}`,
-              badge_text: loc.name,
-              badge_image: loc.logoUrl || undefined,
+              subtitle:
+                loc.kitchenCount > 0
+                  ? `${loc.kitchenCount} ${loc.kitchenCount === 1 ? 'kitchen' : 'kitchens'} available`
+                  : 'Commercial kitchen',
+              avatar: loc.logoUrl || undefined,
             }));
             setKitchenSlides(slides);
           }
@@ -284,7 +328,7 @@ export function CommercialKitchensCarousel() {
           </motion.div>
         </div>
 
-        <div className="relative w-full min-h-[350px] mb-8 sm:mb-10">
+        <div className="relative w-full min-h-[240px] mb-6 sm:mb-8">
           {!kitchensLoading && kitchenSlides.length > 0 ? (
             <Carousel slides={kitchenSlides} />
           ) : kitchensLoading ? (

@@ -1,187 +1,213 @@
 "use client";
 
-import { IconArrowNarrowRight } from "@tabler/icons-react";
-import { useState, useRef, useId, useEffect, useCallback } from "react";
+import { IconArrowNarrowRight, IconArrowUpRight } from "@tabler/icons-react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 
-interface SlideData {
+export interface SlideData {
   title: string;
   button: string;
-  src: string;
+  src?: string;
   link?: string;
-  badge_text?: string;
-  badge_image?: string;
+  subtitle?: string;
+  avatar?: string;
+  variant?: "cta";
 }
 
 interface SlideProps {
   slide: SlideData;
-  index: number;
-  isActive: boolean;
-  handleSlideClick: (index: number) => void;
 }
 
-const Slide = ({ slide, index, isActive, handleSlideClick }: SlideProps) => {
-  const slideRef = useRef<HTMLLIElement>(null);
-  const xRef = useRef(0);
-  const yRef = useRef(0);
-  const frameRef = useRef<number | undefined>(undefined);
-  const [imgError, setImgError] = useState(false);
-  const [badgeImgError, setBadgeImgError] = useState(false);
+const SLIDE_FRAME =
+  "relative z-10 box-border flex w-[82%] shrink-0 grow-0 basis-[82%] justify-center px-2 sm:w-[46%] sm:basis-[46%] md:w-[31%] md:basis-[31%] lg:w-[24%] lg:basis-[24%] xl:w-[20%] xl:basis-[20%]";
 
-  useEffect(() => {
-    const animate = () => {
-      if (!slideRef.current) return;
-      const x = xRef.current;
-      const y = yRef.current;
-      slideRef.current.style.setProperty("--x", `${x}px`);
-      slideRef.current.style.setProperty("--y", `${y}px`);
-      frameRef.current = requestAnimationFrame(animate);
-    };
+function SlideCredit({ subtitle }: { subtitle: string }) {
+  const isChef = /^Chef\s+/i.test(subtitle);
+  const name = subtitle.replace(/^Chef\s+/i, "").trim();
 
-    frameRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-    };
-  }, []);
-
-  const handleMouseMove = (event: React.MouseEvent) => {
-    const el = slideRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    xRef.current = event.clientX - (r.left + Math.floor(r.width / 2));
-    yRef.current = event.clientY - (r.top + Math.floor(r.height / 2));
-  };
-
-  const handleMouseLeave = () => {
-    xRef.current = 0;
-    yRef.current = 0;
-  };
-
-  const imageLoaded = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    event.currentTarget.style.opacity = "1";
-  };
-
-  const { src, button, title, badge_text, badge_image } = slide;
+  if (isChef) {
+    return (
+      <p className="mt-1 truncate font-mono text-[11px] font-normal uppercase tracking-[0.14em] text-[var(--color-charcoal)]/55">
+        Chef {name}
+      </p>
+    );
+  }
 
   return (
-    <div className="embla__slide flex-none w-[70vw] sm:w-[240px] md:w-[280px] lg:w-[320px] mx-[2vw] sm:mx-3 z-10 flex justify-center">
-      <li
-        ref={slideRef}
-        className="group block relative text-white opacity-100 transition-all duration-500 ease-in-out aspect-[3/2] w-full"
-        onClick={() => handleSlideClick(index)}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          transform:
-            !isActive
-              ? "scale(0.9)"
-              : "scale(1)",
-          transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-          transformOrigin: "center",
-        }}
-      >
-        <div
-          className="absolute top-0 left-0 w-full h-full bg-[var(--color-charcoal)] rounded-[2rem] overflow-hidden transition-all duration-300 ease-out shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] border border-white/10"
-          style={{
-            transform:
-              isActive
-                ? "translate3d(calc(var(--x) / 30), calc(var(--y) / 30), 0)"
-                : "none",
-          }}
-        >
-          {/* Creative Fallback Pattern (visible if image fails or before load) */}
-          <div className="absolute inset-0 opacity-20" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '24px 24px',
-          }} />
+    <p className="mt-1 truncate font-body text-[11px] font-normal text-[var(--color-charcoal)]/50">
+      {subtitle}
+    </p>
+  );
+}
 
-          {!imgError && (
-            <>
-              {/* Blurred Background to match image content */}
-              <img
-                className="absolute inset-0 w-full h-full object-cover opacity-70 blur-xl scale-125"
-                alt=""
-                src={src}
-                loading="lazy"
-                decoding="async"
-                onError={() => setImgError(true)}
-              />
-              {/* Foreground Image */}
-              <img
-                className="absolute inset-0 w-full h-full object-contain object-center opacity-100 transition-transform duration-700 ease-out z-10 group-hover:scale-105"
-                style={{
-                  opacity: isActive ? 1 : 0.5,
-                }}
-                alt={title}
-                src={src}
-                onLoad={imageLoaded}
-                onError={() => setImgError(true)}
-                loading="eager"
-                decoding="sync"
-              />
-            </>
+function SlidePortrait({
+  avatar,
+  subtitle,
+  title,
+  avatarError,
+  onAvatarError,
+}: {
+  avatar?: string;
+  subtitle?: string;
+  title: string;
+  avatarError: boolean;
+  onAvatarError: () => void;
+}) {
+  if (!subtitle && !avatar) return null;
+
+  const initial = (subtitle ?? title).replace(/^Chef\s+/i, "").charAt(0);
+
+  return (
+    <div className="pointer-events-none absolute left-3.5 top-0 z-10 -translate-y-1/2">
+      {avatar && !avatarError ? (
+        <img
+          src={avatar}
+          alt=""
+          className="h-16 w-16 rounded-full object-cover shadow-[0_6px_16px_rgba(26,26,26,0.22)] ring-[3px] ring-white sm:h-20 sm:w-20"
+          onError={onAvatarError}
+        />
+      ) : (
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-cream-dark)] font-heading text-xl text-[var(--color-charcoal)] shadow-[0_6px_16px_rgba(26,26,26,0.12)] ring-[3px] ring-white sm:h-20 sm:w-20">
+          {initial}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function SlideLink({
+  slide,
+  label,
+  children,
+  className = "",
+}: {
+  slide: SlideData;
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  if (!slide.link) {
+    return <div className={`w-full ${className}`}>{children}</div>;
+  }
+
+  return (
+    <a
+      href={slide.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className={`block w-full rounded-[1.25rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--color-cream)] ${className}`}
+    >
+      {children}
+    </a>
+  );
+}
+
+const Slide = ({ slide }: SlideProps) => {
+  const [imgError, setImgError] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+
+  const { src, button, title, subtitle, avatar } = slide;
+  const label = `${button} — ${title}`;
+
+  const card = (
+    <article className="group relative flex h-full w-full flex-col overflow-hidden rounded-[1.25rem] bg-white text-left shadow-[0_10px_28px_-14px_rgba(26,26,26,0.18)] ring-1 ring-black/5">
+      <div className="relative p-1.5 pb-0">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[0.95rem] bg-[var(--color-cream-dark)]">
+          {src && !imgError ? (
+            <img
+              className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+              alt={title}
+              src={src}
+              draggable={false}
+              onError={() => setImgError(true)}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div
+              className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 2px 2px, var(--color-charcoal) 1px, transparent 0)",
+                backgroundSize: "22px 22px",
+              }}
+            />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 transition-all duration-1000 z-20 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(26,26,26,0.08)]" />
+          <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-t from-[var(--color-charcoal)]/[0.08] via-transparent to-white/10" />
+          <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-tr from-transparent via-white/0 to-white/30 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         </div>
+      </div>
 
-        <article
-          className={`absolute inset-0 z-30 p-3 sm:p-4 md:p-5 transition-all duration-1000 ease-in-out flex flex-col justify-between pointer-events-none`}
-          style={{
-            transform:
-              isActive
-                ? "translate3d(calc(var(--x) / 45), calc(var(--y) / 45), 0)"
-                : "none",
-          }}
-        >
-          {/* Top Section: Chef Info */}
-          <div className="flex justify-start w-full pointer-events-auto">
-            {badge_text && (
-              <div className="flex items-center gap-2.5 bg-black/25 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/10 shadow-sm transition-all duration-300 hover:bg-black/35 cursor-default">
-                {badge_image && !badgeImgError ? (
-                  <img 
-                    src={badge_image} 
-                    alt={badge_text} 
-                    className="w-7 h-7 rounded-full object-cover shadow-sm"
-                    onError={() => setBadgeImgError(true)}
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-                    {badge_text.charAt(0)}
-                  </div>
-                )}
-                <span className="font-body font-medium text-[13px] text-white/95 pr-2 tracking-wide leading-none">{badge_text}</span>
-              </div>
-            )}
-          </div>
+      <div className="relative px-3.5 pb-3.5 pt-11 sm:px-4 sm:pt-12">
+        <SlidePortrait
+          avatar={avatar}
+          subtitle={subtitle}
+          title={title}
+          avatarError={avatarError}
+          onAvatarError={() => setAvatarError(true)}
+        />
 
-          {/* Bottom Section: Title & CTA */}
-          <div className="flex flex-col items-center w-full pointer-events-auto text-center mt-auto">
-            <h2 className="font-heading text-base sm:text-lg md:text-xl font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] mb-2 sm:mb-3 max-w-[95%] leading-tight">
-              {title}
+        <div className="flex items-end justify-between gap-2">
+          <div className="min-w-0 flex-1 pr-1">
+            <h2 className="font-heading text-sm font-normal leading-snug tracking-tight text-[var(--color-charcoal)] sm:text-base">
+              <span className="line-clamp-1">{title}</span>
             </h2>
-            <div className={`flex-shrink-0 transition-all duration-500 ease-in-out ${isActive ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"}`}>
-              {slide.link ? (
-                <a href={slide.link} target="_blank" rel="noopener noreferrer" className="group/btn px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[12px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-1.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
-                  {button}
-                  <svg className="w-3 h-3 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </a>
-              ) : (
-                <button className="group/btn px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[12px] font-semibold text-[var(--color-charcoal)] bg-white/95 hover:bg-white backdrop-blur-md transition-all duration-300 flex items-center gap-1.5 rounded-full w-fit shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95">
-                  {button}
-                  <svg className="w-3 h-3 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              )}
-            </div>
+            {subtitle && <SlideCredit subtitle={subtitle} />}
           </div>
-        </article>
-      </li>
+
+          <span
+            className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-white shadow-[0_6px_14px_-6px_rgba(245,16,66,0.7)] transition-transform duration-300 ease-out group-hover:scale-105"
+            aria-hidden="true"
+          >
+            <IconArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-px group-hover:-translate-y-px" stroke={2.25} />
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+
+  return (
+    <div className={SLIDE_FRAME}>
+      <SlideLink slide={slide} label={label}>
+        {card}
+      </SlideLink>
+    </div>
+  );
+};
+
+const CtaSlide = ({ slide }: SlideProps) => {
+  const { title, button } = slide;
+  const label = button || title;
+
+  const card = (
+    <article className="group relative flex h-full min-h-[16rem] w-full flex-col items-center justify-center overflow-hidden rounded-[1.25rem] bg-[var(--color-charcoal)] px-5 py-8 text-center sm:px-6">
+      <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,249,245,0.08)]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-primary)]/12 blur-3xl" />
+
+      <div className="relative flex flex-col items-center">
+        <h2 className="font-heading text-[1.85rem] font-normal leading-[1.05] tracking-tight text-[var(--color-cream)] sm:text-[2.05rem]">
+          Discover more
+          <span className="mt-0.5 block font-display text-[var(--color-primary)]">local chefs</span>
+        </h2>
+
+        <span
+          className="mt-7 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary)] text-white shadow-[0_8px_18px_-8px_rgba(245,16,66,0.75)] transition-transform duration-300 ease-out group-hover:scale-105"
+          aria-hidden="true"
+        >
+          <IconArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-px group-hover:-translate-y-px" stroke={2.25} />
+        </span>
+      </div>
+    </article>
+  );
+
+  return (
+    <div className={`${SLIDE_FRAME} self-stretch`}>
+      <SlideLink slide={slide} label={label} className="h-full">
+        {card}
+      </SlideLink>
     </div>
   );
 };
@@ -190,49 +216,53 @@ interface CarouselControlProps {
   type: string;
   title: string;
   handleClick: () => void;
+  disabled?: boolean;
 }
 
 const CarouselControl = ({
   type,
   title,
   handleClick,
+  disabled = false,
 }: CarouselControlProps) => {
   return (
     <button
-      className={`w-12 h-12 flex items-center mx-2 justify-center bg-white border border-black/5 shadow-md rounded-full hover:bg-[var(--color-primary)] hover:text-white hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 ${
+      type="button"
+      disabled={disabled}
+      className={`flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-white shadow-[0_6px_16px_-8px_rgba(26,26,26,0.4)] transition-all duration-300 hover:scale-105 hover:bg-[var(--color-primary)] hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-white disabled:hover:text-current ${
         type === "previous" ? "rotate-180" : ""
       }`}
       title={title}
       onClick={handleClick}
     >
-      <IconArrowNarrowRight className="w-5 h-5 text-current transition-colors" />
+      <IconArrowNarrowRight className="h-4 w-4 text-current transition-colors" />
     </button>
   );
 };
 
 interface CarouselProps {
   slides: SlideData[];
+  loop?: boolean;
 }
 
-export default function Carousel({ slides }: CarouselProps) {
-  // Ensure enough slides for Embla to loop properly
+export default function Carousel({ slides, loop = true }: CarouselProps) {
   const displaySlides = [...slides];
-  if (displaySlides.length > 0 && displaySlides.length < 5) {
-    while (displaySlides.length < 5) {
+  if (loop && displaySlides.length > 0 && displaySlides.length < 8) {
+    while (displaySlides.length < 8) {
       displaySlides.push(...slides);
     }
   }
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    loop: true, 
-    align: 'center',
-    containScroll: false,
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop,
+    align: "start",
+    containScroll: loop ? false : "trimSnaps",
     dragFree: false,
     skipSnaps: false,
-    inViewThreshold: 0.7
   });
-  
-  const [current, setCurrent] = useState(0);
+
+  const [canPrev, setCanPrev] = useState(loop);
+  const [canNext, setCanNext] = useState(true);
 
   const handlePreviousClick = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -242,70 +272,54 @@ export default function Carousel({ slides }: CarouselProps) {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  const handleSlideClick = useCallback((index: number) => {
-    if (emblaApi) {
-      // Find the shortest path to the slide to respect loop
-      emblaApi.scrollTo(index);
-    }
-  }, [emblaApi]);
-
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
-    setCurrent(emblaApi.selectedScrollSnap());
+    setCanPrev(emblaApi.canScrollPrev());
+    setCanNext(emblaApi.canScrollNext());
   }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
-    
+
     onSelect();
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
-    
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+
     return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
     };
   }, [emblaApi, onSelect]);
 
-  const id = useId();
-
   return (
-    <div
-      className="relative w-full max-w-full py-10"
-      aria-labelledby={`carousel-heading-${id}`}
-    >
+    <div className="relative w-full px-4 sm:px-5 md:px-6">
       <div className="embla w-full overflow-hidden" ref={emblaRef}>
-        <ul className="embla__container flex touch-pan-y h-full" style={{ backfaceVisibility: 'hidden' }}>
-          {displaySlides.map((slide, index) => {
-            const totalSlides = displaySlides.length;
-            let diff = index - current;
-            if (diff > totalSlides / 2) diff -= totalSlides;
-            if (diff < -totalSlides / 2) diff += totalSlides;
-            const isActive = diff === 0;
-
-            return (
-              <Slide
-                key={index}
-                slide={slide}
-                index={index}
-                isActive={isActive}
-                handleSlideClick={handleSlideClick}
-              />
-            );
-          })}
-        </ul>
+        <div
+          className="embla__container flex h-full items-stretch touch-pan-y"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          {displaySlides.map((slide, index) =>
+            slide.variant === "cta" ? (
+              <CtaSlide key={`cta-${index}`} slide={slide} />
+            ) : (
+              <Slide key={`${slide.title}-${index}`} slide={slide} />
+            )
+          )}
+        </div>
       </div>
 
-      <div className="absolute flex justify-center w-full bottom-[-1rem]">
+      <div className="mt-4 flex items-center justify-start gap-2 overflow-visible pt-1">
         <CarouselControl
           type="previous"
           title="Go to previous slide"
           handleClick={handlePreviousClick}
+          disabled={!canPrev}
         />
         <CarouselControl
           type="next"
           title="Go to next slide"
           handleClick={handleNextClick}
+          disabled={!canNext}
         />
       </div>
     </div>
