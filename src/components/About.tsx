@@ -93,7 +93,7 @@ export default function About() {
   }, [])
 
   return (
-    <section id="about" className="py-24 md:py-32 relative overflow-hidden">
+    <section id="about" className="py-24 md:py-32 relative">
       {/* Floating Food Decoration - Biryani with 3D Parallax (like Done Drinks) */}
       {/* HIDDEN on laptop and below (< 1536px) to prevent overlap with "Empowering Local Chefs" content */}
       {/* Only visible on 2xl+ screens (1536px+) where there's enough space */}
@@ -118,7 +118,7 @@ export default function About() {
       </div>
       
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-primary)]/5 to-transparent rounded-l-[100px] -z-10" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--color-primary)]/5 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4" />
       <div className="parallax-bg absolute bottom-20 left-10 w-64 h-64 bg-[var(--color-butter)] rounded-full blur-3xl opacity-40" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full box-border overflow-x-clip">

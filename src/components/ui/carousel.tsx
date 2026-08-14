@@ -1,6 +1,7 @@
 "use client";
 
 import { IconArrowNarrowRight, IconArrowUpRight } from "@tabler/icons-react";
+import { Camera, Clock } from "lucide-react";
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 
@@ -12,6 +13,9 @@ export interface SlideData {
   subtitle?: string;
   avatar?: string;
   variant?: "cta";
+  meta?: { label: string; value: string }[];
+  priceBadge?: string;
+  address?: string;
 }
 
 interface SlideProps {
@@ -34,7 +38,7 @@ function SlideCredit({ subtitle }: { subtitle: string }) {
   }
 
   return (
-    <p className="mt-1 truncate font-body text-[11px] font-normal text-[var(--color-charcoal)]/50">
+    <p className="mt-1 line-clamp-2 font-body text-[11px] font-normal leading-relaxed text-[var(--color-charcoal)]/50">
       {subtitle}
     </p>
   );
@@ -107,7 +111,7 @@ const Slide = ({ slide }: SlideProps) => {
   const [imgError, setImgError] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
-  const { src, button, title, subtitle, avatar } = slide;
+  const { src, button, title, subtitle, avatar, meta, priceBadge, address } = slide;
   const label = `${button} — ${title}`;
 
   const card = (
@@ -125,14 +129,33 @@ const Slide = ({ slide }: SlideProps) => {
               decoding="async"
             />
           ) : (
-            <div
-              className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at 2px 2px, var(--color-charcoal) 1px, transparent 0)",
-                backgroundSize: "22px 22px",
-              }}
-            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#FFF8F5] to-white group-hover:from-white transition-colors duration-500 overflow-hidden">
+              <div
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(var(--color-primary) 1.5px, transparent 0)",
+                  backgroundSize: "16px 16px",
+                }}
+              />
+              <div className="relative z-10 flex flex-col items-center text-center px-4">
+                <div className="w-10 h-10 rounded-xl bg-white/90 shadow-sm border border-[var(--color-primary)]/10 flex items-center justify-center mb-2 transform transition-transform group-hover:scale-110 group-hover:-rotate-3 duration-300 relative">
+                  <Camera className="w-5 h-5 text-[var(--color-primary)]" strokeWidth={1.5} />
+                  <div className="absolute -bottom-1.5 -right-1.5 bg-white rounded-full p-0.5 shadow-sm border border-black/5">
+                    <Clock className="w-3.5 h-3.5 text-[var(--color-primary)]" strokeWidth={2} />
+                  </div>
+                </div>
+                <h3 className="text-[var(--color-charcoal)] font-heading font-medium text-xs leading-tight mb-1 opacity-90">Visuals in the Oven</h3>
+                <p className="text-[var(--color-charcoal-light)] font-body text-[9px] leading-relaxed max-w-[130px] opacity-75">
+                  High-quality photos coming soon
+                </p>
+              </div>
+            </div>
+          )}
+          {priceBadge && (
+            <div className="absolute top-2.5 right-2.5 z-20 bg-white/95 backdrop-blur-sm rounded-full px-2.5 py-1 text-[11px] font-bold text-[var(--color-charcoal)] shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+              {priceBadge}
+            </div>
           )}
 
           <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(26,26,26,0.08)]" />
@@ -141,7 +164,7 @@ const Slide = ({ slide }: SlideProps) => {
         </div>
       </div>
 
-      <div className="relative px-3.5 pb-3.5 pt-11 sm:px-4 sm:pt-12">
+      <div className="relative flex flex-col flex-1 px-3.5 pb-3.5 pt-11 sm:px-4 sm:pt-12">
         <SlidePortrait
           avatar={avatar}
           subtitle={subtitle}
@@ -150,28 +173,48 @@ const Slide = ({ slide }: SlideProps) => {
           onAvatarError={() => setAvatarError(true)}
         />
 
-        <div className="flex items-end justify-between gap-2">
-          <div className="min-w-0 flex-1 pr-1">
-            <h2 className="font-heading text-sm font-normal leading-snug tracking-tight text-[var(--color-charcoal)] sm:text-base">
-              <span className="line-clamp-1">{title}</span>
-            </h2>
-            {subtitle && <SlideCredit subtitle={subtitle} />}
+        <div className="flex flex-col flex-1 gap-2.5">
+          <div className="flex items-end justify-between gap-2">
+            <div className="min-w-0 flex-1 pr-1">
+              <h2 className="font-heading text-sm font-normal leading-snug tracking-tight text-[var(--color-charcoal)] sm:text-base">
+                <span className="line-clamp-2">{title}</span>
+              </h2>
+              {subtitle && <SlideCredit subtitle={subtitle} />}
+              {address && (
+                <p className="mt-0.5 line-clamp-2 font-body text-[10px] leading-relaxed text-[var(--color-charcoal)]/40">
+                  {address}
+                </p>
+              )}
+            </div>
+
+            <span
+              className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-white shadow-[0_6px_14px_-6px_rgba(245,16,66,0.7)] transition-transform duration-300 ease-out group-hover:scale-105"
+              aria-hidden="true"
+            >
+              <IconArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-px group-hover:-translate-y-px" stroke={2.25} />
+            </span>
           </div>
 
-          <span
-            className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-white shadow-[0_6px_14px_-6px_rgba(245,16,66,0.7)] transition-transform duration-300 ease-out group-hover:scale-105"
-            aria-hidden="true"
-          >
-            <IconArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-px group-hover:-translate-y-px" stroke={2.25} />
-          </span>
+          <div className="mt-auto">
+            {meta && meta.length > 0 && (
+              <div className="w-full text-[12px] bg-[var(--color-cream-dark)] rounded-xl p-3 flex gap-4">
+                {meta.map((row) => (
+                  <div key={row.label} className="flex flex-col flex-1 gap-1 min-w-0">
+                    <span className="text-[var(--color-charcoal)]/60 font-medium whitespace-nowrap text-[10px] uppercase tracking-wider">{row.label}</span>
+                    <span className="font-semibold text-[var(--color-charcoal)] break-words">{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </article>
   );
 
   return (
-    <div className={SLIDE_FRAME}>
-      <SlideLink slide={slide} label={label}>
+    <div className={`${SLIDE_FRAME} self-stretch`}>
+      <SlideLink slide={slide} label={label} className="h-full">
         {card}
       </SlideLink>
     </div>
@@ -293,7 +336,7 @@ export default function Carousel({ slides, loop = true }: CarouselProps) {
 
   return (
     <div className="relative w-full px-4 sm:px-5 md:px-6">
-      <div className="embla w-full overflow-hidden" ref={emblaRef}>
+      <div className="embla w-full overflow-hidden pb-8 pt-2" ref={emblaRef}>
         <div
           className="embla__container flex h-full items-stretch touch-pan-y"
           style={{ backfaceVisibility: "hidden" }}

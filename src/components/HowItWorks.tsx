@@ -118,7 +118,7 @@ export default function HowItWorks() {
   }, [])
 
   return (
-    <section id="how-it-works" className="py-24 md:py-32 relative overflow-hidden">
+    <section id="how-it-works" className="py-24 md:py-32 relative">
       {/* Floating Food Decoration - Shrimp with 3D Parallax (like Done Drinks) */}
       {/* HIDDEN on laptop and below (< 1536px) to prevent overlap with content */}
       {/* Only visible on 2xl+ screens (1536px+) where there's enough space */}
@@ -142,7 +142,6 @@ export default function HowItWorks() {
       </div>
       
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-cream)] via-[var(--color-butter)]/30 to-[var(--color-cream)]" />
       <div className="parallax-bg absolute top-1/4 right-0 w-80 h-80 bg-[var(--color-primary)]/5 rounded-full blur-3xl" />
 
       <div ref={ref} className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative w-full box-border">

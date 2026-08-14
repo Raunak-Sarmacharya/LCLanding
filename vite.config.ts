@@ -20,6 +20,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/external\/locations/, '/api/public/locations')
       },
+      '/api/external/kitchens': {
+        target: 'https://chef.localcooks.ca',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/external\/kitchens/, '/api/public/kitchens')
+      },
       '/api/external/shops': {
         target: 'https://shop.localcook.shop',
         changeOrigin: true,

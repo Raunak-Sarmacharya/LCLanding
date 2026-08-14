@@ -44,7 +44,7 @@
 }
 
 /* Smooth gradient fade at bottom to eliminate harsh shadow edges */
-.embla::after {
+.section_testimonials .embla::after {
   content: '';
   position: absolute;
   bottom: 0;

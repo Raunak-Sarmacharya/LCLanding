@@ -15,21 +15,27 @@ interface ShopData {
 }
 
 const FEATURED_SHOPS_URL = 'https://shop.localcook.shop/api-featured-shops.php';
-const SHOP_BY_SLUG_URL = 'https://shop.localcook.shop/app/controllers/shop_api.php';
-/** Shops to always include even if they are missing from the curated featured list. */
-const EXTRA_SHOP_SLUGS = ['tasteofbd', 'kikibakery', 'safaaskitchen'] as const;
 /** Homepage carousel should open on these shops, in this order. */
 const START_SHOP_SLUGS = ['misitimountain', 'thewafflelady'] as const;
 
-interface LocationData {
+interface KitchenData {
   id: number;
   name: string;
-  address: string;
-  featuredKitchenImage: string | null;
-  brandImageUrl: string | null;
-  logoUrl: string | null;
-  kitchenCount: number;
   description: string | null;
+  imageUrl: string | null;
+  galleryImages: string[];
+  equipment: string[];
+  hourlyRate: number | null;
+  locationId: number;
+  locationName: string;
+  locationLogo?: string | null;
+  address: string;
+  storageSummary: {
+    hasDryStorage: boolean;
+    hasColdStorage: boolean;
+    hasFreezerStorage: boolean;
+    totalStorageUnits: number;
+  };
 }
 
 const SHOP_IMAGE_BASE = 'https://shop.localcook.shop/app/sadmin/images/';
@@ -48,13 +54,6 @@ function shopToSlide(shop: ShopData): SlideData {
   };
 }
 
-async function fetchShopBySlug(slug: string): Promise<ShopData | null> {
-  const res = await fetch(`${SHOP_BY_SLUG_URL}?slug=${encodeURIComponent(slug)}`);
-  if (!res.ok) return null;
-  const json = await res.json();
-  if (json?.status !== 200 || !Array.isArray(json.data) || json.data.length === 0) return null;
-  return json.data[0] as ShopData;
-}
 
 function orderShops(shops: ShopData[]): ShopData[] {
   const start = START_SHOP_SLUGS
@@ -85,19 +84,8 @@ export function FeaturedShopsCarousel() {
             console.log('[FeaturedPartners] Shops data:', data);
             if (Array.isArray(data)) {
               const featured = data.slice(0, 8) as ShopData[];
-              const presentSlugs = new Set(
-                featured.map((shop) => shop.slug).filter((slug): slug is string => Boolean(slug))
-              );
-
-              const extras = await Promise.all(
-                EXTRA_SHOP_SLUGS.filter((slug) => !presentSlugs.has(slug)).map(fetchShopBySlug)
-              );
-
               const slides: SlideData[] = [
-                ...orderShops([
-                  ...featured,
-                  ...extras.filter((shop): shop is ShopData => shop !== null),
-                ]).map(shopToSlide),
+                ...orderShops(featured).map(shopToSlide),
                 {
                   variant: 'cta',
                   title: 'Discover more local chefs',
@@ -146,9 +134,7 @@ export function FeaturedShopsCarousel() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* SECTION 1: FEATURED SHOPS                                      */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-12 md:py-16 overflow-hidden" id="featured-shops">
-        {/* Cohesive background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-cream)] via-[var(--color-butter)]/10 to-[var(--color-cream)]" />
+      <section className="relative py-12 md:py-16" id="featured-shops">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[var(--color-primary)]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[var(--color-gold)]/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -236,25 +222,70 @@ export function CommercialKitchensCarousel() {
   const [kitchensLoading, setKitchensLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch Locations (Commercial Kitchens)
+    // Fetch Kitchens
     async function fetchKitchens() {
       try {
-        const res = await fetch('/api/external/locations');
-        if (res.ok) {
-          const contentType = res.headers.get('content-type');
+        const [kitchensRes, locationsRes] = await Promise.all([
+          fetch('/api/external/kitchens'),
+          fetch('/api/external/locations')
+        ]);
+        if (kitchensRes.ok && locationsRes.ok) {
+          const contentType = kitchensRes.headers.get('content-type');
           if (contentType && contentType.includes('application/json')) {
-            const data: LocationData[] = await res.json();
-            const slides: SlideData[] = data.slice(0, 4).map((loc) => ({
-              title: loc.name,
-              button: 'View Availability',
-              src: loc.featuredKitchenImage || loc.brandImageUrl || KITCHEN_PLACEHOLDER,
-              link: `https://chef.localcooks.ca/kitchen-preview/${loc.id}`,
-              subtitle:
-                loc.kitchenCount > 0
-                  ? `${loc.kitchenCount} ${loc.kitchenCount === 1 ? 'kitchen' : 'kitchens'} available`
-                  : 'Commercial kitchen',
-              avatar: loc.logoUrl || undefined,
-            }));
+            const data: KitchenData[] = await kitchensRes.json();
+            const locationsData: LocationData[] = await locationsRes.json();
+            const locationMap = new Map(locationsData.map(loc => [loc.id, loc]));
+
+            const slides: SlideData[] = data.slice(0, 8).map((kitchen) => {
+              const loc = locationMap.get(kitchen.locationId);
+              let subtitle = kitchen.locationName;
+              let priceBadge: string | undefined;
+              
+              if (kitchen.hourlyRate && kitchen.hourlyRate > 0) {
+                const rate = Math.round(kitchen.hourlyRate / 100);
+                priceBadge = `$${rate}/hr`;
+              }
+
+              const meta: { label: string; value: string }[] = [];
+              if (kitchen.storageSummary) {
+                const storages = [];
+                if (kitchen.storageSummary.hasColdStorage) storages.push("Cold");
+                if (kitchen.storageSummary.hasFreezerStorage) storages.push("Freezer");
+                if (kitchen.storageSummary.hasDryStorage) storages.push("Dry");
+                
+                let storageStr = storages.join(", ");
+                if (kitchen.storageSummary.totalStorageUnits > storages.length) {
+                  const extra = kitchen.storageSummary.totalStorageUnits - storages.length;
+                  if (storages.length === 0) {
+                    storageStr = `${extra} Units`;
+                  } else {
+                    storageStr += ` +${extra}`;
+                  }
+                }
+                if (storageStr) {
+                  meta.push({ label: "Storage", value: storageStr });
+                }
+              }
+              if (kitchen.equipment && Array.isArray(kitchen.equipment) && kitchen.equipment.length > 0) {
+                let eqStr = kitchen.equipment.slice(0, 2).join(", ");
+                if (kitchen.equipment.length > 2) {
+                  eqStr += ` +${kitchen.equipment.length - 2}`;
+                }
+                meta.push({ label: "Equipment", value: eqStr });
+              }
+
+              return {
+                title: kitchen.name,
+                button: 'View Details',
+                src: kitchen.imageUrl || KITCHEN_PLACEHOLDER,
+                link: `https://chef.localcooks.ca/kitchen-preview/${kitchen.locationId}`,
+                subtitle,
+                address: kitchen.address,
+                priceBadge,
+                avatar: kitchen.locationLogo || loc?.logoUrl || undefined,
+                meta
+              };
+            });
             setKitchenSlides(slides);
           }
         }
@@ -283,9 +314,7 @@ export function CommercialKitchensCarousel() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* SECTION 2: COMMERCIAL KITCHENS                                 */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-12 md:py-16 overflow-hidden" id="commercial-kitchens">
-        {/* Subtle gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-cream)] via-white/40 to-[var(--color-cream)]" />
+      <section className="relative py-12 md:py-16" id="commercial-kitchens">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-primary)]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--color-gold)]/5 rounded-full blur-3xl pointer-events-none" />
 
