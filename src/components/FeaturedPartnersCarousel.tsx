@@ -18,6 +18,9 @@ const FEATURED_SHOPS_URL = 'https://shop.localcook.shop/api-featured-shops.php';
 /** Homepage carousel should open on these shops, in this order. */
 const START_SHOP_SLUGS = ['misitimountain', 'thewafflelady'] as const;
 
+/** Commercial kitchens should open on these, in this order. Matches against name or locationName. */
+const START_KITCHEN_NAMES = ['First Point'];
+
 interface KitchenData {
   id: number;
   name: string;
@@ -61,6 +64,20 @@ function orderShops(shops: ShopData[]): ShopData[] {
     .filter((shop): shop is ShopData => shop !== undefined);
   const startSet = new Set<string>(START_SHOP_SLUGS);
   const rest = shops.filter((shop) => !shop.slug || !startSet.has(shop.slug));
+  return [...start, ...rest];
+}
+
+function orderKitchens(kitchens: KitchenData[]): KitchenData[] {
+  const start = START_KITCHEN_NAMES
+    .map((name) => kitchens.find((k) => 
+      k.name.toLowerCase().includes(name.toLowerCase()) || 
+      k.locationName.toLowerCase().includes(name.toLowerCase())
+    ))
+    .filter((k): k is KitchenData => k !== undefined);
+  
+  const startSet = new Set(start.map(k => k.id));
+  const rest = kitchens.filter((k) => !startSet.has(k.id));
+  
   return [...start, ...rest];
 }
 
@@ -236,7 +253,9 @@ export function CommercialKitchensCarousel() {
             const locationsData: LocationData[] = await locationsRes.json();
             const locationMap = new Map(locationsData.map(loc => [loc.id, loc]));
 
-            const slides: SlideData[] = data.slice(0, 8).map((kitchen) => {
+            const orderedKitchens = orderKitchens(data).slice(0, 8);
+
+            const mappedKitchens: SlideData[] = orderedKitchens.map((kitchen) => {
               const loc = locationMap.get(kitchen.locationId);
               let subtitle = kitchen.locationName;
               let priceBadge: string | undefined;
@@ -286,6 +305,17 @@ export function CommercialKitchensCarousel() {
                 meta
               };
             });
+            
+            const slides: SlideData[] = [
+              ...mappedKitchens,
+              {
+                variant: 'cta',
+                title: 'Discover more Kitchens',
+                button: 'Discover more Kitchens',
+                link: 'https://chef.localcooks.ca/compare-kitchens',
+              },
+            ];
+
             setKitchenSlides(slides);
           }
         }
@@ -359,7 +389,7 @@ export function CommercialKitchensCarousel() {
 
         <div className="relative w-full min-h-[240px] mb-6 sm:mb-8">
           {!kitchensLoading && kitchenSlides.length > 0 ? (
-            <Carousel slides={kitchenSlides} />
+            <Carousel slides={kitchenSlides} loop={false} />
           ) : kitchensLoading ? (
             <LoadingSpinner />
           ) : (
@@ -377,10 +407,10 @@ export function CommercialKitchensCarousel() {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <a
-            href="https://chef.localcooks.ca"
+            href="https://chef.localcooks.ca/compare-kitchens"
             target="_blank"
             rel="noopener noreferrer"
-            className="group bg-[var(--color-charcoal)] hover:bg-[var(--color-charcoal-light)] text-white px-8 py-4 rounded-full font-body font-semibold text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2.5 shadow-lg shadow-black/15"
+            className="group bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-8 py-4 rounded-full font-body font-semibold text-base transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2.5 shadow-lg shadow-[var(--color-primary)]/25"
           >
             Browse All Kitchens
             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

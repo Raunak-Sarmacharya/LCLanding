@@ -232,8 +232,16 @@ const CtaSlide = ({ slide }: SlideProps) => {
 
       <div className="relative flex flex-col items-center">
         <h2 className="font-heading text-[1.85rem] font-normal leading-[1.05] tracking-tight text-[var(--color-cream)] sm:text-[2.05rem]">
-          Discover more
-          <span className="mt-0.5 block font-display text-[var(--color-primary)]">local chefs</span>
+          {title.startsWith("Discover more ") ? (
+            <>
+              Discover more
+              <span className="mt-0.5 block font-display text-[var(--color-primary)]">
+                {title.replace("Discover more ", "")}
+              </span>
+            </>
+          ) : (
+            title
+          )}
         </h2>
 
         <span

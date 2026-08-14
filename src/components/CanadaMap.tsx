@@ -364,36 +364,45 @@ export default function CanadaMap() {
 
     }, sectionRef)
 
-    // Handle window resize to refresh ScrollTrigger and recalculate marker position
-    const handleResize = () => {
-      ScrollTrigger.refresh()
-      
-      // Recalculate marker position on resize for responsive accuracy
-      if (svg && svgContainerRef.current && markerRef.current) {
-        const position = calculateMarkerPosition(
-          svg,
-          svgContainerRef.current,
-          viewBoxRef.current,
-          ST_JOHNS_COORDS
-        )
-        markerRef.current.style.left = `${position.x}%`
-        markerRef.current.style.top = `${position.y}%`
-      }
+    // Debounced refresh for performance and layout shifts
+    let refreshTimeout: ReturnType<typeof setTimeout>
+    const debouncedRefresh = () => {
+      clearTimeout(refreshTimeout)
+      refreshTimeout = setTimeout(() => {
+        ScrollTrigger.refresh()
+        
+        // Recalculate marker position on resize for responsive accuracy
+        if (svg && svgContainerRef.current && markerRef.current) {
+          const position = calculateMarkerPosition(
+            svg,
+            svgContainerRef.current,
+            viewBoxRef.current,
+            ST_JOHNS_COORDS
+          )
+          markerRef.current.style.left = `${position.x}%`
+          markerRef.current.style.top = `${position.y}%`
+        }
+      }, 100)
     }
 
-    // Debounced resize for performance
-    let resizeTimeout: ReturnType<typeof setTimeout>
-    const debouncedResize = () => {
-      clearTimeout(resizeTimeout)
-      resizeTimeout = setTimeout(handleResize, 100)
-    }
+    // Handle window resize
+    window.addEventListener('resize', debouncedRefresh)
 
-    window.addEventListener('resize', debouncedResize)
+    // Use ResizeObserver to detect layout shifts (e.g., from images loading in sections above)
+    // and refresh ScrollTrigger so the start/end positions remain accurate.
+    const resizeObserver = new ResizeObserver(() => {
+      debouncedRefresh()
+    })
+    
+    if (document.body) {
+      resizeObserver.observe(document.body)
+    }
 
     return () => {
       ctx.revert()
-      clearTimeout(resizeTimeout)
-      window.removeEventListener('resize', debouncedResize)
+      clearTimeout(refreshTimeout)
+      window.removeEventListener('resize', debouncedRefresh)
+      resizeObserver.disconnect()
     }
   }, [isReady])
 
